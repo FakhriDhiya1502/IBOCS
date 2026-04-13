@@ -237,7 +237,7 @@
 
     const user = JSON.parse(sess);
     document.getElementById("userBtn").textContent = user.name || "User";
-    document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+    document.getElementById("userInfo").textContent = `${user.email} ï¿½ role=${user.role}`;
     document.getElementById("btnLogout").addEventListener("click", () => {
       localStorage.removeItem("IBOCS_user");
       window.location.href = "index.html";
@@ -250,15 +250,21 @@
       return raw ? JSON.parse(raw) : fallback;
     }
 
+    // Demo PO aligned with master_data.js
     const DEMO_PO = [
-      { poNo: "PO-0001", poDate: "2026-04-01", receiptDate: "2026-04-05", store: "Toko Melati", status: "Open", rows: [{ qty: 10 }, { qty: 5 }] },
-      { poNo: "PO-0002", poDate: "2026-04-02", receiptDate: "2026-04-06", store: "Toko ABC", status: "Open", rows: [{ qty: 4 }, { qty: 3 }] },
-      { poNo: "PO-0003", poDate: "2026-04-03", receiptDate: "2026-04-07", store: "Toko Mawar", status: "Closed", rows: [{ qty: 8 }, { qty: 6 }] }
+      { poNo: "PO-2604-001", poDate: "2026-04-01", receiptDate: "2026-04-08", customer: "PT TOP Distribusi",           vendor: "SIC", status: "Open",   rows: [{ qty: 7500 }, { qty: 5500 }] },
+      { poNo: "PO-2604-002", poDate: "2026-04-02", receiptDate: "2026-04-09", customer: "PT TOP Distribusi",           vendor: "CTU", status: "Open",   rows: [{ qty: 10000 }, { qty: 10000 }] },
+      { poNo: "PO-2604-003", poDate: "2026-04-03", receiptDate: "2026-04-10", customer: "PT AYM (Ayam Yummy Makmur)",  vendor: "SIC", status: "Open",   rows: [{ qty: 6200 }, { qty: 4300 }] },
+      { poNo: "PO-2604-004", poDate: "2026-04-04", receiptDate: "2026-04-11", customer: "PT AYM (Ayam Yummy Makmur)",  vendor: "CTU", status: "Open",   rows: [{ qty: 8000 }, { qty: 8000 }] },
+      { poNo: "PO-2604-005", poDate: "2026-04-05", receiptDate: "2026-04-12", customer: "PT TOP Distribusi",           vendor: "SIC", status: "Closed", rows: [{ qty: 8000 }, { qty: 7000 }] },
+      { poNo: "PO-2604-006", poDate: "2026-04-06", receiptDate: "2026-04-13", customer: "PT BMAX",                     vendor: "CTU", status: "Open",   rows: [{ qty: 9500 }, { qty: 9500 }] },
+      { poNo: "PO-2604-007", poDate: "2026-04-07", receiptDate: "2026-04-14", customer: "PT BMAX",                     vendor: "SIC", status: "Open",   rows: [{ qty: 8700 }, { qty: 5700 }] }
     ];
 
     const DEMO_GRPO = [
-      { grpoNo: "GRPO-0001", grpoDate: "2026-04-05", poNo: "PO-0001", store: "Toko Melati", customer: "PT. Melati Customer Jaya", status: "Closed", rows: [{ qtyReceived: 10 }, { qtyReceived: 5 }] },
-      { grpoNo: "GRPO-0002", grpoDate: "2026-04-06", poNo: "PO-0002", store: "Toko ABC", customer: "CV. ABC Sejahtera", status: "Open", rows: [{ qtyReceived: 4 }, { qtyReceived: 2 }] }
+      { grpoNo: "GRPO-2604-001", grpoDate: "2026-04-08", poNo: "PO-2604-001", customer: "PT TOP Distribusi",          vendor: "SIC", status: "Closed", rows: [{ qtyReceived: 7500 }, { qtyReceived: 5500 }] },
+      { grpoNo: "GRPO-2604-002", grpoDate: "2026-04-09", poNo: "PO-2604-002", customer: "PT TOP Distribusi",          vendor: "CTU", status: "Open",   rows: [{ qtyReceived: 10000 }, { qtyReceived: 9000 }] },
+      { grpoNo: "GRPO-2604-003", grpoDate: "2026-04-12", poNo: "PO-2604-005", customer: "PT TOP Distribusi",          vendor: "SIC", status: "Closed", rows: [{ qtyReceived: 8000 }, { qtyReceived: 7000 }] }
     ];
     function getPoList() {
       const stored = loadJson("IBOCS_po_list", []);
@@ -418,7 +424,7 @@
       poList.filter(po => po.status === "Open" && !linkedPos.has(po.poNo)).slice(0, 3).forEach(po => {
         items.push({
           title: `${po.poNo} belum punya GRPO`,
-          meta: `${po.store || "-"} • Receipt ${po.receiptDate || "-"} • segera buat GRPO`,
+          meta: `${po.store || "-"} ï¿½ Receipt ${po.receiptDate || "-"} ï¿½ segera buat GRPO`,
           tag: '<span class="tag tag-pending">Need GRPO</span>'
         });
       });
@@ -426,7 +432,7 @@
       grpoList.filter(grpo => grpo.status === "Open").slice(0, 3).forEach(grpo => {
         items.push({
           title: `${grpo.grpoNo} masih open`,
-          meta: `${grpo.poNo || "-"} • ${grpo.store || grpo.customer || "-"} • qty belum lengkap`,
+          meta: `${grpo.poNo || "-"} ï¿½ ${grpo.store || grpo.customer || "-"} ï¿½ qty belum lengkap`,
           tag: '<span class="tag tag-open">Open GRPO</span>'
         });
       });

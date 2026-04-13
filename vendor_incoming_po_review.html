@@ -374,9 +374,9 @@
                                 <div class="info-item">
                                     <div class="i-label">Warehouse</div>
                                     <select id="infoWhseSelect" class="form-select form-select-sm" style="font-size: 13px; font-weight: 600; color: #166534; padding: 2px 24px 2px 8px; height: auto; border: 1px solid var(--line); border-radius: 6px;">
-                                        <option value="WH-MAIN">WH-MAIN</option>
-                                        <option value="WH-NORTH">WH-NORTH</option>
-                                        <option value="WH-EAST">WH-EAST</option>
+                                        <option value="WH-KDG01">WH-KDG01 — Gudang Kandang 01</option>
+                                        <option value="WH-KDG02">WH-KDG02 — Gudang Kandang 02</option>
+                                        <option value="WH-KDG03">WH-KDG03 — Gudang Kandang 03</option>
                                     </select>
                                 </div>
                                 <div class="info-item">
@@ -524,35 +524,101 @@
         // ============================
         // DATA SOURCE
         // ============================
+        const LS_VENDOR_ORDERS = "IBOCS_vendor_incoming_po";
+
+        const DEMO_INCOMING_PO = [
+            // ── SIC Incoming POs (Feed / Pakan) ──────────────────────────────────
+            {
+                poRef: "PO-2604-001", poDate: "2026-04-01", deliveryDate: "2026-04-08",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "Kirim pagi sebelum jam 08.00",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG01",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 7500, price: 50000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 5500, price: 48000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-003", poDate: "2026-04-03", deliveryDate: "2026-04-10",
+                customer: "PT AYM (Ayam Yummy Makmur)", contact: "Dewi Rahayu",
+                address: "Jl. Poultry No. 12, Binjai",
+                notes: "",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG03",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 6200, price: 50000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 4300, price: 48000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-005", poDate: "2026-04-05", deliveryDate: "2026-04-12",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "PO sebelumnya — sudah selesai",
+                vendorName: "SIC", status: "Closed", whse: "WH-KDG02",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 8000, price: 50000 },
+                    { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 7000, price: 46000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-007", poDate: "2026-04-07", deliveryDate: "2026-04-14",
+                customer: "PT BMAX", contact: "Andi Susanto",
+                address: "Jl. Farm Raya No. 5, Binjai",
+                notes: "",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG02",
+                items: [
+                    { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 8700, price: 46000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 5700, price: 48000 }
+                ]
+            },
+            // ── CTU Incoming POs (DOC / Day-Old-Chick) ───────────────────────────
+            {
+                poRef: "PO-2604-002", poDate: "2026-04-02", deliveryDate: "2026-04-09",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "Pastikan kondisi DOC sehat & aktif",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG01",
+                items: [
+                    { sku: "DOC-001", name: "DOC Broiler Cobb 500 (M)", origQty: 10000, price: 7500 },
+                    { sku: "DOC-002", name: "DOC Broiler Cobb 500 (F)", origQty: 10000, price: 7000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-004", poDate: "2026-04-04", deliveryDate: "2026-04-11",
+                customer: "PT AYM (Ayam Yummy Makmur)", contact: "Dewi Rahayu",
+                address: "Jl. Poultry No. 12, Binjai",
+                notes: "Perlu sertifikat veteriner",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG03",
+                items: [
+                    { sku: "DOC-007", name: "DOC Hubbard (M)", origQty: 8000, price: 9000 },
+                    { sku: "DOC-008", name: "DOC Hubbard (F)", origQty: 8000, price: 8500 }
+                ]
+            },
+            {
+                poRef: "PO-2604-006", poDate: "2026-04-06", deliveryDate: "2026-04-13",
+                customer: "PT BMAX", contact: "Andi Susanto",
+                address: "Jl. Farm Raya No. 5, Binjai",
+                notes: "",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG02",
+                items: [
+                    { sku: "DOC-005", name: "DOC Layer Lohmann (M)", origQty: 9500, price: 12000 },
+                    { sku: "DOC-006", name: "DOC Layer Lohmann (F)", origQty: 9500, price: 11000 }
+                ]
+            }
+        ];
+
         let currentPO = null;
 
         function getPO(poRef) {
-            const LS_ORDERS = "IBOCS_customer_orders";
-            const LS_ORDER_LINES = "IBOCS_customer_order_lines";
-            
-            const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
-            const orderLines = JSON.parse(localStorage.getItem(LS_ORDER_LINES) || "{}");
-            
-            const o = orders.find(x => x.no === poRef);
-            if (!o) return null;
-            
-            const lines = orderLines[o.no] || [];
+            const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
+            const base = DEMO_INCOMING_PO.find(p => p.poRef === poRef);
+            if (!base) return null;
+            const override = stored[poRef] || {};
             return {
-                poRef: o.no,
-                vendor: o.customerName || o.customer || "Toko Customer",
-                poDate: o.date,
-                deliveryDate: o.requiredDate || o.date,
-                contact: o.contact || "-",
-                address: o.address || "-",
-                notes: o.notes || "",
-                status: o.status || "Pending",
-                whse: o.warehouse || "WH-MAIN",
-                items: lines.map(l => ({
-                    sku: l.sku || "N/A",
-                    name: l.name || l.product,
-                    origQty: parseInt(l.qty) || 0,
-                    price: parseFloat(l.price) || 0
-                }))
+                ...base,
+                status: override.status || base.status,
+                whse: override.whse || base.whse
             };
         }
 
@@ -574,7 +640,7 @@
 
             // populate header
             document.getElementById("infoPORef").textContent = currentPO.poRef;
-            document.getElementById("infoCustomer").textContent = currentPO.vendor;
+            document.getElementById("infoCustomer").textContent = currentPO.customer;
             document.getElementById("infoPODate").textContent = currentPO.poDate;
             document.getElementById("infoDelivery").textContent = currentPO.deliveryDate;
             document.getElementById("infoContact").textContent = currentPO.contact;
@@ -707,15 +773,12 @@
         function finalConfirm() {
             if (currentPO) {
                 const whse = document.getElementById("infoWhseSelect").value;
-                const orders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
-                const idx = orders.findIndex(o => o.no === currentPO.poRef);
-                if (idx !== -1) {
-                    orders[idx].status = "Confirmed";
-                    orders[idx].warehouse = whse;
-                    localStorage.setItem("IBOCS_customer_orders", JSON.stringify(orders));
-                }
+                const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
+                stored[currentPO.poRef] = stored[currentPO.poRef] || {};
+                stored[currentPO.poRef].status = "Closed";
+                stored[currentPO.poRef].whse = whse;
+                localStorage.setItem(LS_VENDOR_ORDERS, JSON.stringify(stored));
             }
-            // Wire up real API call here
             closeConfirmModal();
             alert("Sales Order generated successfully!\n\nSO-202604-XXXX has been created.\n(Wire up backend logic here)");
             window.location.href = "vendor_incoming_po_list.html";
@@ -724,12 +787,10 @@
         function rejectPO() {
             if (confirm("Are you sure you want to reject this PO?\n\nThe customer will be notified.")) {
                 if (currentPO) {
-                    const orders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
-                    const idx = orders.findIndex(o => o.no === currentPO.poRef);
-                    if (idx !== -1) {
-                        orders[idx].status = "Rejected";
-                        localStorage.setItem("IBOCS_customer_orders", JSON.stringify(orders));
-                    }
+                    const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
+                    stored[currentPO.poRef] = stored[currentPO.poRef] || {};
+                    stored[currentPO.poRef].status = "Rejected";
+                    localStorage.setItem(LS_VENDOR_ORDERS, JSON.stringify(stored));
                 }
                 alert("PO rejected. (Wire up backend logic here)");
                 window.location.href = "vendor_incoming_po_list.html";
