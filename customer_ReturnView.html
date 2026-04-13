@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Return View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f5f7fb; color:#1f2937; }
+        .page-shell { max-width:100%; border-radius:12px; background:#fff; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+        .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+        .topbar h1 { margin:0; font-size:24px; }
+        .subtext { margin-top:6px; font-size:13px; color:#6b7280; }
+        .card { background:#fff; border-radius:14px; margin-bottom:18px; box-shadow:0 2px 10px rgba(0,0,0,.05); overflow:hidden; border:1px solid #eef0f4; }
+        .card-header { padding:14px 16px; font-weight:700; border-bottom:1px solid #eef0f4; background:#fafbfc; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .card-body { padding:16px; }
+        .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; }
+        .field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:6px; }
+        .field input, .field textarea { width:100%; min-height:38px; border:1px solid #d5dae3; border-radius:8px; padding:8px 11px; font-size:13px; background:#f9fafc; color:#374151; }
+        .field textarea { min-height:86px; resize:vertical; }
+        .summary-strip { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+        .summary-box { border:1px solid #e8ebf1; border-radius:10px; padding:12px; background:#fafbfe; }
+        .summary-box .label { font-size:11px; color:#666; margin-bottom:6px; }
+        .summary-box .value { font-size:18px; font-weight:700; }
+        .tag { display:inline-block; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+        .tag-deduction { background:#fff7ed; color:#9a3412; }
+        .tag-approved { background:#dcfce7; color:#166534; }
+        .tag-grpo { background:#f3f4f6; color:#374151; }
+        .alert-box { border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.5; }
+        .alert-info-soft { background:#eff6ff; border:1px solid #93c5fd; color:#1d4ed8; }
+        .alert-warning-soft { background:#fff7ed; border:1px solid #fdba74; color:#9a3412; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; min-width:1200px; }
+        th, td { padding:10px 12px; border-bottom:1px solid #edf0f5; font-size:13px; text-align:left; vertical-align:middle; }
+        th { background:#f9fafc; font-size:12px; color:#555; font-weight:700; white-space:nowrap; }
+        .btn-soft, .btn-main { border:0; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:700; text-decoration:none; display:inline-block; }
+        .btn-soft { background:#e5e7eb; color:#111827; }
+        .btn-main { background:#2563eb; color:#fff; }
+        .btn-collapse { border:1px solid #d5dae3; border-radius:8px; padding:7px 12px; background:#fff; color:#374151; font-size:12px; font-weight:700; }
+        .link-chip { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; text-decoration:none; background:#eff4ff; color:#1d4ed8; }
+        @media (max-width: 1100px) { .grid, .summary-strip { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 700px) { .grid, .summary-strip { grid-template-columns:1fr; } .topbar { flex-direction:column; align-items:stretch; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-lg-2" id="sidebar-container"></div>
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-success fw-bold"><i class="bi bi-arrow-return-left me-2"></i>Return Management</h4>
+                </div>
+
+                <div class="page-shell">
+                    <div class="topbar">
+                        <div>
+                            <h1>View Return</h1>
+                            <div class="subtext">Customer handles operational input. Vendor reviews only deduction return that impacts billing control.</div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="customer_ReturnList.html" class="btn-soft">Back to List</a>
+                        </div>
+                    </div>
+
+                    <div id="roleIntentBanner" class="alert-box alert-info-soft mb-3"></div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>Return Information</span>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="tag tag-deduction" id="returnTypeTag">Billing Deduction Return</span>
+                                <span class="tag tag-approved" id="statusTag">Submitted</span>
+                                <span class="tag tag-grpo">Created by Customer</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Return No</label>
+                                    <input type="text" id="infoReturnNo" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Return Date</label>
+                                    <input type="text" id="infoReturnDate" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <input type="text" id="infoCustomer" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Status</label>
+                                    <input type="text" id="returnStatus" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Reference GRPO</label>
+                                    <input type="text" id="infoGrpo" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Billing Reference</label>
+                                    <input type="text" id="infoBillingRef" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Return Type</label>
+                                    <input type="text" id="infoReturnType" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Created By</label>
+                                    <input type="text" id="infoCreatedBy" readonly>
+                                </div>
+                                <div class="field" style="grid-column: span 4;">
+                                    <label>Remarks</label>
+                                    <textarea id="infoRemarks" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="approvalCard">
+                        <div class="card-header">Approval Information</div>
+                        <div class="card-body">
+                            <div id="approvalReadOnlyBanner" class="alert-box alert-info-soft mb-3" style="display:none;"></div>
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Approved By</label>
+                                    <input type="text" id="approvedBy" value="-" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Approval Date</label>
+                                    <input type="text" id="approvalDate" value="-" readonly>
+                                </div>
+                                <div class="field" style="grid-column: span 2;">
+                                    <label>Approval Remarks</label>
+                                    <input type="text" id="approvalRemarks" value="Pending vendor review." readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>Financial Impact Information</span>
+                            <button class="btn-collapse" type="button" id="toggleFinancialInfo">Hide</button>
+                        </div>
+                        <div class="card-body" id="financialImpactBody">
+                            <div id="financialImpactBanner" class="alert-box alert-info-soft mb-3"></div>
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Billing No</label>
+                                    <input type="text" id="impactBillingNo" value="BILL-202604-0002" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Billing Status</label>
+                                    <input type="text" id="impactBillingStatus" value="Confirmed" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Billing Impact Status</label>
+                                    <input type="text" id="impactStatus" value="Original Billing Locked - Credit Memo Flow" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Financial Treatment</label>
+                                    <input type="text" id="impactMethod" value="Credit Memo Required" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Gross Billing Amount</label>
+                                    <input type="text" id="impactGross" value="Rp 4.975.000" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Return Amount</label>
+                                    <input type="text" id="impactReturn" value="Rp 2.840.000" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Net Billing Amount</label>
+                                    <input type="text" id="impactNet" value="Rp 2.135.000" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Credit Memo No</label>
+                                    <input type="text" id="impactCreditMemoNo" value="CM-202604-0001" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Credit Memo Date</label>
+                                    <input type="text" id="impactCreditMemoDate" value="04-Apr-2026" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Credit Memo Status</label>
+                                    <input type="text" id="impactCreditMemoStatus" value="Pending" readonly>
+                                </div>
+                            </div>
+                            <div class="mt-3" id="creditMemoActionWrap" style="display:none;">
+                                <a id="openCreditMemoAction" class="link-chip" href="#">Open Credit Memo</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Summary</div>
+                        <div class="card-body">
+                            <div class="summary-strip">
+                                <div class="summary-box">
+                                    <div class="label">Reference GRPO Total</div>
+                                    <div class="value" id="sumGrpoTotal">-</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Return Qty</div>
+                                    <div class="value" id="sumReturnQty">-</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Estimated Return Amount</div>
+                                    <div class="value" id="sumReturnAmount">-</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Impact Type</div>
+                                    <div class="value" id="sumImpactType">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>Return Items</span>
+                            <span class="tag tag-grpo">GRPO Final Reference</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert-box alert-info-soft mb-3">
+                                Return document ini hanya mencatat qty yang direturn. GRPO original tetap final dan tidak diedit.
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Name</th>
+                                            <th>GRPO Qty</th>
+                                            <th>Already Returned Qty</th>
+                                            <th>Available Qty at Creation</th>
+                                            <th>Return Qty</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="returnItemsBody">
+                                        <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">© 2026 IBOCS - Vendor Portal</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="credit_memo_storage.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        const LS_RETURN = "IBOCS_return_list";
+        const demoReturn = {
+            no: "RET-202604-0002",
+            date: "03-Apr-2026",
+            customer: "Golden Crust Bakery",
+            type: "Deduction",
+            grpo: "GRPO-202604-0021",
+            billingRef: "BILL-202604-0002",
+            qty: 78,
+            amount: 2840000,
+            grpoAmount: 4975000,
+            billingStatus: "Confirmed",
+            financialTreatment: "Credit Memo Required",
+            grossBillingAmount: 4975000,
+            netBillingAmount: 2135000,
+            billingImpactStatus: "Original Billing Locked - Credit Memo Flow",
+            creditMemoNo: "CM-202604-0001",
+            creditMemoDate: "04-Apr-2026",
+            creditMemoStatus: "Pending",
+            status: "Submitted",
+            by: "Customer - Michael",
+            remarks: "Customer requested billing deduction due to expired and slow-moving stock. Return is processed separately from GRPO and does not alter the original receipt document.",
+            approvalInfo: {
+                approvedBy: "",
+                approvalDate: "",
+                approvalRemarks: "Pending vendor review."
+            },
+            lines: [
+                { itemCode: "BRD-003", itemName: "Milk Bread", grpoQty: 120, alreadyReturnedQty: 12, availableQty: 108, returnQty: 30, reason: "Expired" },
+                { itemCode: "BRD-008", itemName: "Sugar Donut", grpoQty: 90, alreadyReturnedQty: 5, availableQty: 85, returnQty: 18, reason: "Unsold" },
+                { itemCode: "BRD-011", itemName: "Cheese Roll", grpoQty: 100, alreadyReturnedQty: 6, availableQty: 94, returnQty: 30, reason: "Damage" }
+            ]
+        };
+        let currentReturn = null;
+
+        function loadReturnList() {
+            return JSON.parse(localStorage.getItem(LS_RETURN) || "[]");
+        }
+
+        function getReturnNo() {
+            return new URLSearchParams(window.location.search).get("retNo");
+        }
+
+        function rupiah(value) {
+            return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value || 0);
+        }
+
+        function loadCurrentReturn() {
+            const retNo = getReturnNo();
+            const found = loadReturnList().find((item) => item.no === retNo);
+            currentReturn = found || demoReturn;
+        }
+
+        function renderReturnData() {
+            const r = currentReturn;
+            const typeLabel = r.type === "Regular" ? "Regular Return" : "Billing Deduction Return";
+
+            // Header info
+            document.getElementById("infoReturnNo").value = r.no || "-";
+            document.getElementById("infoReturnDate").value = r.date || "-";
+            document.getElementById("infoCustomer").value = r.customer || "-";
+            document.getElementById("returnStatus").value = r.status || "-";
+            document.getElementById("infoGrpo").value = r.grpo || "-";
+            document.getElementById("infoBillingRef").value = r.billingRef || "-";
+            document.getElementById("infoReturnType").value = typeLabel;
+            document.getElementById("infoCreatedBy").value = r.by || "-";
+            document.getElementById("infoRemarks").value = r.remarks || "";
+            document.getElementById("returnTypeTag").textContent = typeLabel;
+
+            // Financial impact
+            document.getElementById("impactBillingNo").value = r.billingRef || "-";
+            document.getElementById("impactBillingStatus").value = r.billingStatus || "-";
+            document.getElementById("impactStatus").value = r.billingImpactStatus || "-";
+            document.getElementById("impactMethod").value = r.financialTreatment || "-";
+            document.getElementById("impactGross").value = rupiah(r.grossBillingAmount || r.grpoAmount);
+            document.getElementById("impactReturn").value = rupiah(r.amount);
+            document.getElementById("impactNet").value = rupiah(r.netBillingAmount || 0);
+            document.getElementById("impactCreditMemoNo").value = r.creditMemoNo || "-";
+            document.getElementById("impactCreditMemoDate").value = r.creditMemoDate || "-";
+            document.getElementById("impactCreditMemoStatus").value = r.creditMemoStatus || "-";
+
+            const creditMemoActionWrap = document.getElementById("creditMemoActionWrap");
+            const openCreditMemoAction = document.getElementById("openCreditMemoAction");
+            if (r.creditMemoNo && r.creditMemoNo !== "-") {
+                creditMemoActionWrap.style.display = "block";
+                openCreditMemoAction.href = `customer_CreditMemoView.html?memoNo=${encodeURIComponent(r.creditMemoNo)}`;
+                openCreditMemoAction.textContent = `Open Credit Memo ${r.creditMemoNo}`;
+            } else {
+                creditMemoActionWrap.style.display = "none";
+            }
+
+            // Approval info
+            document.getElementById("approvedBy").value = r.approvalInfo?.approvedBy || "-";
+            document.getElementById("approvalDate").value = r.approvalInfo?.approvalDate || "-";
+            document.getElementById("approvalRemarks").value = r.approvalInfo?.approvalRemarks || "Pending vendor review.";
+
+            // Summary strip
+            document.getElementById("sumGrpoTotal").textContent = rupiah(r.grpoAmount || r.grossBillingAmount || 0);
+            document.getElementById("sumReturnQty").textContent = r.qty || 0;
+            document.getElementById("sumReturnAmount").textContent = rupiah(r.amount || 0);
+            document.getElementById("sumImpactType").textContent = r.type === "Regular" ? "Operational" : "High Impact";
+
+            // Items table
+            const tbody = document.getElementById("returnItemsBody");
+            const lines = r.lines || [];
+            if (lines.length) {
+                tbody.innerHTML = lines.map(line => `
+                    <tr>
+                        <td>${line.itemCode || "-"}</td>
+                        <td>${line.itemName || "-"}</td>
+                        <td>${line.grpoQty ?? "-"}</td>
+                        <td>${line.alreadyReturnedQty ?? "-"}</td>
+                        <td>${line.availableQty ?? "-"}</td>
+                        <td>${line.returnQty ?? "-"}</td>
+                        <td>${line.reason || "-"}</td>
+                    </tr>`).join("");
+            } else {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada item.</td></tr>';
+            }
+
+            // Financial banner
+            const financialImpactBanner = document.getElementById("financialImpactBanner");
+            if (["Confirmed", "Final", "Posted"].includes(r.billingStatus)) {
+                financialImpactBanner.className = "alert-box alert-warning-soft mb-3";
+                financialImpactBanner.innerHTML = "<strong>Original Billing cannot be changed.</strong> Return ini akan berdampak melalui Credit Memo sebagai adjustment document terpisah agar histori billing tetap utuh.";
+            } else {
+                financialImpactBanner.className = "alert-box alert-info-soft mb-3";
+                financialImpactBanner.innerHTML = "<strong>Direct Billing Reduction:</strong> Billing masih open/draft, sehingga return dapat mengurangi billing aktif tanpa mengubah GRPO.";
+            }
+
+        }
+
+        function syncViewByRole() {
+            const isVendor = user.role === "vendor";
+            const needsApproval = currentReturn.type === "Deduction" && currentReturn.status === "Submitted";
+            const approvalCard = document.getElementById("approvalCard");
+            const roleIntentBanner = document.getElementById("roleIntentBanner");
+            const approvalReadOnlyBanner = document.getElementById("approvalReadOnlyBanner");
+            const statusTag = document.getElementById("statusTag");
+
+            document.getElementById("returnStatus").value = currentReturn.status;
+            statusTag.textContent = currentReturn.status;
+            statusTag.className = "tag tag-approved";
+
+            if (needsApproval) {
+                statusTag.className = "tag tag-deduction";
+                statusTag.textContent = "Waiting for Vendor Approval";
+            } else if (currentReturn.status === "Rejected") {
+                statusTag.className = "tag tag-grpo";
+            }
+
+            if (isVendor) {
+                roleIntentBanner.className = "alert-box alert-warning-soft mb-3";
+                roleIntentBanner.innerHTML = "<strong>Vendor view:</strong> Customer already created this return. Your role is to control financial impact by approving or rejecting deduction return.";
+            } else {
+                roleIntentBanner.className = "alert-box alert-info-soft mb-3";
+                roleIntentBanner.innerHTML = "<strong>Customer view:</strong> Return input is operational evidence from store. Approval decision remains under Vendor control for deduction return.";
+            }
+
+            if (currentReturn.type === "Deduction") {
+                approvalCard.style.display = "block";
+            } else {
+                approvalCard.style.display = "none";
+            }
+
+            if (needsApproval && isVendor) {
+                approvalReadOnlyBanner.style.display = "none";
+            } else if (currentReturn.type === "Deduction") {
+                approvalReadOnlyBanner.style.display = "block";
+                approvalReadOnlyBanner.innerHTML = isVendor
+                    ? "<strong>Approval state:</strong> This return is no longer awaiting approval action."
+                    : "<strong>Read only:</strong> Vendor approval is required for deduction return. Customer cannot take approval action.";
+            }
+        }
+
+        document.getElementById("toggleFinancialInfo")?.addEventListener("click", () => {
+            const body = document.getElementById("financialImpactBody");
+            const btn = document.getElementById("toggleFinancialInfo");
+            const hidden = body.style.display === "none";
+            body.style.display = hidden ? "block" : "none";
+            btn.textContent = hidden ? "Hide" : "Show";
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'return-management').render();
+            CreditMemoStorage.synchronize();
+            loadCurrentReturn();
+            renderReturnData();
+            syncViewByRole();
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+

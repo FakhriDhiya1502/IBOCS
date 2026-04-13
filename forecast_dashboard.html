@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forecast Dashboard | IBOCS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f6fb; color: #1f2937; }
+    :root {
+      --line: #d9e2ec; --line-soft: #e8eef5; --soft: #f8fbff; --muted: #6b7280;
+      --title: #0f172a; --primary: #1a237e; --primary-dark: #111766;
+      --success: #166534; --success-bg: #dcfce7; --info: #1d4ed8; --info-bg: #dbeafe;
+      --warning: #92400e; --warning-bg: #fef3c7; --danger: #991b1b; --danger-bg: #fee2e2;
+    }
+    .page-shell { background: #fff; border: 1px solid #e7edf5; border-radius: 18px; padding: 28px; box-shadow: 0 10px 28px rgba(15,23,42,.05); }
+    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--line-soft); }
+    .hero-title { margin: 0 0 6px; font-size: 26px; font-weight: 700; color: var(--title); }
+    .hero-subtitle { margin: 0; font-size: 13px; color: var(--muted); }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .week-select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); color: var(--title); }
+    .header-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .header-chip { background: var(--soft); border: 1px solid var(--line); color: var(--muted); border-radius: 20px; padding: 5px 12px; font-size: 12px; }
+    /* KPI grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-card { min-height: 110px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); cursor: default; }
+    .kpi-label { margin-bottom: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .kpi-value { font-size: 28px; font-weight: 700; line-height: 1.1; color: var(--title); }
+    .kpi-note { margin-top: 6px; font-size: 12px; color: var(--muted); }
+    .kpi-value.text-danger { color: #dc3545; }
+    .kpi-value.text-success { color: #16a34a; }
+    .kpi-value.text-warning { color: #d97706; }
+    /* Section cards */
+    .section-card { margin-bottom: 22px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 4px 18px rgba(15,23,42,.04); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 15px 20px; background: var(--soft); border-bottom: 1px solid var(--line-soft); }
+    .section-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--title); }
+    .section-subtitle { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+    .section-body { padding: 20px; }
+    /* Category divider */
+    .category-divider { display: flex; align-items: center; gap: 12px; margin: 28px 0 18px; }
+    .category-divider-line { flex: 1; height: 1px; background: var(--line-soft); }
+    .category-divider-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+    /* Charts */
+    .chart-row { display: grid; gap: 16px; grid-template-columns: 1.4fr 1fr; margin-bottom: 16px; }
+    .chart-panel { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .chart-panel-title { margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--title); }
+    .chart-panel canvas { width: 100% !important; }
+    /* Tables */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 11px 14px; border-bottom: 1px solid #edf0f5; text-align: left; vertical-align: middle; }
+    th { background: var(--soft); color: #475569; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fbfdff; }
+    .text-link { color: var(--primary); font-weight: 700; text-decoration: none; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .tag-open { background: var(--info-bg); color: var(--info); }
+    .tag-closed { background: var(--success-bg); color: var(--success); }
+    .tag-pending { background: var(--warning-bg); color: var(--warning); }
+    .tag-confirmed { background: var(--success-bg); color: var(--success); }
+    .tag-rejected { background: var(--danger-bg); color: var(--danger); }
+    .tag-partial { background: #fef3c7; color: #92400e; }
+    .tag-shortage { background: var(--danger-bg); color: var(--danger); }
+    .tag-ready { background: var(--success-bg); color: var(--success); }
+    .tag-gap { background: var(--warning-bg); color: var(--warning); }
+    /* View toggle */
+    .view-toggle { display: flex; gap: 6px; }
+    .view-toggle .btn-toggle { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: #374151; cursor: pointer; transition: .15s; }
+    .view-toggle .btn-toggle.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    /* Alerts */
+    .alert-list-custom { display: grid; gap: 10px; }
+    .alert-item-custom { padding: 14px; border: 1px solid var(--line-soft); border-radius: 12px; }
+    .alert-item-custom.critical { border-left: 4px solid #dc3545; background: #fff8f8; }
+    .alert-item-custom.warning { border-left: 4px solid #f59e0b; background: #fffbeb; }
+    .alert-item-custom.info { border-left: 4px solid #3b82f6; background: #eff6ff; }
+    .alert-head-custom { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+    .alert-title-custom { font-size: 13px; font-weight: 700; color: var(--title); }
+    .alert-desc-custom { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .alert-meta-custom { font-size: 11px; color: #91a0af; display: flex; gap: 14px; flex-wrap: wrap; }
+    /* Inline stat chips for confirmation */
+    .stat-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .stat-chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--soft); color: var(--title); font-weight: 600; }
+    /* Section access denied */
+    .access-denied { padding: 36px 24px; text-align: center; color: var(--muted); font-size: 14px; }
+    @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .chart-row { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .kpi-grid { grid-template-columns: 1fr; } .page-shell { padding: 16px; border-radius: 12px; } }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg" style="background: #1a237e;">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand fw-bold text-white" href="forecast_dashboard.html">iBOCS</a>
+      <span class="navbar-text text-white-50 small d-none d-md-inline" id="portalLabel">Portal</span>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="profileLink">Profile</a></li>
+            <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+            <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid py-3">
+    <div class="row g-3">
+      <div class="col-lg-2" id="sidebar-container"></div>
+      <div class="col-lg-10">
+        <div class="page-shell">
+
+          <!-- HERO -->
+          <div class="hero">
+            <div>
+              <h1 class="hero-title"><i class="bi bi-speedometer2 me-2"></i>Forecast Dashboard</h1>
+              <p class="hero-subtitle">Ringkasan kondisi forecast, order, dan konfirmasi berdasarkan role aktif Anda.</p>
+            </div>
+            <div class="hero-right">
+              <select class="week-select" id="weekSelect">
+                <option>Week 18 - 2026</option>
+                <option>Week 19 - 2026</option>
+                <option>Week 20 - 2026</option>
+              </select>
+              <div class="header-chips">
+                <span class="header-chip"><i class="bi bi-clock me-1"></i>Last Sync 09:12</span>
+                <span class="header-chip" id="chipCompany"><i class="bi bi-building me-1"></i>–</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════════════════════════════════════════
+               FORECAST SECTION — customer + super_admin
+          ═══════════════════════════════════════════════ -->
+          <div id="section-forecast">
+
+            <!-- Feed sub-section -->
+            <div id="subsection-feed">
+              <div class="category-divider">
+                <div class="category-divider-line"></div>
+                <span class="category-divider-label"><i class="bi bi-leaf me-1 text-primary"></i>Feed Overview</span>
+                <div class="category-divider-line"></div>
+              </div>
+              <p class="text-muted small mb-3">Kebutuhan pakan hasil forecast/recommendation dibandingkan dengan stok yang siap dialokasikan.</p>
+
+              <!-- Feed KPIs -->
+              <div class="kpi-grid" id="kpiFeed">
+                <div class="kpi-card">
+                  <div class="kpi-label">Feed Demand</div>
+                  <div class="kpi-value" id="kpiFeedDemand">120K</div>
+                  <div class="kpi-note">Total kebutuhan pakan week ini</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Available</div>
+                  <div class="kpi-value text-success" id="kpiFeedAvail">100K</div>
+                  <div class="kpi-note">Stok siap dialokasikan</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Shortage</div>
+                  <div class="kpi-value text-danger" id="kpiFeedShortage">20K</div>
+                  <div class="kpi-note">Gap kritis yang perlu tindakan</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Coverage</div>
+                  <div class="kpi-value text-success" id="kpiFeedCoverage">83%</div>
+                  <div class="kpi-note">Persentase kesiapan alokasi</div>
+                </div>
+              </div>
+
+              <!-- Feed Chart + Alerts -->
+              <div class="chart-row">
+                <div class="chart-panel">
+                  <div class="chart-panel-title"><i class="bi bi-bar-chart-line me-1"></i>Feed Demand vs Supply (7 Minggu)</div>
+                  <canvas id="feedChart" height="160"></canvas>
+                </div>
+                <div class="chart-panel">
+                  <div class="chart-panel-title"><i class="bi bi-exclamation-triangle me-1"></i>Feed Alerts</div>
+                  <div class="alert-list-custom">
+                    <div class="alert-item-custom critical">
+                      <div class="alert-head-custom">
+                        <span class="alert-title-custom">Critical Feed Shortage — FD-ST-001</span>
+                      </div>
+                      <div class="alert-desc-custom">Gap 10K pada week aktif. 2 farm prioritas tinggi berpotensi terdampak jika tidak ada override allocation.</div>
+                      <div class="alert-meta-custom"><span>Feed</span><span>PT TOP</span><span class="text-danger fw-bold">Critical</span></div>
+                    </div>
+                    <div class="alert-item-custom info">
+                      <div class="alert-head-custom">
+                        <span class="alert-title-custom">Partial Allocation — FD-FN-002</span>
+                      </div>
+                      <div class="alert-desc-custom">Alokasi 100% terpenuhi untuk item FD-FN-002, tidak ada aksi diperlukan.</div>
+                      <div class="alert-meta-custom"><span>Feed</span><span>PT TOP</span><span class="text-success fw-bold">OK</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Feed Detail Table -->
+              <div class="section-card">
+                <div class="section-header">
+                  <div>
+                    <h2 class="section-title">Feed Detail — Per Farm</h2>
+                    <p class="section-subtitle">Rincian kebutuhan per farm dan kandang untuk week aktif.</p>
+                  </div>
+                  <a class="btn btn-sm btn-outline-primary" href="customer_ForecastList.html"><i class="bi bi-list-ul me-1"></i>Forecast List</a>
+                </div>
+                <div class="section-body">
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th>Farm</th><th>Kandang</th><th>Forecast (kg)</th><th>Allocated (kg)</th><th>Gap (kg)</th><th>Priority</th><th>Status</th></tr></thead>
+                      <tbody>
+                        <tr><td>Farm 1</td><td>KDG-01</td><td>20,000</td><td>15,000</td><td class="text-danger fw-bold">5,000</td><td><span class="tag tag-shortage">High</span></td><td><span class="tag tag-partial">Partial</span></td></tr>
+                        <tr><td>Farm 1</td><td>KDG-02</td><td>18,000</td><td>18,000</td><td>0</td><td>—</td><td><span class="tag tag-ready">Ready</span></td></tr>
+                        <tr><td>Farm 2</td><td>KDG-03</td><td>30,000</td><td>25,000</td><td class="text-danger fw-bold">5,000</td><td><span class="tag tag-shortage">High</span></td><td><span class="tag tag-partial">Partial</span></td></tr>
+                        <tr><td>Farm 2</td><td>KDG-04</td><td>32,000</td><td>32,000</td><td>0</td><td>—</td><td><span class="tag tag-ready">Ready</span></td></tr>
+                        <tr><td>Farm 3</td><td>KDG-05</td><td>20,000</td><td>10,000</td><td class="text-danger fw-bold">10,000</td><td><span class="tag tag-shortage">High</span></td><td><span class="tag tag-shortage">Shortage</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DOC sub-section -->
+            <div id="subsection-doc">
+              <div class="category-divider">
+                <div class="category-divider-line"></div>
+                <span class="category-divider-label"><i class="bi bi-box-seam me-1 text-warning"></i>DOC Overview</span>
+                <div class="category-divider-line"></div>
+              </div>
+              <p class="text-muted small mb-3">Kebutuhan DOC mengikuti plan kandang/draft plan, dibandingkan dengan readiness dari hatchery.</p>
+
+              <!-- DOC KPIs -->
+              <div class="kpi-grid">
+                <div class="kpi-card">
+                  <div class="kpi-label">Required</div>
+                  <div class="kpi-value" id="kpiDocRequired">80K</div>
+                  <div class="kpi-note">Plan-driven DOC requirement</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Ready</div>
+                  <div class="kpi-value text-success" id="kpiDocReady">70K</div>
+                  <div class="kpi-note">DOC siap dari hatchery</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Gap</div>
+                  <div class="kpi-value text-danger" id="kpiDocGap">10K</div>
+                  <div class="kpi-note">Gap antara plan dan readiness</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Unplanned Houses</div>
+                  <div class="kpi-value text-warning" id="kpiDocUnplanned">5</div>
+                  <div class="kpi-note">Kandang tanpa plan assignment</div>
+                </div>
+              </div>
+
+              <!-- DOC Chart + Alerts -->
+              <div class="chart-row">
+                <div class="chart-panel">
+                  <div class="chart-panel-title"><i class="bi bi-bar-chart me-1"></i>DOC Plan vs Ready (7 Minggu)</div>
+                  <canvas id="docChart" height="160"></canvas>
+                </div>
+                <div class="chart-panel">
+                  <div class="chart-panel-title"><i class="bi bi-exclamation-triangle me-1"></i>DOC Alerts</div>
+                  <div class="alert-list-custom">
+                    <div class="alert-item-custom warning">
+                      <div class="alert-head-custom">
+                        <span class="alert-title-custom">DOC Gap — DOC-001</span>
+                      </div>
+                      <div class="alert-desc-custom">Requirement plan 30K, readiness baru 25K. 2 kandang masih menunggu kepastian fulfillment.</div>
+                      <div class="alert-meta-custom"><span>DOC</span><span>PT AYM</span><span class="text-warning fw-bold">Medium</span></div>
+                    </div>
+                    <div class="alert-item-custom info">
+                      <div class="alert-head-custom">
+                        <span class="alert-title-custom">Unplanned House ×5</span>
+                      </div>
+                      <div class="alert-desc-custom">5 kandang belum memiliki plan assignment dan tidak bisa diproses lebih lanjut.</div>
+                      <div class="alert-meta-custom"><span>DOC</span><span>Planning Team</span><span class="text-primary fw-bold">Info</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DOC Summary Table -->
+              <div class="section-card">
+                <div class="section-header">
+                  <div>
+                    <h2 class="section-title">DOC Summary — Per Hatchery</h2>
+                    <p class="section-subtitle">Rincian kebutuhan DOC per item untuk week aktif.</p>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th>Company</th><th>DOC Item</th><th>Required</th><th>Ready</th><th>Gap</th><th>Unplanned</th><th>Status</th></tr></thead>
+                      <tbody>
+                        <tr><td>PT AYM</td><td>DOC-001</td><td>30,000</td><td>25,000</td><td class="text-danger fw-bold">5,000</td><td>2</td><td><span class="tag tag-gap">Gap</span></td></tr>
+                        <tr><td>PT AYM</td><td>DOC-002</td><td>18,000</td><td>18,000</td><td>0</td><td>0</td><td><span class="tag tag-ready">Ready</span></td></tr>
+                        <tr><td>PT TOP</td><td>DOC-003</td><td>32,000</td><td>27,000</td><td class="text-danger fw-bold">5,000</td><td>3</td><td><span class="tag tag-gap">Gap</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- end section-forecast -->
+
+          <!-- ═══════════════════════════════════════════════
+               ORDER LIST SECTION — customer + vendor + super_admin
+          ═══════════════════════════════════════════════ -->
+          <div id="section-order-list">
+            <div class="category-divider">
+              <div class="category-divider-line"></div>
+              <span class="category-divider-label"><i class="bi bi-list-ul me-1 text-info"></i>Order List</span>
+              <div class="category-divider-line"></div>
+            </div>
+            <p class="text-muted small mb-3">Ringkasan Purchase Order dan status penerimaan barang.</p>
+
+            <!-- Order List KPIs -->
+            <div class="kpi-grid" id="kpiOrderList">
+              <div class="kpi-card">
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value" id="kpiOlTotal">0</div>
+                <div class="kpi-note">Semua PO dalam periode aktif</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Open</div>
+                <div class="kpi-value text-warning" id="kpiOlOpen">0</div>
+                <div class="kpi-note">Menunggu penerimaan/proses</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Closed</div>
+                <div class="kpi-value text-success" id="kpiOlClosed">0</div>
+                <div class="kpi-note">PO selesai diproses</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Receipt Completion</div>
+                <div class="kpi-value text-success" id="kpiOlReceipt">0%</div>
+                <div class="kpi-note">% qty diterima vs dipesan</div>
+              </div>
+            </div>
+
+            <!-- Order List Chart + Recent -->
+            <div class="chart-row">
+              <div class="chart-panel">
+                <div class="chart-panel-title"><i class="bi bi-bar-chart-line me-1"></i>Orders per Status (Mingguan)</div>
+                <canvas id="orderListChart" height="160"></canvas>
+              </div>
+              <div class="chart-panel">
+                <div class="chart-panel-title"><i class="bi bi-pie-chart me-1"></i>Distribusi Status PO</div>
+                <canvas id="orderPieChart" height="160"></canvas>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Recent Orders</h2>
+                  <p class="section-subtitle">Purchase Order terbaru dalam sistem.</p>
+                </div>
+                <a class="btn btn-sm btn-outline-primary" href="customer_orders.html" id="linkAllOrders"><i class="bi bi-list-ul me-1"></i>Lihat Semua</a>
+              </div>
+              <div class="section-body">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>PO No</th><th>Tanggal</th><th>Supplier/Store</th><th>Qty</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody id="tbodyOrderList"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- end section-order-list -->
+
+          <!-- ═══════════════════════════════════════════════
+               ORDER CONFIRMATION SECTION — vendor + super_admin
+          ═══════════════════════════════════════════════ -->
+          <div id="section-order-confirmation">
+            <div class="category-divider">
+              <div class="category-divider-line"></div>
+              <span class="category-divider-label"><i class="bi bi-check2-square me-1 text-success"></i>Order Confirmation</span>
+              <div class="category-divider-line"></div>
+            </div>
+            <p class="text-muted small mb-3">Incoming Purchase Order dari customer yang perlu dikonfirmasi atau diproses menjadi Sales Order.</p>
+
+            <!-- Order Confirmation KPIs -->
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-label">Pending Confirm</div>
+                <div class="kpi-value text-warning" id="kpiOcPending">0</div>
+                <div class="kpi-note">PO masuk belum dikonfirmasi</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Confirmed</div>
+                <div class="kpi-value text-success" id="kpiOcConfirmed">0</div>
+                <div class="kpi-note">PO sudah dikonfirmasi/SO dibuat</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Rejected</div>
+                <div class="kpi-value text-danger" id="kpiOcRejected">0</div>
+                <div class="kpi-note">PO yang ditolak</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Confirmation Rate</div>
+                <div class="kpi-value text-success" id="kpiOcRate">0%</div>
+                <div class="kpi-note">% PO berhasil dikonfirmasi</div>
+              </div>
+            </div>
+
+            <!-- Order Confirmation Chart + Trend -->
+            <div class="chart-row">
+              <div class="chart-panel">
+                <div class="chart-panel-title"><i class="bi bi-graph-up-arrow me-1"></i>Incoming PO per Minggu</div>
+                <canvas id="confirmTrendChart" height="160"></canvas>
+              </div>
+              <div class="chart-panel">
+                <div class="chart-panel-title"><i class="bi bi-pie-chart me-1"></i>Status Konfirmasi</div>
+                <canvas id="confirmPieChart" height="160"></canvas>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Pending Confirmations</h2>
+                  <p class="section-subtitle">Daftar PO yang masih menunggu tindakan konfirmasi dari vendor.</p>
+                </div>
+                <a class="btn btn-sm btn-outline-success" href="vendor_incoming_po_list.html"><i class="bi bi-check2-square me-1"></i>Lihat Semua</a>
+              </div>
+              <div class="section-body">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>PO No</th><th>Tanggal Masuk</th><th>Customer</th><th>Qty Total</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody id="tbodyConfirmList"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- end section-order-confirmation -->
+
+          <div class="text-center text-muted small mt-4 mb-2">&copy; 2026 iBOCS — Forecast Dashboard</div>
+        </div><!-- end page-shell -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="sidebar.js"></script>
+  <script>
+    // ─── Auth guard ──────────────────────────────────────────────
+    const sess = localStorage.getItem("IBOCS_user");
+    if (!sess) { window.location.href = "login.html"; }
+
+    const user = JSON.parse(sess || "{}");
+    const role = user.role || "";
+
+    // Pure admin (not super_admin) should use admin_dashboard
+    if (role !== "customer" && role !== "vendor" && role !== "super_admin") {
+      window.location.href = "admin_dashboard.html";
+    }
+
+    // ─── Navbar / user info ───────────────────────────────────────
+    document.getElementById("userBtn").textContent = user.name || "User";
+    document.getElementById("userInfo").textContent = `${user.email || "–"} • role=${role}`;
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      localStorage.removeItem("IBOCS_user");
+      window.location.href = "login.html";
+    });
+
+    const portalNames = {
+      customer: "Customer Portal",
+      vendor: "Vendor Portal",
+      super_admin: "Super Admin Portal"
+    };
+    document.getElementById("portalLabel").textContent = portalNames[role] || "Portal";
+    document.getElementById("profileLink").href = role === "customer" ? "customer_profile.html" : "vendor_profile.html";
+
+    // Chip
+    const chipMap = { customer: "Customer Portal", vendor: "Vendor Portal", super_admin: "All Portals" };
+    document.getElementById("chipCompany").innerHTML = `<i class="bi bi-person-badge me-1"></i>${chipMap[role] || role}`;
+
+    // ─── Role-based section visibility ───────────────────────────
+    const ROLES = {
+      forecast:            ["customer", "super_admin"],
+      order_list:          ["customer", "super_admin"],
+      order_confirmation:  ["vendor", "super_admin"]
+    };
+
+    function showSection(id, roles) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (roles.includes(role)) {
+        el.style.display = "";
+      } else {
+        el.style.display = "none";
+      }
+    }
+
+    showSection("section-forecast",           ROLES.forecast);
+    showSection("section-order-list",         ROLES.order_list);
+    showSection("section-order-confirmation", ROLES.order_confirmation);
+
+    // Order list link: customer → customer_POList, vendor → vendor_incoming_po_list
+    const linkAllOrders = document.getElementById("linkAllOrders");
+    if (role === "customer") linkAllOrders.href = "customer_POList.html";
+    else linkAllOrders.href = "customer_orders.html";
+
+    // ─── Sidebar ─────────────────────────────────────────────────
+    const sidebar = new SidebarSystem(role, "forecast_dashboard");
+    sidebar.render();
+
+    // ─── Demo data helpers ────────────────────────────────────────
+    const DEMO_PO = [
+      { poNo: "PO-0001", poDate: "2026-04-01", store: "Toko Melati",      qty: 150, status: "Open"   },
+      { poNo: "PO-0002", poDate: "2026-04-02", store: "Toko ABC",         qty: 70,  status: "Open"   },
+      { poNo: "PO-0003", poDate: "2026-04-03", store: "Toko Mawar",       qty: 140, status: "Closed" },
+      { poNo: "PO-0004", poDate: "2026-04-05", store: "Toko Kencana",     qty: 200, status: "Open"   },
+      { poNo: "PO-0005", poDate: "2026-04-07", store: "Toko Nusantara",   qty: 90,  status: "Closed" },
+    ];
+
+    const DEMO_INCOMING = [
+      { poNo: "PO-R001", poDate: "2026-04-08", customer: "PT. Melati Customer",    qty: 500, status: "Pending"   },
+      { poNo: "PO-R002", poDate: "2026-04-09", customer: "CV. ABC Sejahtera",    qty: 320, status: "Pending"   },
+      { poNo: "PO-R003", poDate: "2026-04-06", customer: "PT. Toko Mawar",       qty: 410, status: "Confirmed" },
+      { poNo: "PO-R004", poDate: "2026-04-05", customer: "CV. Nusantara Jaya",   qty: 180, status: "Rejected"  },
+      { poNo: "PO-R005", poDate: "2026-04-10", customer: "PT. Kencana Utama",    qty: 260, status: "Pending"   },
+    ];
+
+    function getPoList() {
+      try {
+        const stored = JSON.parse(localStorage.getItem("IBOCS_po_list") || "[]");
+        const nos = new Set(stored.map(x => x.poNo));
+        return [...stored, ...DEMO_PO.filter(x => !nos.has(x.poNo))];
+      } catch(e) { return DEMO_PO; }
+    }
+
+    function getIncomingList() {
+      try {
+        const stored = JSON.parse(localStorage.getItem("IBOCS_incoming_po_list") || "[]");
+        const nos = new Set(stored.map(x => x.poNo));
+        return [...stored, ...DEMO_INCOMING.filter(x => !nos.has(x.poNo))];
+      } catch(e) { return DEMO_INCOMING; }
+    }
+
+    function tag(status) {
+      const m = {
+        "Open":      '<span class="tag tag-open">Open</span>',
+        "Closed":    '<span class="tag tag-closed">Closed</span>',
+        "Pending":   '<span class="tag tag-pending">Pending</span>',
+        "Confirmed": '<span class="tag tag-confirmed">Confirmed</span>',
+        "Rejected":  '<span class="tag tag-rejected">Rejected</span>',
+      };
+      return m[status] || `<span class="tag tag-pending">${status}</span>`;
+    }
+
+    // ─── Order List section ───────────────────────────────────────
+    if (ROLES.order_list.includes(role)) {
+      const pos = getPoList();
+      const open   = pos.filter(x => x.status === "Open").length;
+      const closed = pos.filter(x => x.status === "Closed").length;
+      const total  = pos.length;
+      const receiptPct = total ? Math.round(closed / total * 100) : 0;
+
+      document.getElementById("kpiOlTotal").textContent  = total;
+      document.getElementById("kpiOlOpen").textContent   = open;
+      document.getElementById("kpiOlClosed").textContent = closed;
+      document.getElementById("kpiOlReceipt").textContent = receiptPct + "%";
+
+      // Table
+      const tbody = document.getElementById("tbodyOrderList");
+      const recent = pos.slice(0, 8);
+      tbody.innerHTML = recent.map(po => `
+        <tr>
+          <td><span class="text-link">${po.poNo}</span></td>
+          <td>${po.poDate || "–"}</td>
+          <td>${po.store || po.customer || "–"}</td>
+          <td>${(po.qty || 0).toLocaleString("id-ID")}</td>
+          <td>${tag(po.status)}</td>
+          <td><a class="text-link" href="${role === "customer" ? "customer_POView.html" : "customer_orders.html"}">Detail</a></td>
+        </tr>`).join("") || `<tr><td colspan="6" class="text-center text-muted py-3">Belum ada data PO</td></tr>`;
+
+      // Bar chart: open vs closed per week (mocked)
+      new Chart(document.getElementById("orderListChart"), {
+        type: "bar",
+        data: {
+          labels: ["W12","W13","W14","W15","W16","W17","W18"],
+          datasets: [
+            { label: "Open",   data: [3,5,4,6,4,3,open],   backgroundColor: "#93c5fd" },
+            { label: "Closed", data: [2,3,5,3,5,6,closed], backgroundColor: "#4ade80" }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+
+      // Pie chart
+      new Chart(document.getElementById("orderPieChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Open","Closed"],
+          datasets: [{ data: [open || 1, closed || 1], backgroundColor: ["#93c5fd","#4ade80"], borderWidth: 1 }]
+        },
+        options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+
+    // ─── Order Confirmation section ───────────────────────────────
+    if (ROLES.order_confirmation.includes(role)) {
+      const incoming = getIncomingList();
+      const pending   = incoming.filter(x => x.status === "Pending").length;
+      const confirmed = incoming.filter(x => x.status === "Confirmed").length;
+      const rejected  = incoming.filter(x => x.status === "Rejected").length;
+      const total     = incoming.length;
+      const rate      = total ? Math.round(confirmed / total * 100) : 0;
+
+      document.getElementById("kpiOcPending").textContent   = pending;
+      document.getElementById("kpiOcConfirmed").textContent = confirmed;
+      document.getElementById("kpiOcRejected").textContent  = rejected;
+      document.getElementById("kpiOcRate").textContent      = rate + "%";
+
+      // Table - show pending first
+      const tbody2 = document.getElementById("tbodyConfirmList");
+      const sorted = [...incoming].sort((a,b) => a.status === "Pending" ? -1 : 1).slice(0, 8);
+      tbody2.innerHTML = sorted.map(po => `
+        <tr>
+          <td><span class="text-link">${po.poNo}</span></td>
+          <td>${po.poDate || "–"}</td>
+          <td>${po.customer || po.store || "–"}</td>
+          <td>${(po.qty || 0).toLocaleString("id-ID")}</td>
+          <td>${tag(po.status)}</td>
+          <td><a class="text-link" href="vendor_incoming_po_review.html">Review</a></td>
+        </tr>`).join("") || `<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada incoming PO</td></tr>`;
+
+      // Trend chart
+      new Chart(document.getElementById("confirmTrendChart"), {
+        type: "bar",
+        data: {
+          labels: ["W12","W13","W14","W15","W16","W17","W18"],
+          datasets: [
+            { label: "Pending",   data: [4,3,5,4,3,4,pending],   backgroundColor: "#fcd34d" },
+            { label: "Confirmed", data: [5,6,4,5,7,5,confirmed], backgroundColor: "#4ade80" },
+            { label: "Rejected",  data: [1,0,1,1,0,1,rejected],  backgroundColor: "#f87171" }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+
+      // Pie
+      new Chart(document.getElementById("confirmPieChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Pending","Confirmed","Rejected"],
+          datasets: [{ data: [pending||1, confirmed||1, rejected||1], backgroundColor: ["#fcd34d","#4ade80","#f87171"], borderWidth: 1 }]
+        },
+        options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+
+    // ─── Forecast Charts (Feed + DOC) ─────────────────────────────
+    if (ROLES.forecast.includes(role)) {
+      new Chart(document.getElementById("feedChart"), {
+        type: "bar",
+        data: {
+          labels: ["W12","W13","W14","W15","W16","W17","W18"],
+          datasets: [
+            { label: "Demand", data: [60,85,105,130,146,124,120], backgroundColor: "#93c5fd" },
+            { label: "Supply", data: [50,72,90,104,120,112,100],  backgroundColor: "#4ade80" }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+      });
+
+      new Chart(document.getElementById("docChart"), {
+        type: "bar",
+        data: {
+          labels: ["W12","W13","W14","W15","W16","W17","W18"],
+          datasets: [
+            { label: "Plan",  data: [56,76,92,115,138,118,84], backgroundColor: "#fcd34d" },
+            { label: "Ready", data: [52,63,80,95,110,101,74],  backgroundColor: "#fb923c" }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+      });
+    }
+  </script>
+</body>
+</html>

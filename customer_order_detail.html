@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New Purchase Order — IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #15803d;
+            --primary-light: #f0fdf4;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+        }
+
+        body {
+            background: var(--bg-body);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+        }
+
+        .navbar {
+            background-color: var(--primary) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            background: var(--primary-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+            outline: none;
+        }
+
+        .table thead th {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-add-row {
+            color: var(--primary);
+            background: var(--primary-light);
+            border: 1px dashed var(--primary);
+            font-weight: 600;
+            padding: 0.6rem;
+            border-radius: 10px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-add-row:hover {
+            background: #dcfce7;
+            transform: translateY(-1px);
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .summary-total {
+            border-top: 1px solid var(--border);
+            margin-top: 15px;
+            padding-top: 15px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), #22c55e);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2);
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(21, 128, 61, 0.3);
+            color: white;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .btn-remove {
+            color: #ef4444;
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+        }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* Seamless Table Inputs */
+        .table-input {
+            border: 1px solid transparent;
+            background-color: transparent;
+            box-shadow: none !important;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.5rem;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .table-input:hover {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .table-input:focus {
+            background-color: #fff;
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .td-sleek {
+            padding: 0.5rem !important;
+            /* tighter rows */
+        }
+
+        /* Success animation Overlay */
+        #successOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .check-icon {
+            font-size: 5rem;
+            color: var(--primary);
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            80% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_orders.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Internal Sourcing</span>
+            <div class="ms-auto">
+                <a class="btn btn-sm btn-outline-light px-3" href="customer_orders.html">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Main Form -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Header Card -->
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <i class="bi bi-person-badge"></i>
+                        <h5 class="section-title">Purchase Order Header</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Vendor Selection</label>
+                                <select id="vendorSelect" class="form-select">
+                                    <option value="" disabled selected>Select Vendor...</option>
+                                    <option value="SIC">SIC — Supplier Pakan &amp; Feed</option>
+                                    <option value="CTU">CTU — Supplier DOC / Bibit Ayam</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Document Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted mono">#</span>
+                                    <input type="text" id="docNo" class="form-control mono bg-light" value="PO-2026-..."
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Warehouse (Ship To)</label>
+                                <select id="whseSelect" class="form-select" onchange="onWhseChange()">
+                                    <option value="">-- Select Warehouse --</option>
+                                    <option value="WH-KDG01">WH-KDG01</option>
+                                    <option value="WH-KDG02">WH-KDG02</option>
+                                    <option value="WH-KDG03">WH-KDG03</option>
+                                    <option value="WH-MAIN">WH-MAIN (Main Warehouse)</option>
+                                    <option value="WH-NORTH">WH-NORTH (North Facility)</option>
+                                    <option value="WH-EAST">WH-EAST (East Facility)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Plan No</label>
+                                <select id="planSelect" class="form-select" onchange="onPlanChange()">
+                                    <option value="">-- Select Plan --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Forecast Ref</label>
+                                <input type="text" id="fcRefInput" class="form-control bg-light" readonly placeholder="Auto-filled">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Week / Period</label>
+                                <select id="weekSelect" class="form-select">
+                                    <option value="">-- Select Week --</option>
+                                    <option value="Week 17">Week 17</option>
+                                    <option value="Week 18">Week 18</option>
+                                    <option value="Week 19">Week 19</option>
+                                    <option value="Week 20">Week 20</option>
+                                    <option value="Week 21">Week 21</option>
+                                    <option value="Week 22">Week 22</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Posting Date</label>
+                                <input type="date" id="docDate" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Expected Delivery</label>
+                                <input type="date" id="docDelivery" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Data Card (hidden until forecast loaded) -->
+                <div class="card mb-4" id="planDataCard" style="display:none!important;">
+                    <div class="section-header d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="togglePlanData()">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-clipboard2-data"></i>
+                            <h5 class="section-title mb-0">Plan Data</h5>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success" id="planDataBadge">Confirmed</span>
+                            <i class="bi bi-chevron-up text-success" id="planDataChevron" style="font-size:1rem; transition:transform .25s;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4" id="planDataBody">
+                        <!-- Forecast Header -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-2">
+                                <label class="form-label">Forecast No</label>
+                                <input type="text" id="pdFcNo" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Forecast Date</label>
+                                <input type="text" id="pdFcDate" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Period</label>
+                                <input type="text" id="pdPeriod" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Company</label>
+                                <input type="text" id="pdCompany" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Farm</label>
+                                <input type="text" id="pdFarm" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Status</label>
+                                <input type="text" id="pdStatus" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                        </div>
+                        <!-- Plan Detail -->
+                        <div class="row g-3 mb-3 p-3 rounded-3" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+                            <div class="col-12 mb-1">
+                                <small class="fw-bold text-success text-uppercase" style="letter-spacing:.5px;">Plan Detail</small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Plan No</label>
+                                <input type="text" id="pdPlanNo" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Plan Description</label>
+                                <input type="text" id="pdPlanDesc" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Age</label>
+                                <input type="text" id="pdAge" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">DOC Code Male</label>
+                                <input type="text" id="pdDocCodeMale" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">DOC Code Female</label>
+                                <input type="text" id="pdDocCodeFemale" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Initial Stock (M/F)</label>
+                                <input type="text" id="pdInitialStock" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Current Population (M/F)</label>
+                                <input type="text" id="pdCurrentPop" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Total Population</label>
+                                <input type="text" id="pdTotalPop" class="form-control form-control-sm bg-white" readonly>
+                            </div>
+                        </div>
+                        <!-- Forecast Lines Table -->
+                        <div class="table-responsive" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <th>Item Name</th>
+                                        <th>Flag</th>
+                                        <th class="text-end">Std Need</th>
+                                        <th class="text-end">Curr Stock</th>
+                                        <th class="text-end">Rec. Qty</th>
+                                        <th class="text-end">Manual Adj.</th>
+                                        <th class="text-end">Final Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pdLinesBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-3">No data</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Summary -->
+                        <div class="d-flex gap-4 mt-3 p-3 rounded-3" style="background:#f8fafc; border:1px solid var(--border);">
+                            <div><small class="text-muted d-block">Total Item</small><strong id="pdTotalItem">0</strong></div>
+                            <div><small class="text-muted d-block">Total Rec. Qty</small><strong id="pdTotalRec">0</strong></div>
+                            <div><small class="text-muted d-block">Total Final Qty</small><strong id="pdTotalFinal">0</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="card">
+                    <div class="section-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-box-seam"></i>
+                            <h5 class="section-title mb-0">Order Items</h5>
+                        </div>
+                        <button id="btnGetForecast" class="btn btn-sm btn-outline-success fw-bold d-flex align-items-center gap-1"
+                            style="border-radius: 8px; font-size: 0.8rem;" type="button" disabled onclick="getForecastData()">
+                            <i class="bi bi-magic"></i>
+                            Get Forecast Data
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle" id="itemTable">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 320px;">Item Description</th>
+                                        <th style="width: 80px;" class="text-center">Qty</th>
+                                        <th style="width: 80px;" class="text-center">UoM</th>
+                                        <th style="width: 150px;" class="text-end">Unit Price</th>
+                                        <th style="width: 150px;" class="text-end">Subtotal</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemTbody">
+                                    <!-- Rows added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-3 bg-light">
+                            <button class="btn btn-add-row" onclick="addRow()">
+                                <i class="bi bi-plus-circle me-1"></i>Add New Item Line
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Summary & Save -->
+                <div class="card sticky-top" style="top: 85px;">
+                    <div class="section-header">
+                        <i class="bi bi-calculator"></i>
+                        <h5 class="section-title">Order Summary</h5>
+                    </div>
+                    <div class="card-body p-4 text-end">
+                        <div class="summary-card text-end">
+                            <div class="summary-row">
+                                <span class="text-muted">Sub Total</span>
+                                <span class="fw-bold" id="lblSubtotal">Rp 0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">PPN (11%)</span>
+                                <span class="fw-bold" id="lblTax">Rp 0</span>
+                            </div>
+                            <div class="summary-total" id="lblGrandTotal">
+                                Rp 0
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3">
+                            <label class="form-label d-block text-start">Remarks / Notes</label>
+                            <textarea class="form-control mb-4" rows="3"
+                                placeholder="Additional instruction..."></textarea>
+
+                            <button class="btn btn-save w-100 py-3" onclick="savePO()">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i>CREATE PURCHASE ORDER
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay">
+        <i class="bi bi-check-circle-fill check-icon"></i>
+        <h3 class="fw-bold mt-3 text-dark">Success!</h3>
+        <p class="text-muted">Your Purchase Order has been created.</p>
+        <div class="spinner-border text-success mt-3" role="status"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="forecast_master.js"></script>
+    <script>
+        const LS_ORDERS = "IBOCS_customer_orders";
+        const LS_ORDER_LINES = "IBOCS_customer_order_lines";
+
+        // ===========================
+        // FORECAST DEMO DATA — loaded from forecast_master.js
+        // Keep a local alias for backward compat; master file is the source of truth
+        // ===========================
+        const DEMO_FC = window.IBOCS_FORECAST_MASTER || [];
+
+        // (legacy inline kept as fallback — will not be used when master file is loaded)
+        const _DEMO_FC_FALLBACK = [
+            {
+                fcNo: "FC-001", warehouse: "WH-KDG01", planNo: "PL-001", planDesc: "Broiler Cycle 18", status: "Confirmed",
+                lines: [
+                    { itemCode: "FD-ST-001", itemName: "Starter Feed",  recommendedQty: 7500, manualAdjustment: 300 },
+                    { itemCode: "FD-GR-003", itemName: "Grower Feed",   recommendedQty: 5500, manualAdjustment: 200 }
+                ]
+            },
+            {
+                fcNo: "FC-002", warehouse: "WH-KDG02", planNo: "PL-002", planDesc: "Broiler Cycle 18", status: "Confirmed",
+                lines: [
+                    { itemCode: "FD-ST-001", itemName: "Starter Feed",  recommendedQty: 8000, manualAdjustment: 0 },
+                    { itemCode: "FD-FN-002", itemName: "Finisher Feed", recommendedQty: 7000, manualAdjustment: 0 }
+                ]
+            },
+            {
+                fcNo: "FC-003", warehouse: "WH-KDG03", planNo: "PL-008", planDesc: "Broiler Cycle 21", status: "PO Created",
+                lines: [
+                    { itemCode: "FD-ST-001", itemName: "Starter Feed", recommendedQty: 6200, manualAdjustment: 0 },
+                    { itemCode: "FD-GR-003", itemName: "Grower Feed",  recommendedQty: 0,    manualAdjustment: 4300 }
+                ]
+            }
+        ];
+
+        function getAllFc() {
+            const stored = JSON.parse(localStorage.getItem("IBOCS_fc_list") || "[]");
+            const storedNos = new Set(stored.map(f => f.fcNo));
+            return [...stored, ...DEMO_FC.filter(d => !storedNos.has(d.fcNo))];
+        }
+
+        function onWhseChange() {
+            const whse = document.getElementById("whseSelect").value;
+            const planSel = document.getElementById("planSelect");
+            const oldPlan = planSel.value;
+
+            // Rebuild plan options based on Confirmed forecasts for this warehouse
+            const confirmed = whse ? getAllFc().filter(f => f.warehouse === whse && f.status === "Confirmed") : [];
+            planSel.innerHTML = '<option value="">-- Select Plan --</option>';
+            confirmed.forEach(f => {
+                const opt = document.createElement("option");
+                opt.value = f.planNo;
+                opt.textContent = `${f.planNo}${f.planDesc ? " — " + f.planDesc : ""}`;
+                opt.dataset.fcNo = f.fcNo;
+                planSel.appendChild(opt);
+            });
+            if (oldPlan) planSel.value = oldPlan;
+
+            document.getElementById("fcRefInput").value = "";
+            updateForecastBtn();
+        }
+
+        function onPlanChange() {
+            document.getElementById("fcRefInput").value = "";
+            updateForecastBtn();
+        }
+
+        function updateForecastBtn() {
+            const hasWhse = !!document.getElementById("whseSelect").value;
+            const hasPlan = !!document.getElementById("planSelect").value;
+            document.getElementById("btnGetForecast").disabled = !(hasWhse && hasPlan);
+        }
+
+        function getForecastData() {
+            const whse   = document.getElementById("whseSelect").value;
+            const planNo = document.getElementById("planSelect").value;
+            if (!whse || !planNo) return;
+
+            const fc = getAllFc().find(f => f.warehouse === whse && f.planNo === planNo && f.status === "Confirmed");
+            if (!fc) {
+                alert(`Tidak ada forecast Confirmed untuk Whse ${whse} / Plan ${planNo}.`);
+                return;
+            }
+
+            // Build rows from forecast lines (finalQty = recommendedQty + manualAdjustment)
+            const items = (fc.lines || []).map(l => ({
+                itemCode: l.itemCode,
+                itemName: l.itemName,
+                qty: (Number(l.recommendedQty) || 0) + (Number(l.manualAdjustment) || 0)
+            })).filter(r => r.qty > 0);
+
+            if (items.length === 0) {
+                alert(`Forecast ${fc.fcNo} tidak memiliki item dengan qty > 0.`);
+                return;
+            }
+
+            // Set forecast ref
+            document.getElementById("fcRefInput").value = fc.fcNo;
+
+            // Auto-fill week from forecast period
+            if (fc.period) {
+                const ws = document.getElementById("weekSelect");
+                let matched = false;
+                for (let i = 0; i < ws.options.length; i++) {
+                    if (ws.options[i].value === fc.period) { ws.selectedIndex = i; matched = true; break; }
+                }
+                if (!matched) {
+                    const opt = document.createElement("option");
+                    opt.value = fc.period; opt.textContent = fc.period;
+                    ws.appendChild(opt); ws.value = fc.period;
+                }
+            }
+
+            // Populate Plan Data card
+            populatePlanData(fc);
+
+            // Clear existing rows and populate from forecast
+            const tbody = document.getElementById("itemTbody");
+            tbody.innerHTML = "";
+            items.forEach(item => addRowFromForecast(item.itemCode, item.itemName, item.qty));
+
+            calculateGrandTotal();
+        }
+
+        function populatePlanData(fc) {
+            document.getElementById("pdFcNo").value      = fc.fcNo || "";
+            document.getElementById("pdFcDate").value    = fc.fcDate || "";
+            document.getElementById("pdPeriod").value    = fc.period || "";
+            document.getElementById("pdCompany").value   = fc.company || "";
+            document.getElementById("pdFarm").value      = fc.farm || "";
+            document.getElementById("pdStatus").value    = fc.status || "";
+            document.getElementById("pdPlanNo").value    = fc.planNo || "";
+            document.getElementById("pdPlanDesc").value  = fc.planDesc || "";
+            document.getElementById("pdAge").value           = fc.age || "";
+            document.getElementById("pdDocCodeMale").value   = fc.docCodeMale || "";
+            document.getElementById("pdDocCodeFemale").value = fc.docCodeFemale || "";
+            document.getElementById("pdInitialStock").value  = fc.initialStock || "";
+            document.getElementById("pdCurrentPop").value    = fc.currentPop || "";
+            document.getElementById("pdTotalPop").value      = fc.totalPop || "";
+
+            // Lines table
+            const lines = fc.lines || [];
+            const tbody = document.getElementById("pdLinesBody");
+            let totalRec = 0, totalFinal = 0;
+            tbody.innerHTML = lines.map(l => {
+                const finalQty = (Number(l.recommendedQty) || 0) + (Number(l.manualAdjustment) || 0);
+                totalRec   += Number(l.recommendedQty) || 0;
+                totalFinal += finalQty;
+                const flagCls = l.flag === "Manual" ? "badge bg-warning text-dark" : "badge bg-primary";
+                return `<tr>
+                    <td class="mono small">${l.itemCode}</td>
+                    <td>${l.itemName}</td>
+                    <td><span class="${flagCls}">${l.flag || "Auto"}</span></td>
+                    <td class="text-end">${(l.standardNeed||0).toLocaleString()}</td>
+                    <td class="text-end">${(l.currentStock||0).toLocaleString()}</td>
+                    <td class="text-end">${(l.recommendedQty||0).toLocaleString()}</td>
+                    <td class="text-end">${(l.manualAdjustment||0).toLocaleString()}</td>
+                    <td class="text-end fw-bold text-success">${finalQty.toLocaleString()}</td>
+                </tr>`;
+            }).join("") || '<tr><td colspan="8" class="text-center text-muted py-3">No lines</td></tr>';
+
+            document.getElementById("pdTotalItem").textContent  = lines.length;
+            document.getElementById("pdTotalRec").textContent   = totalRec.toLocaleString();
+            document.getElementById("pdTotalFinal").textContent = totalFinal.toLocaleString();
+
+            // Show the card (expanded by default)
+            const card = document.getElementById("planDataCard");
+            card.style.cssText = ""; // remove !important hide
+            card.style.display = "block";
+            document.getElementById("planDataBody").style.display = "block";
+            const chev = document.getElementById("planDataChevron");
+            if (chev) chev.style.transform = "rotate(0deg)";
+        }
+
+        function togglePlanData() {
+            const body = document.getElementById("planDataBody");
+            const chev = document.getElementById("planDataChevron");
+            const collapsed = body.style.display === "none";
+            body.style.display = collapsed ? "block" : "none";
+            if (chev) chev.style.transform = collapsed ? "rotate(0deg)" : "rotate(180deg)";
+        }
+
+        function addRowFromForecast(itemCode, itemName, qty) {
+            const tbody = document.getElementById('itemTbody');
+            const rowId = 'row-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+
+            const tr = document.createElement('tr');
+            tr.id = rowId;
+            tr.innerHTML = `
+                <td class="td-sleek">
+                    <input type="text" class="form-control form-control-sm table-input item-pick fw-medium"
+                        value="${itemCode} — ${itemName}" readonly style="background:#f8fafc;">
+                    <input type="hidden" class="item-code-hidden" value="${itemCode}">
+                </td>
+                <td class="td-sleek">
+                    <input type="number" class="form-control form-control-sm table-input text-center item-qty" value="${qty}" min="1" oninput="calcSub('${rowId}')">
+                </td>
+                <td class="td-sleek">
+                    <input type="text" class="form-control form-control-sm table-input text-center text-muted item-uom" value="Kg" readonly>
+                </td>
+                <td class="td-sleek text-end">
+                    <input type="number" class="form-control form-control-sm table-input text-end item-price" placeholder="0" oninput="calcSub('${rowId}')">
+                </td>
+                <td class="td-sleek text-end fw-bold mono item-row-total text-dark align-middle">
+                    Rp 0
+                </td>
+                <td class="td-sleek text-center align-middle">
+                    <button class="btn btn-remove btn-sm p-1 px-2" onclick="removeRow('${rowId}')" title="Remove line">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // Mock Item Mapping Data
+        const productCatalog = [
+            { id: 'PKN-008', name: 'Produk PKN-008 (Kg)', price: 50000, uom: 'Kg' },
+            { id: 'PKN-009', name: 'Produk PKN-009 (Kg/Zak)', price: 1000000, uom: 'Zak' },
+            { id: 'AYM-003', name: 'Produk AYM-003 (Ekor)', price: 40000, uom: 'Ekor' },
+            { id: 'AYM-001', name: 'Produk AYM-001', price: 150000, uom: 'Box' },
+            { id: 'PKN-001', name: 'Produk PKN-001', price: 5000, uom: 'Pkt' }
+        ];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('docDate').value = today;
+            document.getElementById('docDelivery').value = today;
+
+            // Auto-gen doc number
+            const rand = Math.floor(Math.random() * 90000) + 10000;
+            document.getElementById('docNo').value = "PO-2026-" + rand;
+
+            // ── DOC Pre-fill (from customer_ForecastList Generate PO) ──
+            const pendingDoc = localStorage.getItem("IBOCS_doc_pending_po");
+            if (pendingDoc) {
+                try {
+                    const d = JSON.parse(pendingDoc);
+                    localStorage.removeItem("IBOCS_doc_pending_po");
+
+                    // Banner
+                    const banner = document.createElement("div");
+                    banner.id = "docSourceBanner";
+                    banner.className = "container pt-3";
+                    banner.innerHTML = `
+                        <div class="alert d-flex align-items-start gap-3 mb-0 rounded-4"
+                             style="background:#eff6ff; border:1.5px solid #93c5fd;">
+                            <i class="bi bi-egg-fill text-primary fs-4 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-primary mb-1">Purchase Order dari DOC Forecast</div>
+                                <div class="d-flex flex-wrap gap-3" style="font-size:.85rem; color:#374151;">
+                                    <span><strong>Company:</strong> ${d.company}</span>
+                                    <span><strong>Farm:</strong> ${d.farm}</span>
+                                    <span><strong>Warehouse:</strong> ${d.warehouse}</span>
+                                    <span><strong>Plan No:</strong> ${d.planNo}</span>
+                                    <span><strong>Item:</strong> ${d.itemCode} — ${d.itemName}</span>
+                                    <span><strong>Required:</strong> ${(d.required||0).toLocaleString()}</span>
+                                    <span><strong>Ready:</strong> ${(d.ready||0).toLocaleString()}</span>
+                                    <span><strong>Gap:</strong> <span style="color:#991b1b;font-weight:700;">${(d.gap||0).toLocaleString()}</span></span>
+                                </div>
+                            </div>
+                            <a href="customer_ForecastList.html" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Kembali
+                            </a>
+                        </div>`;
+                    document.querySelector(".container.py-4").before(banner);
+
+                    // Pre-fill header fields
+                    const whseSel = document.getElementById("whseSelect");
+                    whseSel.value = d.warehouse;
+                    if (!whseSel.value) {
+                        // Warehouse not in list yet — add it
+                        const opt = document.createElement("option");
+                        opt.value = d.warehouse;
+                        opt.textContent = d.warehouse;
+                        whseSel.appendChild(opt);
+                        whseSel.value = d.warehouse;
+                    }
+                    onWhseChange();
+
+                    // Plan select — add DOC plan if not there
+                    const planSel = document.getElementById("planSelect");
+                    let planOpt = [...planSel.options].find(o => o.value === d.planNo);
+                    if (!planOpt) {
+                        planOpt = document.createElement("option");
+                        planOpt.value = d.planNo;
+                        planOpt.textContent = d.planNo;
+                        planSel.appendChild(planOpt);
+                    }
+                    planSel.value = d.planNo;
+                    document.getElementById("fcRefInput").value = d.planNo;
+
+                    // Tag as DOC source (hidden field for savePO to read)
+                    const hiddenSource = document.createElement("input");
+                    hiddenSource.type = "hidden";
+                    hiddenSource.id = "sourceTypeHidden";
+                    hiddenSource.value = "DOC";
+                    document.body.appendChild(hiddenSource);
+
+                    // Pre-fill item rows
+                    document.getElementById("itemTbody").innerHTML = "";
+                    addRowFromForecast(d.itemCode, d.itemName, d.suggestedQty || d.gap || d.required);
+                    calculateGrandTotal();
+
+                } catch(e) { console.error("Error loading DOC pending PO:", e); }
+            } else {
+                // Normal flow: start with one empty row
+                addRow();
+            }
+        });
+
+        function rupiah(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+
+        function addRow() {
+            const tbody = document.getElementById('itemTbody');
+            const rowId = 'row-' + Date.now();
+
+            const tr = document.createElement('tr');
+            tr.id = rowId;
+            tr.innerHTML = `
+                <td class="td-sleek">
+                    <select class="form-select form-select-sm table-input item-pick fw-medium" onchange="onItemChange('${rowId}')">
+                        <option value="" disabled selected>Select Product...</option>
+                        ${productCatalog.map(p => `<option value="${p.id}">${p.id} - ${p.name}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="td-sleek">
+                    <input type="number" class="form-control form-control-sm table-input text-center item-qty" value="1" min="1" oninput="calcSub('${rowId}')">
+                </td>
+                <td class="td-sleek">
+                    <input type="text" class="form-control form-control-sm table-input text-center text-muted item-uom" readonly placeholder="-">
+                </td>
+                <td class="td-sleek text-end">
+                    <input type="number" class="form-control form-control-sm table-input text-end item-price" placeholder="0" oninput="calcSub('${rowId}')">
+                </td>
+                <td class="td-sleek text-end fw-bold mono item-row-total text-dark align-middle">
+                    Rp 0
+                </td>
+                <td class="td-sleek text-center align-middle">
+                    <button class="btn btn-remove btn-sm p-1 px-2" onclick="removeRow('${rowId}')" title="Remove line">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeRow(id) {
+            const row = document.getElementById(id);
+            if (document.querySelectorAll('#itemTbody tr').length > 1) {
+                row.remove();
+                calculateGrandTotal();
+            } else {
+                alert("Order must have at least one line item.");
+            }
+        }
+
+        function onItemChange(rowId) {
+            const row = document.getElementById(rowId);
+            const itemId = row.querySelector('.item-pick').value;
+            const product = productCatalog.find(p => p.id === itemId);
+            if (product) {
+                row.querySelector('.item-price').value = product.price;
+                row.querySelector('.item-uom').value = product.uom;
+                calcSub(rowId);
+            }
+        }
+
+        function calcSub(rowId) {
+            const row = document.getElementById(rowId);
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const sub = qty * price;
+            row.querySelector('.item-row-total').textContent = rupiah(sub);
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('#itemTbody tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                subtotal += (qty * price);
+            });
+
+            const tax = subtotal * 0.11;
+            const grand = subtotal + tax;
+
+            document.getElementById('lblSubtotal').textContent = rupiah(subtotal);
+            document.getElementById('lblTax').textContent = rupiah(tax);
+            document.getElementById('lblGrandTotal').textContent = rupiah(grand);
+        }
+
+        function savePO() {
+            const vendor = document.getElementById('vendorSelect').value;
+            const poNo   = document.getElementById('docNo').value;
+            const date   = document.getElementById('docDate').value;
+            const whse   = document.getElementById('whseSelect').value;
+            const planNo = document.getElementById('planSelect').value;
+            const fcRef  = document.getElementById('fcRefInput').value;
+            const week   = document.getElementById('weekSelect').value;
+
+            if (!vendor) return alert("Please select a Vendor.");
+
+            // Gather Lines
+            const lines = [];
+            let totalSub = 0;
+            let valid = true;
+
+            document.querySelectorAll('#itemTbody tr').forEach(row => {
+                const sku = row.querySelector('.item-pick').value;
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+
+                if (!sku || qty <= 0) valid = false;
+
+                const product = productCatalog.find(p => p.id === sku);
+                lines.push({
+                    sku: sku,
+                    name: product ? product.name : sku,
+                    qty: qty,
+                    price: price
+                });
+                totalSub += (qty * price);
+            });
+
+            if (!valid) return alert("Please fill all item lines correctly.");
+            if (lines.length === 0) return alert("Add at least one item.");
+
+            const grandTotal = totalSub * 1.11;
+
+            // Persistence
+            const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+            const orderLines = JSON.parse(localStorage.getItem(LS_ORDER_LINES) || "{}");
+
+            const sourceTypeEl = document.getElementById("sourceTypeHidden");
+            const newOrder = {
+                no: poNo,
+                customerName: "AYM",
+                customer: "AYM",
+                date: date,
+                total: grandTotal,
+                status: "Open",
+                warehouse: whse,
+                planNo: planNo,
+                fcRef: fcRef,
+                week: week,
+                sourceType: sourceTypeEl ? sourceTypeEl.value : "Feed"
+            };
+
+            orders.unshift(newOrder); // Newest on top
+            orderLines[poNo] = lines;
+
+            localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+            localStorage.setItem(LS_ORDER_LINES, JSON.stringify(orderLines));
+
+            // Success Animation
+            document.getElementById('successOverlay').style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = "customer_orders.html";
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>
+

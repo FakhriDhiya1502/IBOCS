@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer — Payment Status | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+        }
+
+        .muted-xs {
+            font-size: .82rem;
+            color: #6c757d;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .badge-soft {
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                    id="userBtn">User</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="customer_profile.html">Profile</a></li>
+                    <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                    <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2">
+                <div class="card shadow-sm sidebar">
+                    <div class="card-body p-2">
+                        <div class="list-group list-group-flush">
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_dashboard.html">Dashboard</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_catalog.html">Catalog</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_orders.html">Orders</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_delivery.html">Delivery</a>
+                            <a class="list-group-item list-group-item-action nav-pill active"
+                                href="customer_payment.html">Payment Status</a>
+                            <a class="list-group-item list-group-item-action nav-pill" href="customer_pos.html">iREAP POS
+                                Summary</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_profile.html">Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+
+                <div class="mb-2">
+                    <div class="fw-semibold">Payment Status</div>
+                    <div class="muted-xs">
+                        Monitoring status pembayaran ke vendor. Customer tidak dapat mengubah data pembayaran.
+                    </div>
+                </div>
+
+                <!-- Counters -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 bg-primary text-white h-100">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="me-3"><i class="bi bi-cash-stack fs-1 opacity-25"></i></div>
+                                <div>
+                                    <div class="small opacity-75 fw-bold text-uppercase">Total Unpaid</div>
+                                    <div class="fw-bold fs-4" id="cntUnpaid">Rp 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 bg-danger text-white h-100">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="me-3"><i class="bi bi-exclamation-octagon fs-1 opacity-25"></i></div>
+                                <div>
+                                    <div class="small opacity-75 fw-bold text-uppercase">Total Overdue</div>
+                                    <div class="fw-bold fs-4" id="cntOverdue">Rp 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 bg-info text-white h-100">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="me-3"><i class="bi bi-receipt-cutoff fs-1 opacity-25"></i></div>
+                                <div>
+                                    <div class="small opacity-75 fw-bold text-uppercase">Payment Reported</div>
+                                    <div class="fw-bold fs-4" id="cntReported">0 Docs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12 mb-1">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-end-0"><i
+                                            class="bi bi-search text-muted"></i></span>
+                                    <input id="q" class="form-control border-start-0 ps-0"
+                                        placeholder="Cari Order No / Invoice No / Vendor...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="fVendor" class="form-select form-select-sm">
+                                    <option value="">Semua Vendor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="fStatus" class="form-select form-select-sm">
+                                    <option value="">Semua Status</option>
+                                    <option>Unpaid</option>
+                                    <option>Partial</option>
+                                    <option>Paid</option>
+                                    <option>Overdue</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="fAging" class="form-select form-select-sm">
+                                    <option value="">Semua Aging</option>
+                                    <option value="Not Due">Not Due</option>
+                                    <option value="1–7 Days">1–7 Days</option>
+                                    <option value="8–14 Days">8–14 Days</option>
+                                    <option value=">14 Days">&gt;14 Days</option>
+                                    <option value="Paid">Paid (0 Days)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-grid">
+                                <button class="btn btn-sm btn-primary" id="btnApply"><i
+                                        class="bi bi-funnel me-1"></i>Apply Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="card shadow-sm mt-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order No</th>
+                                    <th>Invoice No</th>
+                                    <th>Vendor</th>
+                                    <th>Invoice Date</th>
+                                    <th class="text-center">Tempo</th>
+                                    <th>Due Date</th>
+                                    <th class="text-end">Aging</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Paid</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4">© 2026 IBOCS</div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // =========================
+        // SESSION (konsisten dengan page lain)
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // =========================
+        // STORAGE + HELPERS
+        // =========================
+        const LS_PAY = "IBOCS_customer_payments";
+
+        function rupiah(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+        function loadJson(k, f) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : f } catch (e) { return f } }
+        function saveJson(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+        function parseYMD(s) {
+            // expects YYYY-MM-DD
+            if (!s || typeof s !== "string") return null;
+            const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!m) return null;
+            const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3]);
+            const dt = new Date(Date.UTC(y, mo, d));
+            return isNaN(dt.getTime()) ? null : dt;
+        }
+
+        function fmtYMD(dt) {
+            const y = dt.getUTCFullYear();
+            const m = String(dt.getUTCMonth() + 1).padStart(2, "0");
+            const d = String(dt.getUTCDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function addDays(ymd, days) {
+            const dt = parseYMD(ymd);
+            if (!dt) return null;
+            dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+            return fmtYMD(dt);
+        }
+
+        function diffDays(todayYMD, dueYMD) {
+            const t = parseYMD(todayYMD);
+            const d = parseYMD(dueYMD);
+            if (!t || !d) return 0;
+            const ms = t.getTime() - d.getTime();
+            return Math.floor(ms / (24 * 60 * 60 * 1000));
+        }
+
+        function todayYMD() {
+            // use local date but normalize to YYYY-MM-DD
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, "0");
+            const d = String(now.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function calcStatusAndAging(p, today) {
+            const total = Number(p.total || 0);
+            const paid = Number(p.paid || 0);
+            const outstanding = Math.max(0, total - paid);
+
+            const invDate = p.invoiceDate || null;
+            const term = Number(p.paymentTermDays || 0);
+
+            const due = p.dueDate || (invDate ? addDays(invDate, term) : null);
+            const aging = due ? diffDays(today, due) : 0; // >0 means overdue days
+
+            let status = "Unpaid";
+            if (outstanding <= 0) status = "Paid";
+            else if (paid > 0 && outstanding > 0) status = "Partial";
+            else status = "Unpaid";
+
+            if (outstanding > 0 && due && aging > 0) status = "Overdue";
+
+            // aging bucket
+            let bucket = "Not Due";
+            if (outstanding <= 0) bucket = "Paid";
+            else if (!due) bucket = "No Due Date";
+            else if (aging <= 0) bucket = "Not Due";
+            else if (aging <= 7) bucket = "1–7 Days";
+            else if (aging <= 14) bucket = "8–14 Days";
+            else bucket = ">14 Days";
+
+            return {
+                dueDate: due,
+                outstanding,
+                status,
+                agingDays: outstanding > 0 ? aging : 0,
+                agingBucket: bucket
+            };
+        }
+
+        function badgeStatus(s) {
+            if (s === "Paid") return `<span class="badge bg-success badge-soft">Paid</span>`;
+            if (s === "Partial") return `<span class="badge bg-warning text-dark badge-soft">Partial</span>`;
+            if (s === "Overdue") return `<span class="badge bg-danger badge-soft">Overdue</span>`;
+            return `<span class="badge bg-secondary badge-soft">Unpaid</span>`;
+        }
+
+        function badgeAgingBucket(b) {
+            if (b === "Paid") return `<span class="badge bg-success badge-soft">Paid</span>`;
+            if (b === "Not Due") return `<span class="badge bg-info badge-soft">Not Due</span>`;
+            if (b === "1–7 Days") return `<span class="badge bg-warning text-dark badge-soft">1–7</span>`;
+            if (b === "8–14 Days") return `<span class="badge bg-warning text-dark badge-soft">8–14</span>`;
+            if (b === ">14 Days") return `<span class="badge bg-danger badge-soft">&gt;14</span>`;
+            if (b === "No Due Date") return `<span class="badge bg-secondary badge-soft">No Due</span>`;
+            return `<span class="badge bg-secondary badge-soft">${b}</span>`;
+        }
+
+        // =========================
+        // SEED (Tempo + Aging)
+        // =========================
+        let payments = loadJson(LS_PAY, []);
+
+        // MIGRATION / RESET IF OLD DATA DETECTED
+        // Check if any record is missing the new 'invoiceDate' field
+        const needsUpdate = payments.length > 0 && !payments[0].invoiceDate;
+
+        if (payments.length === 0 || needsUpdate) {
+            payments = [
+                {
+                    orderNo: "ORD-000128",
+                    invoiceNo: "INV-77821",
+                    vendor: "Vendor A",
+                    invoiceDate: "2026-01-08",
+                    paymentTermDays: 14,
+                    // dueDate optional (auto-compute if missing)
+                    total: 1240000,
+                    paid: 0,
+                    status: "Unpaid"
+                },
+                {
+                    orderNo: "ORD-000127",
+                    invoiceNo: "INV-77819",
+                    vendor: "Vendor B",
+                    invoiceDate: "2025-12-25", // Make it slightly in the past
+                    paymentTermDays: 7,
+                    total: 438000,
+                    paid: 200000,
+                    status: "Partial"
+                }
+            ];
+            saveJson(LS_PAY, payments);
+            console.log("Payment data re-seeded with dates.");
+        }
+
+        // Initialize Vendor Dropdown once
+        let distInit = false;
+
+        function render() {
+            const q = (document.getElementById("q").value || "").toLowerCase();
+            const fStatus = document.getElementById("fStatus").value;
+            const fDist = document.getElementById("fVendor").value;
+            const fAging = document.getElementById("fAging").value;
+
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = "";
+
+            const today = todayYMD();
+
+            // Load Evidence for Badging & Counting
+            const evidences = JSON.parse(localStorage.getItem("IBOCS_payment_evidence") || "[]");
+            const evMap = {};
+            let reportedCount = 0;
+            evidences.forEach(e => {
+                // If evidence is REPORTED or VERIFIED, it counts as "Reported" for the counter?
+                // Or just count unique invoices reported.
+                if (!evMap[e.invoiceNo]) {
+                    evMap[e.invoiceNo] = e.status || "REPORTED";
+                    reportedCount++; // Simple count of invoices with evidence
+                } else if (e.status === "VERIFIED") {
+                    evMap[e.invoiceNo] = "VERIFIED"; // Upgrade status
+                }
+            });
+
+            // Pre-process all rows for counters & filters
+            const processed = payments.map(p => {
+                const computed = calcStatusAndAging(p, today);
+                return { ...p, ...computed };
+            });
+
+            // 1. UPDATE DISTRIBUTOR OPTIONS (Once)
+            if (!distInit && processed.length > 0) {
+                const distSet = new Set(processed.map(p => p.vendor).filter(Boolean));
+                const distSel = document.getElementById("fVendor");
+                distSet.forEach(d => {
+                    const opt = document.createElement("option");
+                    opt.value = d;
+                    opt.textContent = d;
+                    distSel.appendChild(opt);
+                });
+                distInit = true;
+            }
+
+            // 2. UPDATE GLOBAL COUNTERS
+            let totalUnpaid = 0;
+            let totalOverdue = 0;
+            processed.forEach(p => {
+                if (p.status !== "Paid") {
+                    totalUnpaid += (p.total - p.paid);
+                }
+                if (p.status === "Overdue") {
+                    totalOverdue += (p.total - p.paid);
+                }
+            });
+            document.getElementById("cntUnpaid").textContent = rupiah(totalUnpaid);
+            document.getElementById("cntOverdue").textContent = rupiah(totalOverdue);
+            document.getElementById("cntReported").textContent = reportedCount + " Invoices";
+
+
+            // 3. FILTERING
+            const rows = processed
+                .filter(p => {
+                    const matchQ = !q ||
+                        (p.orderNo || "").toLowerCase().includes(q) ||
+                        (p.invoiceNo || "").toLowerCase().includes(q) ||
+                        (p.vendor || "").toLowerCase().includes(q);
+
+                    const matchStatus = !fStatus || p.status === fStatus;
+                    const matchDist = !fDist || p.vendor === fDist;
+
+                    let matchAging = true;
+                    if (fAging) {
+                        if (fAging === "Paid") matchAging = (p.status === "Paid");
+                        else matchAging = (p.agingBucket === fAging);
+                    }
+
+                    return matchQ && matchStatus && matchDist && matchAging;
+                })
+                // sort: overdue first, then dueDate asc
+                .sort((a, b) => {
+                    const ao = a.status === "Overdue" ? 0 : 1;
+                    const bo = b.status === "Overdue" ? 0 : 1;
+                    if (ao !== bo) return ao - bo;
+                    return (a.dueDate || "").localeCompare(b.dueDate || "");
+                });
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-4">Tidak ada data.</td></tr>`;
+                return;
+            }
+
+            rows.forEach(p => {
+                const tempoText = p.paymentTermDays != null ? `Net ${Number(p.paymentTermDays || 0)}` : "-";
+                const agingText = (p.status === "Paid") ? "0" : String(Math.max(0, Number(p.agingDays || 0)));
+
+                // Evidence Badge
+                const evSt = evMap[p.invoiceNo];
+                let evBadge = "";
+                if (evSt === "VERIFIED") {
+                    evBadge = `<div class="mt-1"><span class="badge border border-success text-success bg-light" style="font-size:0.65rem">Verified</span></div>`;
+                } else if (evSt) {
+                    evBadge = `<div class="mt-1"><span class="badge border border-info text-info bg-light" style="font-size:0.65rem"><i class="bi bi-clock-history me-1"></i>Reported</span></div>`;
+                }
+
+                tbody.innerHTML += `
+          <tr>
+            <td class="mono">${p.orderNo || "-"}</td>
+            <td class="mono">${p.invoiceNo || "-"}</td>
+            <td>${p.vendor || "-"}</td>
+            <td>${p.invoiceDate || "-"}</td>
+            <td class="text-center">${tempoText}</td>
+            <td>${p.dueDate || "-"}</td>
+            <td class="text-end">
+              <div class="mono">${agingText}</div>
+              <div class="mt-1">${badgeAgingBucket(p.agingBucket)}</div>
+            </td>
+            <td class="text-end">${rupiah(p.total)}</td>
+            <td class="text-end">${rupiah(p.paid)}</td>
+            <td>
+                ${badgeStatus(p.status)}
+                ${evBadge}
+            </td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="customer_payment_detail.html?order=${encodeURIComponent(p.orderNo || "")}">Detail</a>
+            </td>
+          </tr>`;
+            });
+        }
+
+        document.getElementById("btnApply").onclick = render;
+        render();
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOC Execution</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background: #f4f6fb;
+        }
+
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e6ebf2;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .status-green {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-yellow {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-blue {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .table-hover tbody tr:hover {
+            background: #f2f7ff;
+            cursor: pointer;
+        }
+
+        .badge-plan {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .badge-draft {
+            background: #fef5e7;
+            color: #f39c12;
+        }
+
+        .badge-released {
+            background: #eafaf1;
+            color: #27ae60;
+        }
+
+        .badge-po {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .badge-po-none {
+            background: #fdecea;
+            color: #e74c3c;
+        }
+
+        .badge-po-created {
+            background: #eafaf1;
+            color: #27ae60;
+        }
+
+        .detail-box {
+            border: 1px dashed #dbe5ef;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+
+        <h2><i class="fa fa-cube"></i> DOC Execution</h2>
+        <p style="color:#7f8c9a;">Mirror Feed Flow (View → Validate → Generate PO). Draft visible, PO only for Released.
+        </p>
+
+        <!-- KPI -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Required</div>
+                    <div class="kpi-value">80K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Ready</div>
+                    <div class="kpi-value status-green">70K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Gap</div>
+                    <div class="kpi-value status-red">10K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">PO Pending</div>
+                    <div class="kpi-value status-yellow">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER -->
+        <div class="card">
+            <div class="row">
+                <div class="col-md-3"><label>Company</label><select class="form-control">
+                        <option>All</option>
+                    </select></div>
+                <div class="col-md-3"><label>Farm</label><select class="form-control">
+                        <option>All</option>
+                    </select></div>
+                <div class="col-md-3"><label>Plan Status</label><select class="form-control">
+                        <option>All</option>
+                        <option>Draft</option>
+                        <option>Released</option>
+                    </select></div>
+                <div class="col-md-3"><label>PO Status</label><select class="form-control">
+                        <option>All</option>
+                        <option>Not Created</option>
+                        <option>Created</option>
+                    </select></div>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="card">
+            <h4>DOC Execution List</h4>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Farm</th>
+                        <th>Warehouse</th>
+                        <th>Plan No</th>
+                        <th>Plan Status</th>
+                        <th>Item Code</th>
+                        <th>Item Name</th>
+                        <th>Required</th>
+                        <th>Ready</th>
+                        <th>Gap</th>
+                        <th>PO Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr onclick="openDetail()">
+                        <td>PT AYM</td>
+                        <td>Farm 1</td>
+                        <td>KDG-01</td>
+                        <td>PL-001</td>
+                        <td><span class="badge-plan badge-draft">Draft</span></td>
+                        <td>DOC-001</td>
+                        <td>DOC Broiler A</td>
+                        <td>15K</td>
+                        <td>10K</td>
+                        <td class="status-red">5K</td>
+                        <td><span class="badge-po badge-po-none">Not Created</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr onclick="openDetail()">
+                        <td>PT AYM</td>
+                        <td>Farm 1</td>
+                        <td>KDG-02</td>
+                        <td>PL-002</td>
+                        <td><span class="badge-plan badge-released">Released</span></td>
+                        <td>DOC-001</td>
+                        <td>DOC Broiler A</td>
+                        <td>15K</td>
+                        <td>15K</td>
+                        <td>0</td>
+                        <td><span class="badge-po badge-po-none">Not Created</span></td>
+                        <td><button class="btn btn-xs btn-primary" onclick="event.stopPropagation();">Generate
+                                PO</button></td>
+                    </tr>
+                    <tr onclick="openDetail()">
+                        <td>PT AYM</td>
+                        <td>Farm 2</td>
+                        <td>KDG-03</td>
+                        <td>PL-003</td>
+                        <td><span class="badge-plan badge-released">Released</span></td>
+                        <td>DOC-002</td>
+                        <td>DOC Broiler B</td>
+                        <td>18K</td>
+                        <td>18K</td>
+                        <td>0</td>
+                        <td><span class="badge-po badge-po-created">Created</span></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detail" class="card" style="display:none;">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>DOC Detail</h4>
+                </div>
+                <div class="col-md-4 text-right"><button class="btn btn-default btn-sm"
+                        onclick="closeDetail()">Close</button></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="detail-box">
+                        <div>Required</div><b>15K</b>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-box">
+                        <div>Ready</div><b>10K</b>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-box">
+                        <div>Gap</div><b class="status-red">5K</b>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-box">
+                        <div>PO Status</div><b class="status-yellow">Not Created</b>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Batch</th>
+                        <th>DOC Code</th>
+                        <th>Qty Ready</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>HAT-001</td>
+                        <td>DOC-001</td>
+                        <td>10K</td>
+                        <td class="status-yellow">Partial</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function openDetail() {
+            document.getElementById('detail').style.display = 'block';
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+        function closeDetail() {
+            document.getElementById('detail').style.display = 'none';
+        }
+    </script>
+
+</body>
+
+</html>

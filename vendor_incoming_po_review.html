@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor | Review Incoming PO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        :root {
+            --line: #d9e0ea;
+            --primary: #2563eb;
+            --muted: #6b7280;
+            --soft: #f8fafc;
+        }
+
+        .page {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            margin-bottom: 16px;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        /* Section card */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(15,23,42,.05);
+            border: 1px solid var(--line);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            border-bottom: 1px solid var(--line);
+            background: var(--soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body { padding: 16px; }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 16px;
+        }
+
+        .info-item .i-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .info-item .i-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tag-pending  { background: #fef3c7; color: #92400e; }
+        .tag-reviewed { background: #dbeafe; color: #1d4ed8; }
+        .tag-confirmed{ background: #dcfce7; color: #166534; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 700px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #edf0f5;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: var(--soft);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        tbody tr:hover { background: #f9fbff; }
+
+        .qty-input {
+            width: 80px;
+            height: 32px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 0 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+        }
+
+        .qty-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+
+        .qty-input.over { border-color: #ef4444; background: #fef2f2; }
+
+        td.subtotal { font-weight: 700; }
+
+        tfoot td {
+            background: var(--soft);
+            font-weight: 700;
+            border-top: 2px solid var(--line);
+        }
+
+        /* Notes */
+        .notes-area {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            resize: vertical;
+            font-family: inherit;
+            min-height: 70px;
+            outline: none;
+        }
+
+        .notes-area:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+
+        /* Action bar */
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 8px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #e5e7eb;
+            color: #374151;
+            border: 0;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover { background: #d1d5db; }
+
+        .btn-reject {
+            padding: 10px 20px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-reject:hover { background: #fecaca; }
+
+        .btn-confirm {
+            padding: 10px 24px;
+            background: #16a34a;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-confirm:hover { background: #15803d; }
+
+        /* Inline warning */
+        .warn-banner {
+            display: none;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warn-banner.visible { display: flex; }
+
+        /* ============================
+           CONFIRM MODAL
+           ============================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.45);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            width: 520px;
+            max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(15,23,42,.2);
+            overflow: hidden;
+            animation: slideUp .18s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h5 { margin: 0; font-size: 16px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--muted);
+            line-height: 1;
+        }
+
+        .modal-body { padding: 20px; font-size: 13px; }
+
+        .modal-confirm-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .modal-confirm-row .label { color: var(--muted); }
+        .modal-confirm-row .value { font-weight: 700; }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 1100px) { .info-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        @media (max-width: 700px)  { .info-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="vendor_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Vendor Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+                <div class="mb-3">
+                    <a href="vendor_incoming_po_list.html" class="back-link">
+                        <i class="bi bi-arrow-left"></i> Back to Incoming PO List
+                    </a>
+                    <h4 class="mb-0 text-success fw-bold">
+                        <i class="bi bi-file-earmark-check me-2"></i>Review PO &amp; Generate SO
+                    </h4>
+                </div>
+
+                <div class="page shadow-sm">
+
+                    <!-- PO Header Info -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="bi bi-info-circle me-1"></i>Purchase Order Details</span>
+                            <span class="tag tag-pending" id="poStatusTag">Pending</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="i-label">PO Reference</div>
+                                    <div class="i-value" id="infoPORef">PO-0001</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">Customer / Store</div>
+                                    <div class="i-value" id="infoCustomer">Toko Melati (PT. Melati Customer)</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">PO Date</div>
+                                    <div class="i-value" id="infoPODate">2026-04-05</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">Requested Delivery</div>
+                                    <div class="i-value" id="infoDelivery">2026-04-07</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">Warehouse</div>
+                                    <select id="infoWhseSelect" class="form-select form-select-sm" style="font-size: 13px; font-weight: 600; color: #166534; padding: 2px 24px 2px 8px; height: auto; border: 1px solid var(--line); border-radius: 6px;">
+                                        <option value="WH-MAIN">WH-MAIN</option>
+                                        <option value="WH-NORTH">WH-NORTH</option>
+                                        <option value="WH-EAST">WH-EAST</option>
+                                    </select>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">Contact</div>
+                                    <div class="i-value" id="infoContact">Jennie Kim</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">Delivery Address</div>
+                                    <div class="i-value" id="infoAddress">Jl. Melati No. 12, Jakarta</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="i-label">PO Notes</div>
+                                    <div class="i-value" id="infoNotes" style="font-weight:400;color:#6b7280;">Tolong kirim pagi sebelum jam 09.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qty adjustment warning -->
+                    <div class="warn-banner visible" id="warnBanner">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>One or more approved quantities exceed the original PO quantity. Please review before confirming.</span>
+                    </div>
+
+                    <!-- Line Items Review Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="bi bi-list-ul me-1"></i>Line Items — Review &amp; Adjust Quantities</span>
+                            <span style="font-size:12px;color:var(--muted);font-weight:400;">
+                                <i class="bi bi-info-circle me-1"></i>Approved Qty can be less than or equal to Original Qty
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-wrap">
+                                <table id="itemTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>SKU</th>
+                                            <th>Product Name</th>
+                                            <th>Original Qty</th>
+                                            <th>Approved Qty</th>
+                                            <th>Unit Price (Rp)</th>
+                                            <th>Subtotal (Rp)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemBody">
+                                        <!-- Rows injected by JS -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="6" style="text-align:right;">Grand Total</td>
+                                            <td id="grandTotal">Rp 0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Notes -->
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-chat-left-text me-1"></i>Vendor Notes / Remarks</div>
+                        <div class="card-body">
+                            <textarea class="notes-area" id="distNotes" placeholder="Add internal notes or remarks about this order (optional)..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="action-bar">
+                        <button class="btn-cancel" onclick="window.location.href='vendor_incoming_po_list.html'">
+                            <i class="bi bi-x me-1"></i>Cancel
+                        </button>
+                        <button class="btn-reject" onclick="rejectPO()">
+                            <i class="bi bi-x-circle me-1"></i>Reject PO
+                        </button>
+                        <button class="btn-confirm" onclick="openConfirmModal()">
+                            <i class="bi bi-check-circle me-1"></i>Confirm &amp; Generate SO
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    © 2026 IBOCS — Vendor Portal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================
+         CONFIRM MODAL
+         ============================== -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h5><i class="bi bi-check-circle-fill text-success me-2"></i>Confirm &amp; Generate Sales Order</h5>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#6b7280;margin-bottom:16px;">
+                    Please review the summary below before generating the Sales Order.
+                    This action <strong>cannot be undone</strong>.
+                </p>
+                <div id="modalSummary">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeConfirmModal()">
+                    <i class="bi bi-arrow-left me-1"></i>Go Back
+                </button>
+                <button class="btn-confirm" onclick="finalConfirm()">
+                    <i class="bi bi-check-all me-1"></i>Yes, Generate SO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        // SESSION GUARD
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=vendor";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'incoming_po').render();
+            renderItems();
+            // Apply allowRejectPO setting
+            const settingsRaw = localStorage.getItem('IBOCS_platform_settings');
+            const settings = settingsRaw ? JSON.parse(settingsRaw) : {};
+            const allowRejectPO = settings.allowRejectPO ?? true;
+            const rejectBtn = document.querySelector(".btn-reject");
+            if (rejectBtn) rejectBtn.style.display = allowRejectPO ? "" : "none";
+        });
+
+        // ============================
+        // DATA SOURCE
+        // ============================
+        let currentPO = null;
+
+        function getPO(poRef) {
+            const LS_ORDERS = "IBOCS_customer_orders";
+            const LS_ORDER_LINES = "IBOCS_customer_order_lines";
+            
+            const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+            const orderLines = JSON.parse(localStorage.getItem(LS_ORDER_LINES) || "{}");
+            
+            const o = orders.find(x => x.no === poRef);
+            if (!o) return null;
+            
+            const lines = orderLines[o.no] || [];
+            return {
+                poRef: o.no,
+                vendor: o.customerName || o.customer || "Toko Customer",
+                poDate: o.date,
+                deliveryDate: o.requiredDate || o.date,
+                contact: o.contact || "-",
+                address: o.address || "-",
+                notes: o.notes || "",
+                status: o.status || "Pending",
+                whse: o.warehouse || "WH-MAIN",
+                items: lines.map(l => ({
+                    sku: l.sku || "N/A",
+                    name: l.name || l.product,
+                    origQty: parseInt(l.qty) || 0,
+                    price: parseFloat(l.price) || 0
+                }))
+            };
+        }
+
+        function fmt(n) {
+            return "Rp " + n.toLocaleString("id-ID");
+        }
+
+        function renderItems() {
+            const params = new URLSearchParams(window.location.search);
+            const poRef = params.get("id");
+            if(poRef) {
+                currentPO = getPO(poRef);
+            }
+            if(!currentPO) {
+                document.getElementById("infoPORef").textContent = "N/A";
+                document.getElementById("itemBody").innerHTML = `<tr><td colspan="7" style="text-align:center;">No items.</td></tr>`;
+                return;
+            }
+
+            // populate header
+            document.getElementById("infoPORef").textContent = currentPO.poRef;
+            document.getElementById("infoCustomer").textContent = currentPO.vendor;
+            document.getElementById("infoPODate").textContent = currentPO.poDate;
+            document.getElementById("infoDelivery").textContent = currentPO.deliveryDate;
+            document.getElementById("infoContact").textContent = currentPO.contact;
+            document.getElementById("infoAddress").textContent = currentPO.address;
+            document.getElementById("infoWhseSelect").value = currentPO.whse || "WH-MAIN";
+            document.getElementById("infoNotes").textContent = currentPO.notes || "—";
+            
+            const tbody = document.getElementById("itemBody");
+
+            tbody.innerHTML = currentPO.items.map((item, i) => {
+                const subtotal = item.origQty * item.price;
+                return `
+                <tr id="row-${i}">
+                    <td>${i + 1}</td>
+                    <td style="font-weight:700;">${item.sku}</td>
+                    <td>${item.name}</td>
+                    <td>${item.origQty}</td>
+                    <td>
+                        <input
+                            type="number"
+                            class="qty-input"
+                            id="approvedQty-${i}"
+                            value="${item.origQty}"
+                            min="0"
+                            max="${item.origQty}"
+                            oninput="recalcRow(${i})"
+                        >
+                    </td>
+                    <td>${fmt(item.price)}</td>
+                    <td class="subtotal" id="subtotal-${i}">${fmt(subtotal)}</td>
+                </tr>`;
+            }).join("");
+
+            recalcGrandTotal();
+        }
+
+        function recalcRow(i) {
+            if(!currentPO) return;
+            const item  = currentPO.items[i];
+            const input = document.getElementById(`approvedQty-${i}`);
+            const qty   = parseInt(input.value) || 0;
+
+            input.classList.toggle("over", qty > item.origQty);
+
+            const subtotal = qty * item.price;
+            document.getElementById(`subtotal-${i}`).textContent = fmt(subtotal);
+
+            checkOverQty();
+            recalcGrandTotal();
+        }
+
+        function recalcGrandTotal() {
+            let total = 0;
+            if(currentPO) {
+                currentPO.items.forEach((item, i) => {
+                    const qty = parseInt(document.getElementById(`approvedQty-${i}`)?.value) || 0;
+                    total += qty * item.price;
+                });
+            }
+            document.getElementById("grandTotal").textContent = fmt(total);
+        }
+
+        function checkOverQty() {
+            if(!currentPO) return;
+            const hasOver = currentPO.items.some((item, i) => {
+                const qty = parseInt(document.getElementById(`approvedQty-${i}`)?.value) || 0;
+                return qty > item.origQty;
+            });
+            document.getElementById("warnBanner").classList.toggle("visible", hasOver);
+        }
+
+        // ============================
+        // CONFIRM MODAL
+        // ============================
+        function buildModalSummary() {
+            const poRef    = document.getElementById("infoPORef").textContent;
+            const customer = document.getElementById("infoCustomer").textContent;
+            const whse     = document.getElementById("infoWhseSelect").value;
+            const notes    = document.getElementById("distNotes").value.trim();
+            let totalQty   = 0;
+            let totalAmt   = 0;
+
+            if(currentPO) {
+                const rowsHtml = currentPO.items.map((item, i) => {
+                    const qty = parseInt(document.getElementById(`approvedQty-${i}`)?.value) || 0;
+                    totalQty += qty;
+                    totalAmt += qty * item.price;
+                    return `<div class="modal-confirm-row">
+                        <span class="label">${item.sku} — ${item.name}</span>
+                        <span class="value">${qty} pcs</span>
+                    </div>`;
+                }).join("");
+                
+                return `
+                <div class="modal-confirm-row">
+                    <span class="label">PO Reference</span>
+                    <span class="value">${poRef}</span>
+                </div>
+                <div class="modal-confirm-row">
+                    <span class="label">Warehouse</span>
+                    <span class="value text-success">${whse}</span>
+                </div>
+                <!-- additional HTML -->
+                ${rowsHtml}
+                <div class="modal-confirm-row" style="margin-top:8px;">
+                    <span class="label">Total Approved Qty</span>
+                    <span class="value">${totalQty} pcs</span>
+                </div>
+                <div class="modal-confirm-row">
+                    <span class="label">Estimated Total Value</span>
+                    <span class="value">${fmt(totalAmt)}</span>
+                </div>
+                ${notes ? `<div class="modal-confirm-row"><span class="label">Notes</span><span class="value">${notes}</span></div>` : ""}
+                `;
+            }
+            return "";
+
+
+        }
+
+        function openConfirmModal() {
+            document.getElementById("modalSummary").innerHTML = buildModalSummary();
+            document.getElementById("confirmModal").classList.add("open");
+        }
+
+        function closeConfirmModal() {
+            document.getElementById("confirmModal").classList.remove("open");
+        }
+
+        function finalConfirm() {
+            if (currentPO) {
+                const whse = document.getElementById("infoWhseSelect").value;
+                const orders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
+                const idx = orders.findIndex(o => o.no === currentPO.poRef);
+                if (idx !== -1) {
+                    orders[idx].status = "Confirmed";
+                    orders[idx].warehouse = whse;
+                    localStorage.setItem("IBOCS_customer_orders", JSON.stringify(orders));
+                }
+            }
+            // Wire up real API call here
+            closeConfirmModal();
+            alert("Sales Order generated successfully!\n\nSO-202604-XXXX has been created.\n(Wire up backend logic here)");
+            window.location.href = "vendor_incoming_po_list.html";
+        }
+
+        function rejectPO() {
+            if (confirm("Are you sure you want to reject this PO?\n\nThe customer will be notified.")) {
+                if (currentPO) {
+                    const orders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
+                    const idx = orders.findIndex(o => o.no === currentPO.poRef);
+                    if (idx !== -1) {
+                        orders[idx].status = "Rejected";
+                        localStorage.setItem("IBOCS_customer_orders", JSON.stringify(orders));
+                    }
+                }
+                alert("PO rejected. (Wire up backend logic here)");
+                window.location.href = "vendor_incoming_po_list.html";
+            }
+        }
+
+        // Close modal when clicking backdrop
+        document.getElementById("confirmModal").addEventListener("click", function(e) {
+            if (e.target === this) closeConfirmModal();
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+

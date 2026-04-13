@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer | View GRPO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f6fb; color: #1f2937; }
+
+        :root {
+            --line: #d9e2ec;
+            --line-soft: #e8eef5;
+            --soft: #f8fbff;
+            --muted: #6b7280;
+            --title: #0f172a;
+            --primary: #2563eb;
+        }
+
+        .page {
+            max-width: 100%;
+            border-radius: 18px;
+            background: #fff;
+            padding: 28px;
+            border: 1px solid #e7edf5;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, .05);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--line-soft);
+            flex-wrap: wrap;
+        }
+        .page-title {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--title);
+        }
+        .page-subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .btn-back {
+            min-height: 42px;
+            padding: 0 18px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #374151;
+            font-weight: 700;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .info-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .summary-box {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            background: var(--soft);
+            min-height: 92px;
+        }
+        .summary-box .s-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 8px;
+        }
+        .summary-box .s-value { font-size: 24px; font-weight: 700; color: var(--title); }
+        .summary-box .s-value.small { font-size: 14px; }
+
+        .po-card {
+            background: #fff;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, .05);
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+        .po-card-header {
+            padding: 15px 20px;
+            font-weight: 700;
+            font-size: 14px;
+            border-bottom: 1px solid var(--line-soft);
+            background: var(--soft);
+            color: var(--title);
+        }
+        .po-card-body { padding: 20px; }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .field input, .field textarea {
+            width: 100%;
+            min-height: 42px;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--soft);
+            font-size: 13px;
+            color: #111827;
+        }
+        .field textarea { resize: vertical; }
+        .field.span-2 { grid-column: span 2; }
+        .field.span-4 { grid-column: span 4; }
+
+        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #edf0f5; text-align: left; vertical-align: middle; }
+        th {
+            background: var(--soft);
+            font-size: 12px;
+            color: #475569;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        tbody tr:hover { background: #fbfdff; }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tag-gray { background: #e0f2fe; color: #0369a1; }
+        .tag-green { background: #dcfce7; color: #166534; }
+
+        @media (max-width: 900px) {
+            .field-grid, .summary-row { grid-template-columns: repeat(2, 1fr); }
+            .field.span-2, .field.span-4 { grid-column: span 1; }
+        }
+        @media (max-width: 700px) {
+            .page { padding: 20px; border-radius: 14px; }
+            .toolbar { align-items: stretch; }
+        }
+        @media (max-width: 600px) {
+            .field-grid, .summary-row { grid-template-columns: 1fr; }
+            .btn-back { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-lg-2" id="sidebar-container"></div>
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-primary fw-bold"><i class="bi bi-box-seam me-2"></i>GRPO - View</h4>
+                </div>
+
+                <div class="page shadow-sm">
+                    <div class="toolbar">
+                        <div>
+                            <h1 class="page-title" id="grpoTitle">Loading...</h1>
+                            <p class="page-subtitle" id="grpoSubtitle"></p>
+                        </div>
+                        <div>
+                            <a href="customer_GRPOList.html" class="btn-back">&larr; Back to List</a>
+                        </div>
+                    </div>
+
+                    <div class="info-banner">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Dokumen GRPO ditampilkan dalam mode readonly. Field dan detail item mengikuti struktur pada halaman Add GRPO.
+                    </div>
+
+                    <div class="summary-row">
+                        <div class="summary-box">
+                            <div class="s-label">Status</div>
+                            <div class="s-value small" id="vStatus">-</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="s-label">Total Item</div>
+                            <div class="s-value" id="sumItem">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="s-label">Total PO Qty</div>
+                            <div class="s-value" id="sumPoQty">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="s-label">Total Received Qty</div>
+                            <div class="s-value" id="sumRecQty">0</div>
+                        </div>
+                    </div>
+
+                    <div class="po-card">
+                        <div class="po-card-header">Informasi GRPO</div>
+                        <div class="po-card-body">
+                            <div class="field-grid">
+                                <div class="field">
+                                    <label>GRPO No</label>
+                                    <input id="vGrpoNo" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>GRPO Date</label>
+                                    <input id="vGrpoDate" readonly>
+                                </div>
+                                <div class="field span-2">
+                                    <label>PO No</label>
+                                    <input id="vPoDisplay" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>PO Date</label>
+                                    <input id="vPoDate" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Receipt Date</label>
+                                    <input id="vReceiptDate" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Store</label>
+                                    <input id="vStore" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <input id="vCustomer" readonly>
+                                </div>
+                                <div class="field span-2">
+                                    <label>Created By</label>
+                                    <input id="vCreatedBy" readonly>
+                                </div>
+                                <div class="field span-2">
+                                    <label>Created Date</label>
+                                    <input id="vCreatedDate" readonly>
+                                </div>
+                                <div class="field span-4">
+                                    <label>Remarks</label>
+                                    <textarea id="vRemarks" rows="2" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-card">
+                        <div class="po-card-header">Detail Item</div>
+                        <div class="po-card-body">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width:56px;">No</th>
+                                            <th style="min-width:130px;">Item Code</th>
+                                            <th style="min-width:220px;">Item Name</th>
+                                            <th style="width:130px;">PO Qty</th>
+                                            <th style="width:150px;">Received Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemBody">
+                                        <tr><td colspan="5" style="text-align:center;padding:28px;color:#6b7280;">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    &copy; 2026 IBOCS - Customer Portal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        const DEMO_PO = [
+            {
+                poNo: "PO-0001", poDate: "2026-04-01", receiptDate: "2026-04-05", slot: "AM",
+                store: "Toko Melati", customer: "PT. Melati Customer Jaya", status: "Open",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qty: 10 },
+                    { itemCode: "BRD-002", itemName: "Almond Croissant", qty: 5 }
+                ]
+            },
+            {
+                poNo: "PO-0002", poDate: "2026-04-02", receiptDate: "2026-04-06", slot: "PM",
+                store: "Toko ABC", customer: "CV. ABC Sejahtera", status: "Open",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qty: 4 },
+                    { itemCode: "BRD-005", itemName: "Sourdough Loaf", qty: 3 }
+                ]
+            }
+        ];
+
+        const DEMO_GRPO = [
+            {
+                grpoNo: "GRPO-0001", grpoDate: "2026-04-05", poNo: "PO-0001",
+                store: "Toko Melati", customer: "PT. Melati Customer Jaya",
+                totalQty: 15, status: "Closed", remarks: "Penerimaan sesuai PO.",
+                createdBy: "Jennie", createdDate: "2026-04-05 09:10",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qtyOrder: 10, qtyReceived: 10 },
+                    { itemCode: "BRD-002", itemName: "Almond Croissant", qtyOrder: 5, qtyReceived: 5 }
+                ]
+            },
+            {
+                grpoNo: "GRPO-0002", grpoDate: "2026-04-06", poNo: "PO-0002",
+                store: "Toko ABC", customer: "CV. ABC Sejahtera",
+                totalQty: 6, status: "Open", remarks: "Sebagian item diterima.",
+                createdBy: "Admin", createdDate: "2026-04-06 11:30",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qtyOrder: 4, qtyReceived: 4 },
+                    { itemCode: "BRD-005", itemName: "Sourdough Loaf", qtyOrder: 3, qtyReceived: 2 }
+                ]
+            }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'grpo_list').render();
+            loadGRPO();
+        });
+
+        function getPoList() {
+            const stored = JSON.parse(localStorage.getItem("IBOCS_po_list") || "[]");
+            const storedNos = new Set(stored.map(p => p.poNo));
+            return [...stored, ...DEMO_PO.filter(d => !storedNos.has(d.poNo))];
+        }
+
+        function getGrpoList() {
+            const stored = JSON.parse(localStorage.getItem("IBOCS_grpo_list") || "[]");
+            const storedNos = new Set(stored.map(g => g.grpoNo));
+            return [...stored, ...DEMO_GRPO.filter(d => !storedNos.has(d.grpoNo))];
+        }
+
+        function statusTag(status) {
+            const map = {
+                Open: '<span class="tag tag-gray">Open</span>',
+                Closed: '<span class="tag tag-green">Closed</span>'
+            };
+            return map[status] || `<span class="tag tag-gray">${status || '-'}</span>`;
+        }
+
+        function formatNumber(value) {
+            return Number(value || 0).toLocaleString("id-ID");
+        }
+
+        function setValue(id, value) {
+            document.getElementById(id).value = value || "";
+        }
+
+        function loadGRPO() {
+            const grpoNo = new URLSearchParams(window.location.search).get("grpoNo");
+            if (!grpoNo) {
+                document.getElementById("grpoTitle").textContent = "No GRPO selected.";
+                document.getElementById("grpoSubtitle").textContent = "Pilih dokumen dari halaman list.";
+                return;
+            }
+
+            const grpo = getGrpoList().find(g => g.grpoNo === grpoNo);
+            if (!grpo) {
+                document.getElementById("grpoTitle").textContent = `GRPO ${grpoNo} not found.`;
+                document.getElementById("grpoSubtitle").textContent = "Data tidak ditemukan di penyimpanan lokal maupun demo data.";
+                return;
+            }
+
+            const po = getPoList().find(p => p.poNo === grpo.poNo) || {};
+            const rows = Array.isArray(grpo.rows) ? grpo.rows : [];
+            const totalPoQty = rows.reduce((sum, row) => sum + (Number(row.qtyOrder) || 0), 0);
+            const totalRecQty = rows.reduce((sum, row) => sum + (Number(row.qtyReceived) || 0), 0);
+
+            document.getElementById("grpoTitle").textContent = grpo.grpoNo;
+            document.getElementById("grpoSubtitle").textContent = `${grpo.customer || grpo.store || "-"} - ${grpo.grpoDate || "-"}`;
+            document.getElementById("vStatus").innerHTML = statusTag(grpo.status);
+            document.getElementById("sumItem").textContent = formatNumber(rows.length);
+            document.getElementById("sumPoQty").textContent = formatNumber(totalPoQty);
+            document.getElementById("sumRecQty").textContent = formatNumber(totalRecQty);
+
+            setValue("vGrpoNo", grpo.grpoNo);
+            setValue("vGrpoDate", grpo.grpoDate);
+            setValue("vPoDisplay", po.poNo ? `${po.poNo} - ${po.customer || po.store || "-"} (${po.poDate || "-"})` : (grpo.poNo || ""));
+            setValue("vPoDate", po.poDate || "");
+            setValue("vReceiptDate", po.receiptDate || grpo.receiptDate || "");
+            setValue("vStore", grpo.store || po.store || "");
+            setValue("vCustomer", grpo.customer || po.customer || "");
+            setValue("vCreatedBy", grpo.createdBy || user.name || "");
+            setValue("vCreatedDate", grpo.createdDate || "");
+            setValue("vRemarks", grpo.remarks || "");
+
+            const tbody = document.getElementById("itemBody");
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:28px;color:#6b7280;">Tidak ada item.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rows.map((row, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${row.itemCode || "-"}</td>
+                    <td>${row.itemName || "-"}</td>
+                    <td style="text-align:right;">${formatNumber(row.qtyOrder)}</td>
+                    <td style="text-align:right;">${formatNumber(row.qtyReceived)}</td>
+                </tr>
+            `).join("");
+        }
+    </script>
+</body>
+</html>
+
+
+
+

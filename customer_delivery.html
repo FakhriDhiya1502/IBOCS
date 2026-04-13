@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer — Delivery | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+        }
+
+        .muted-xs {
+            font-size: .82rem;
+            color: #6c757d;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .badge-soft {
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="customer_profile.html">Profile</a></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2">
+                <div class="card shadow-sm sidebar">
+                    <div class="card-body p-2">
+                        <div class="list-group list-group-flush">
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_dashboard.html">Dashboard</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_catalog.html">Catalog</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_orders.html">Orders</a>
+                            <a class="list-group-item list-group-item-action nav-pill active"
+                                href="customer_delivery.html">Delivery</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_payment.html">Payment Status</a>
+                            <a class="list-group-item list-group-item-action nav-pill" href="customer_pos.html">iREAP POS
+                                Summary</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_profile.html">Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                        <div class="fw-semibold">Delivery</div>
+                        <div class="muted-xs">
+                            Monitoring status pengiriman dari vendor. Customer tidak dapat membuat/mengubah DO.
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="btnReset">Reset</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-5">
+                                <input class="form-control form-control-sm" id="q"
+                                    placeholder="Cari DO No / Order No / Vendor...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="fDist">
+                                    <option value="">Semua Vendor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="fStatus">
+                                    <option value="">Semua Status</option>
+                                    <option value="DO Issued">DO Issued</option>
+                                    <option value="Shipped">Dikirim</option>
+                                    <option value="In Transit">Dalam Perjalanan</option>
+                                    <option value="Delivered">Diterima</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-grid">
+                                <button class="btn btn-sm btn-primary" id="btnApply">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">Delivery List</div>
+                            <div class="muted-xs" id="meta">-</div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:140px">DO No</th>
+                                    <th style="width:140px">Order No</th>
+                                    <th>Vendor</th>
+                                    <th style="width:140px">ETA</th>
+                                    <th style="width:140px">Status</th>
+                                    <th class="text-end" style="width:120px">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    © 2026 IBOCS — Customer Portal
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // =========================
+        // SESSION GUARD
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // =========================
+        // STORAGE KEYS
+        // =========================
+        const LS_ORDERS = "IBOCS_customer_orders";
+        const LS_DELIVERIES = "IBOCS_customer_deliveries";
+
+        function loadJson(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+        function saveJson(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        // =========================
+        // SEED DATA (demo)
+        // =========================
+        function seedOrdersIfEmpty() {
+            let orders = loadJson(LS_ORDERS, []);
+            if (!orders || orders.length === 0) {
+                orders = [
+                    { no: "ORD-000128", dist: "Vendor A", date: "2026-01-08", status: "Submitted", total: 1240000 },
+                    { no: "ORD-000127", dist: "Vendor B", date: "2026-01-07", status: "Confirmed", total: 438000 }
+                ];
+                saveJson(LS_ORDERS, orders);
+            }
+            return orders;
+        }
+
+        function seedDeliveriesIfEmpty() {
+            let deliveries = loadJson(LS_DELIVERIES, []);
+            let modified = false;
+
+            // 1. Basic init
+            if (!deliveries || deliveries.length === 0) {
+                deliveries = [
+                    {
+                        doNo: "DO-77821",
+                        orderNo: "ORD-000128",
+                        vendor: "Vendor A",
+                        status: "Shipped",
+                        eta: "2026-01-09",
+                        timeline: [
+                            { status: "DO Issued", date: "2026-01-07" },
+                            { status: "Shipped", date: "2026-01-08" }
+                        ]
+                    },
+                    {
+                        doNo: "DO-77819",
+                        orderNo: "ORD-000127",
+                        vendor: "Vendor B",
+                        status: "DO Issued",
+                        eta: "2026-01-08",
+                        timeline: [
+                            { status: "DO Issued", date: "2026-01-07" }
+                        ]
+                    }
+                ];
+                modified = true;
+            }
+
+            // 2. Inject Case: Multiple Delivery / Split Shipment
+            // ORD-000128 will have a second DO (partial delivery scenario)
+            if (!deliveries.some(d => d.doNo === "DO-77821-B")) {
+                deliveries.push({
+                    doNo: "DO-77821-B",
+                    orderNo: "ORD-000128", // SAME Order ID as DO-77821
+                    vendor: "Vendor A",
+                    status: "In Transit",
+                    eta: "2026-01-11",
+                    timeline: [
+                        { status: "DO Issued", date: "2026-01-09" }
+                    ]
+                });
+                modified = true;
+            }
+
+            if (modified) {
+                saveJson(LS_DELIVERIES, deliveries);
+            }
+            return deliveries;
+        }
+
+        const orders = seedOrdersIfEmpty();
+        let deliveries = seedDeliveriesIfEmpty();
+
+        // =========================
+        // FILTER OPTIONS
+        // =========================
+        function renderDistFilter() {
+            const dists = [...new Set(deliveries.map(d => d.vendor))].sort();
+            const sel = document.getElementById("fDist");
+            // reset (keep first option)
+            sel.querySelectorAll("option:not(:first-child)").forEach(o => o.remove());
+            dists.forEach(d => {
+                const opt = document.createElement("option");
+                opt.value = d;
+                opt.textContent = d;
+                sel.appendChild(opt);
+            });
+        }
+
+        function badge(status) {
+            const s = (status || "").toLowerCase();
+            if (s === "do issued") return `<span class="badge bg-info badge-soft">DO Issued</span>`;
+            if (s === "shipped") return `<span class="badge bg-warning text-dark badge-soft">Dikirim</span>`;
+            if (s === "in transit") return `<span class="badge bg-primary badge-soft">Dalam Perjalanan</span>`;
+            if (s === "delivered") return `<span class="badge bg-success badge-soft">Diterima</span>`;
+            return `<span class="badge bg-secondary badge-soft">${status || "-"}</span>`;
+        }
+
+        // =========================
+        // RENDER TABLE
+        // =========================
+        function render() {
+            const q = (document.getElementById("q").value || "").trim().toLowerCase();
+            const fDist = document.getElementById("fDist").value;
+            const fStatus = document.getElementById("fStatus").value;
+
+            // only show deliveries whose order exists
+            const orderSet = new Set(orders.map(o => o.no));
+
+            let rows = deliveries.filter(d => {
+                if (!orderSet.has(d.orderNo)) return false;
+
+                const matchQ = !q || (
+                    (d.doNo || "").toLowerCase().includes(q) ||
+                    (d.orderNo || "").toLowerCase().includes(q) ||
+                    (d.vendor || "").toLowerCase().includes(q)
+                );
+                const matchD = !fDist || d.vendor === fDist;
+                const matchS = !fStatus || d.status === fStatus;
+                return matchQ && matchD && matchS;
+            });
+
+            // sort by orderNo desc, then DO no (grouping look)
+            rows.sort((a, b) => b.orderNo.localeCompare(a.orderNo) || a.doNo.localeCompare(b.doNo));
+
+            document.getElementById("meta").textContent = `${rows.length} delivery`;
+
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = "";
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data delivery.</td></tr>`;
+                return;
+            }
+
+            // Detect multiple DOs per order for badging (using raw deliveries to be accurate event if filtered)
+            const orderCounts = {};
+            deliveries.forEach(r => { orderCounts[r.orderNo] = (orderCounts[r.orderNo] || 0) + 1; });
+
+            rows.forEach(d => {
+                const isMulti = orderCounts[d.orderNo] > 1;
+                const splitBadge = isMulti ? `<span class="badge bg-secondary text-white ms-1" style="font-size:0.65rem">Partial</span>` : "";
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+        <td class="mono fw-semibold">${d.doNo}</td>
+        <td class="mono">
+          <a href="customer_order_detail.html?no=${encodeURIComponent(d.orderNo)}" class="text-decoration-none">${d.orderNo}</a>
+          ${splitBadge}
+        </td>
+        <td>${d.vendor}</td>
+        <td>${d.eta || "-"}</td>
+        <td>${badge(d.status)}</td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-primary" href="customer_delivery_detail.html?do=${encodeURIComponent(d.doNo)}">Detail</a>
+        </td>
+      `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================
+        // EVENTS
+        // =========================
+        document.getElementById("btnApply").addEventListener("click", render);
+        document.getElementById("btnReset").addEventListener("click", () => {
+            document.getElementById("q").value = "";
+            document.getElementById("fDist").value = "";
+            document.getElementById("fStatus").value = "";
+            render();
+        });
+
+        // Enter on search
+        document.getElementById("q").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") render();
+        });
+
+        // init
+        renderDistFilter();
+        render();
+    </script>
+
+</body>
+
+</html>
+

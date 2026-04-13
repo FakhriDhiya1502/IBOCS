@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feed Forecast - Portal Order Confirmation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <style>
+        body {
+            background: #f4f6fb;
+            color: #2f3a4a;
+        }
+
+        .page-wrap {
+            background: #fff;
+            border: 1px solid #e4ebf3;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(25, 42, 70, 0.05);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .page-note {
+            color: #7d8b99;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e7edf3;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin: 0 0 10px;
+        }
+
+        .section-note {
+            color: #7d8b99;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .toolbar-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .btn-space .btn,
+        .utility-actions .btn {
+            margin-left: 6px;
+        }
+
+        .kpi-card {
+            min-height: 90px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #7f8c9a;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .status-green {
+            color: #2ecc71;
+            font-weight: 700;
+        }
+
+        .status-yellow {
+            color: #f39c12;
+            font-weight: 700;
+        }
+
+        .status-blue {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .status-gray {
+            color: #7f8c8d;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow: auto;
+        }
+
+        .table>thead>tr>th {
+            white-space: nowrap;
+        }
+
+        .table-hover tbody tr:hover {
+            background: #f3f8ff;
+        }
+
+        .inline-actions .btn {
+            margin-right: 4px;
+        }
+
+        .bulk-bar {
+            padding: 10px;
+            border: 1px dashed #dbe5ef;
+            border-radius: 8px;
+            background: #fbfdff;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .bulk-bar.active {
+            display: block;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .recommendation-box {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .recommendation-box.active {
+            display: block;
+        }
+
+        .tag-auto,
+        .tag-manual {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .tag-auto {
+            background: #eef5fc;
+            color: #337ab7;
+        }
+
+        .tag-manual {
+            background: #fff3e6;
+            color: #e67e22;
+        }
+
+        .filter-box {
+            display: none;
+            padding: 12px;
+            border: 1px dashed #dbe5ef;
+            border-radius: 8px;
+            background: #fbfdff;
+            margin-bottom: 10px;
+        }
+
+        .filter-box.active {
+            display: block;
+        }
+
+        .pagination-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .pagination-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pager-btn {
+            min-width: 80px;
+        }
+
+        .select-sm {
+            width: auto;
+            display: inline-block;
+        }
+
+        .readonly-field {
+            background: #f8fafc !important;
+        }
+
+        .plan-mini {
+            margin-top: 8px;
+            padding: 10px;
+            border: 1px solid #e8eef5;
+            border-radius: 8px;
+            background: #fbfdff;
+        }
+
+        .plan-mini .row>div {
+            margin-bottom: 8px;
+        }
+
+        .icon-btn {
+            min-width: 36px;
+        }
+
+        .info-panel {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #e8eef5;
+            border-radius: 8px;
+            background: #fbfdff;
+        }
+
+        .info-value {
+            font-weight: 700;
+        }
+
+        .mode-chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 6px;
+        }
+
+        .mode-create {
+            background: #eef5fc;
+            color: #337ab7;
+        }
+
+        .mode-edit {
+            background: #fff7e8;
+            color: #d68910;
+        }
+
+        .mode-view {
+            background: #eef8f1;
+            color: #2e8b57;
+        }
+
+        .action-footer {
+            margin-top: 12px;
+            text-align: right;
+        }
+
+        .action-footer .btn {
+            margin-left: 6px;
+        }
+
+        .disabled-cell {
+            background: #fafbfd;
+            color: #7f8c8d;
+        }
+
+        .showmore-box {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .showmore-box.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid page-wrap">
+        <div class="toolbar">
+            <div>
+                <h1 class="page-title"><i class="fa fa-sitemap"></i> Feed Forecast</h1>
+                <div class="page-note">List document forecast. Create → Draft → Confirm → Generate PO.</div>
+            </div>
+            <div class="btn-space">
+                <button class="btn btn-primary btn-sm" onclick="openCreateForecast()"><i class="fa fa-plus"></i> Create
+                    Forecast</button>
+                <button class="btn btn-default btn-sm" onclick="showPanel('list-panel')"><i class="fa fa-refresh"></i>
+                    Refresh</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <div class="card kpi-card">
+                    <div class="kpi-label">Draft</div>
+                    <div class="kpi-value">7</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card kpi-card">
+                    <div class="kpi-label">Confirmed</div>
+                    <div class="kpi-value status-green">10</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card kpi-card">
+                    <div class="kpi-label">PO Created</div>
+                    <div class="kpi-value status-blue">4</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card kpi-card">
+                    <div class="kpi-label">Closed</div>
+                    <div class="kpi-value status-gray">3</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="list-panel" class="card panel active">
+            <div class="toolbar-mini">
+                <div>
+                    <h4 class="section-title" style="margin-bottom:4px;"><i class="fa fa-list"></i> Forecast List</h4>
+                    <div class="section-note" style="margin-bottom:0;">Action utama di list hanya View, Edit, dan Print.
+                        Confirm dan Generate PO dilakukan di dalam view.</div>
+                </div>
+                <div class="utility-actions">
+                    <button class="btn btn-default btn-sm" onclick="toggleFilterBox()"><i class="fa fa-filter"></i>
+                        Filter</button>
+                    <button class="btn btn-default btn-sm"><i class="fa fa-columns"></i> Column Settings</button>
+                    <button class="btn btn-default btn-sm"><i class="fa fa-file-excel-o"></i> XLSX</button>
+                    <button class="btn btn-default btn-sm"><i class="fa fa-file-text-o"></i> CSV</button>
+                </div>
+            </div>
+
+            <div id="filter-box" class="filter-box">
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-2"><label>Company</label><select class="form-control">
+                            <option>All</option>
+                            <option>PT TOP</option>
+                            <option>PT AYM</option>
+                        </select></div>
+                    <div class="col-md-2"><label>Farm</label><select class="form-control">
+                            <option>All</option>
+                            <option>Farm Deli</option>
+                            <option>Farm Binjai</option>
+                        </select></div>
+                    <div class="col-md-2"><label>Status</label><select id="filter-status" class="form-control"
+                            onchange="toggleBulk()">
+                            <option value="ALL">All</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="CONFIRMED">Confirmed</option>
+                            <option value="PO_CREATED">PO Created</option>
+                            <option value="CLOSED">Closed</option>
+                        </select></div>
+                    <div class="col-md-3"><label>Forecast Date</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="date" class="form-control" />
+                            <input type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-3"><label>Search</label><input class="form-control"
+                            placeholder="Forecast No / Warehouse / Plan" /></div>
+                </div>
+                <div class="text-right btn-space">
+                    <button class="btn btn-default btn-sm">Reset</button>
+                    <button class="btn btn-primary btn-sm">Apply Filter</button>
+                </div>
+            </div>
+
+            <div id="bulk-bar" class="bulk-bar">
+                <span id="bulk-label"></span>
+                <div class="pull-right">
+                    <button id="bulk-btn" class="btn btn-primary btn-sm">Execute</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" /></th>
+                            <th>Forecast No</th>
+                            <th>Forecast Date</th>
+                            <th>Period</th>
+                            <th>Company</th>
+                            <th>Farm</th>
+                            <th>Warehouse</th>
+                            <th>Plan No</th>
+                            <th>Plan Description</th>
+                            <th>Total Qty</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" /></td>
+                            <td>FC-001</td>
+                            <td>2026-04-29</td>
+                            <td>Week 18</td>
+                            <td>PT TOP</td>
+                            <td>Farm Deli</td>
+                            <td>WH-KDG01</td>
+                            <td>PL-001</td>
+                            <td>Broiler Cycle 18</td>
+                            <td>13,000</td>
+                            <td class="status-yellow">Draft</td>
+                            <td class="inline-actions">
+                                <button class="btn btn-xs btn-default"
+                                    onclick="openViewForecast('FC-001')">View</button>
+                                <button class="btn btn-xs btn-warning"
+                                    onclick="openEditForecast('FC-001')">Edit</button>
+                                <button class="btn btn-xs btn-info">Print</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" /></td>
+                            <td>FC-002</td>
+                            <td>2026-04-29</td>
+                            <td>Week 18</td>
+                            <td>PT TOP</td>
+                            <td>Farm Deli</td>
+                            <td>WH-KDG02</td>
+                            <td>PL-002</td>
+                            <td>Broiler Cycle 18</td>
+                            <td>15,000</td>
+                            <td class="status-green">Confirmed</td>
+                            <td class="inline-actions">
+                                <button class="btn btn-xs btn-default"
+                                    onclick="openViewForecast('FC-002')">View</button>
+                                <button class="btn btn-xs btn-info">Print</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" /></td>
+                            <td>FC-003</td>
+                            <td>2026-04-28</td>
+                            <td>Week 18</td>
+                            <td>PT AYM</td>
+                            <td>Farm Binjai</td>
+                            <td>WH-KDG03</td>
+                            <td>PL-008</td>
+                            <td>Broiler Cycle 21</td>
+                            <td>10,500</td>
+                            <td class="status-blue">PO Created</td>
+                            <td class="inline-actions">
+                                <button class="btn btn-xs btn-default"
+                                    onclick="openViewForecast('FC-003')">View</button>
+                                <button class="btn btn-xs btn-info">Print</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-wrap">
+                <div class="pagination-inline">
+                    <span>Show</span>
+                    <select class="form-control input-sm select-sm">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                    <span>per page</span>
+                </div>
+                <div class="pagination-inline"><span>Showing 1 to 3 of 24 entries</span></div>
+                <div class="pagination-inline btn-space" style="margin-left:0;">
+                    <button class="btn btn-default btn-sm pager-btn"><i class="fa fa-angle-left"></i> Back</button>
+                    <button class="btn btn-default btn-sm">1</button>
+                    <button class="btn btn-primary btn-sm">2</button>
+                    <button class="btn btn-default btn-sm">3</button>
+                    <button class="btn btn-default btn-sm pager-btn">Next <i class="fa fa-angle-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="create-panel" class="card panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 class="section-title"><i class="fa fa-plus-circle"></i> Create Forecast <span
+                            class="mode-chip mode-create">Create</span></h4>
+                    <div class="section-note">Pilih Plan No. lalu sistem mengisi informasi plan dan recommendation dari
+                        SAP.</div>
+                </div>
+                <div class="col-sm-4 text-right btn-space">
+                    <button class="btn btn-default btn-sm" onclick="showPanel('list-panel')">Back to List</button>
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-2"><label>Forecast No</label><input class="form-control readonly-field"
+                        value="Auto Number" readonly /></div>
+                <div class="col-md-2"><label>Forecast Date</label><input type="date" class="form-control"
+                        value="2026-04-29" /></div>
+                <div class="col-md-2"><label>Period</label><select class="form-control">
+                        <option>Week 18</option>
+                        <option>Week 19</option>
+                    </select></div>
+                <div class="col-md-3"><label>Plan No.</label>
+                    <div style="display:flex; gap:5px;">
+                        <input id="plan-no-input" class="form-control" value="PL-001" readonly />
+                        <button class="btn btn-default icon-btn" type="button" onclick="pickPlan()"><i
+                                class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-3"><label>Plan Description</label><input id="plan-desc-field"
+                        class="form-control readonly-field" value="Broiler Cycle 18" readonly /></div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-3"><label>Company</label><input id="company-field"
+                        class="form-control readonly-field" value="PT TOP" readonly /></div>
+                <div class="col-md-3"><label>Farm</label><input id="farm-field" class="form-control readonly-field"
+                        value="Farm Deli" readonly /></div>
+                <div class="col-md-3"><label>Warehouse</label><input id="warehouse-field"
+                        class="form-control readonly-field" value="WH-KDG01" readonly /></div>
+                <div class="col-md-3"><label>Status</label><input class="form-control readonly-field" value="Draft"
+                        readonly /></div>
+            </div>
+
+            <div class="text-right" style="margin-bottom:8px;">
+                <button class="btn btn-link btn-sm" type="button" onclick="toggleShowMore('create-showmore')">Show More
+                    Plan Detail</button>
+            </div>
+
+            <div id="create-showmore" class="showmore-box plan-mini active">
+                <div class="row">
+                    <div class="col-md-2"><label>Age</label><input id="age-field" class="form-control readonly-field"
+                            value="21 Hari" readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Male</label><input id="doc-code-male"
+                            class="form-control readonly-field" value="DOC-M-001" readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Female</label><input id="doc-code-female"
+                            class="form-control readonly-field" value="DOC-F-001" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Male</label><input id="doc-name-male"
+                            class="form-control readonly-field" value="DOC Male Premium" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Female</label><input id="doc-name-female"
+                            class="form-control readonly-field" value="DOC Female Premium" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3"><label>Initial Stock (M/F)</label><input id="initial-stock"
+                            class="form-control readonly-field" value="5,000 / 5,000" readonly /></div>
+                    <div class="col-md-3"><label>Current Population (M/F)</label><input id="current-pop"
+                            class="form-control readonly-field" value="4,900 / 4,950" readonly /></div>
+                    <div class="col-md-3"><label>Total Current Population</label><input id="total-pop"
+                            class="form-control readonly-field" value="9,850" readonly /></div>
+                    <div class="col-md-3"><label>Plan Source</label><input class="form-control readonly-field"
+                            value="SAP Plan" readonly /></div>
+                </div>
+            </div>
+
+            <div class="text-right btn-space" style="margin-top:10px;">
+                <button class="btn btn-primary btn-sm" onclick="generateRecommendation()">Generate
+                    Recommendation</button>
+            </div>
+
+            <div id="recommendation-result" class="recommendation-box">
+                <hr />
+                <div class="row">
+                    <div class="col-sm-8">
+                        <h4 class="section-title"><i class="fa fa-magic"></i> Recommendation Result</h4>
+                        <div class="section-note">System-generated lines from SAP basis. Manual item bisa ditambahkan,
+                            dan untuk item manual hanya Manual Adjustment yang diisi user.</div>
+                    </div>
+                    <div class="col-sm-4 text-right btn-space">
+                        <button class="btn btn-default btn-sm" onclick="addManualItem('create-lines-table')">Add
+                            Item</button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="table table-bordered forecast-lines-table" id="create-lines-table">
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>Flag</th>
+                                <th>Standard Need</th>
+                                <th>Current Stock</th>
+                                <th>Recommended Qty</th>
+                                <th>Manual Adjustment</th>
+                                <th>Final Qty</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FD-ST-001</td>
+                                <td>Starter Feed</td>
+                                <td><span class="tag-auto">Auto</span></td>
+                                <td class="standard-need">7000</td>
+                                <td>500</td>
+                                <td class="recommended-qty">7500</td>
+                                <td><input class="form-control input-sm manual-adjust" value="0" /></td>
+                                <td class="final-qty">7500</td>
+                                <td><button class="btn btn-xs btn-danger" onclick="deleteRow(this)">Delete</button></td>
+                            </tr>
+                            <tr>
+                                <td>FD-GR-003</td>
+                                <td>Grower Feed</td>
+                                <td><span class="tag-auto">Auto</span></td>
+                                <td class="standard-need">5000</td>
+                                <td>200</td>
+                                <td class="recommended-qty">5500</td>
+                                <td><input class="form-control input-sm manual-adjust" value="0" /></td>
+                                <td class="final-qty">5500</td>
+                                <td><button class="btn btn-xs btn-danger" onclick="deleteRow(this)">Delete</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-panel">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="section-note" style="margin-bottom:2px;">Total Item</div>
+                            <div class="info-value" id="create-total-item">2</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="section-note" style="margin-bottom:2px;">Total Recommended Qty</div>
+                            <div class="info-value" id="create-total-recommended">13000</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="section-note" style="margin-bottom:2px;">Total Final Qty</div>
+                            <div class="info-value" id="create-total-final">13000</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="section-note" style="margin-bottom:2px;">Mode</div>
+                            <div class="info-value">Draft Candidate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    <button class="btn btn-default btn-sm" onclick="showPanel('list-panel')">Cancel</button>
+                    <button class="btn btn-primary btn-sm">Save as Draft</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-panel" class="card panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 class="section-title"><i class="fa fa-eye"></i> View Forecast <span
+                            class="mode-chip mode-view">View</span></h4>
+                    <div class="section-note">View readonly. Confirm dan Generate PO dilakukan dari screen ini sesuai
+                        status document.</div>
+                </div>
+                <div class="col-sm-4 text-right btn-space">
+                    <button class="btn btn-default btn-sm" onclick="showPanel('list-panel')">Back to List</button>
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-2"><label>Forecast No</label><input id="view-forecast-no"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-2"><label>Forecast Date</label><input id="view-forecast-date"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-2"><label>Period</label><input id="view-period" class="form-control readonly-field"
+                        readonly /></div>
+                <div class="col-md-3"><label>Plan No.</label><input id="view-plan-no"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-3"><label>Plan Description</label><input id="view-plan-desc"
+                        class="form-control readonly-field" readonly /></div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-3"><label>Company</label><input id="view-company" class="form-control readonly-field"
+                        readonly /></div>
+                <div class="col-md-3"><label>Farm</label><input id="view-farm" class="form-control readonly-field"
+                        readonly /></div>
+                <div class="col-md-3"><label>Warehouse</label><input id="view-warehouse"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-3"><label>Status</label><input id="view-status" class="form-control readonly-field"
+                        readonly /></div>
+            </div>
+
+            <div class="text-right" style="margin-bottom:8px;">
+                <button class="btn btn-link btn-sm" type="button" onclick="toggleShowMore('view-showmore')">Show More
+                    Plan Detail</button>
+            </div>
+
+            <div id="view-showmore" class="showmore-box plan-mini">
+                <div class="row">
+                    <div class="col-md-2"><label>Age</label><input id="view-age" class="form-control readonly-field"
+                            readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Male</label><input id="view-doc-code-male"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Female</label><input id="view-doc-code-female"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Male</label><input id="view-doc-name-male"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Female</label><input id="view-doc-name-female"
+                            class="form-control readonly-field" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3"><label>Initial Stock (M/F)</label><input id="view-initial-stock"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Current Population (M/F)</label><input id="view-current-pop"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Total Current Population</label><input id="view-total-pop"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Plan Source</label><input class="form-control readonly-field"
+                            value="SAP Plan" readonly /></div>
+                </div>
+            </div>
+
+            <div class="table-wrap" style="margin-top:10px;">
+                <table class="table table-bordered" id="view-lines-table">
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Flag</th>
+                            <th>Standard Need</th>
+                            <th>Current Stock</th>
+                            <th>Recommended Qty</th>
+                            <th>Manual Adjustment</th>
+                            <th>Final Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="info-panel">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Item</div>
+                        <div class="info-value" id="view-total-item">0</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Recommended Qty</div>
+                        <div class="info-value" id="view-total-recommended">0</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Final Qty</div>
+                        <div class="info-value" id="view-total-final">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-footer" id="view-footer-actions"></div>
+        </div>
+
+        <div id="edit-panel" class="card panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 class="section-title"><i class="fa fa-pencil-square-o"></i> Edit Forecast <span
+                            class="mode-chip mode-edit">Edit</span></h4>
+                    <div class="section-note">Edit hanya tersedia untuk Draft. Struktur sama seperti Create, tetapi
+                        document sudah tersimpan.</div>
+                </div>
+                <div class="col-sm-4 text-right btn-space">
+                    <button class="btn btn-default btn-sm" onclick="showPanel('list-panel')">Back to List</button>
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-2"><label>Forecast No</label><input id="edit-forecast-no"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-2"><label>Forecast Date</label><input id="edit-forecast-date" type="date"
+                        class="form-control" /></div>
+                <div class="col-md-2"><label>Period</label><select id="edit-period" class="form-control">
+                        <option>Week 18</option>
+                        <option>Week 19</option>
+                    </select></div>
+                <div class="col-md-3"><label>Plan No.</label>
+                    <div style="display:flex; gap:5px;">
+                        <input id="edit-plan-no" class="form-control" readonly />
+                        <button class="btn btn-default icon-btn" type="button" onclick="pickPlanForEdit()"><i
+                                class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-3"><label>Plan Description</label><input id="edit-plan-desc"
+                        class="form-control readonly-field" readonly /></div>
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-md-3"><label>Company</label><input id="edit-company" class="form-control readonly-field"
+                        readonly /></div>
+                <div class="col-md-3"><label>Farm</label><input id="edit-farm" class="form-control readonly-field"
+                        readonly /></div>
+                <div class="col-md-3"><label>Warehouse</label><input id="edit-warehouse"
+                        class="form-control readonly-field" readonly /></div>
+                <div class="col-md-3"><label>Status</label><input class="form-control readonly-field" value="Draft"
+                        readonly /></div>
+            </div>
+
+            <div class="text-right" style="margin-bottom:8px;">
+                <button class="btn btn-link btn-sm" type="button" onclick="toggleShowMore('edit-showmore')">Show More
+                    Plan Detail</button>
+            </div>
+
+            <div id="edit-showmore" class="showmore-box plan-mini">
+                <div class="row">
+                    <div class="col-md-2"><label>Age</label><input id="edit-age" class="form-control readonly-field"
+                            readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Male</label><input id="edit-doc-code-male"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-2"><label>DOC Code Female</label><input id="edit-doc-code-female"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Male</label><input id="edit-doc-name-male"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>DOC Name Female</label><input id="edit-doc-name-female"
+                            class="form-control readonly-field" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3"><label>Initial Stock (M/F)</label><input id="edit-initial-stock"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Current Population (M/F)</label><input id="edit-current-pop"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Total Current Population</label><input id="edit-total-pop"
+                            class="form-control readonly-field" readonly /></div>
+                    <div class="col-md-3"><label>Plan Source</label><input class="form-control readonly-field"
+                            value="SAP Plan" readonly /></div>
+                </div>
+            </div>
+
+            <div class="table-wrap" style="margin-top:10px;">
+                <table class="table table-bordered forecast-lines-table" id="edit-lines-table">
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Flag</th>
+                            <th>Standard Need</th>
+                            <th>Current Stock</th>
+                            <th>Recommended Qty</th>
+                            <th>Manual Adjustment</th>
+                            <th>Final Qty</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="info-panel">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Item</div>
+                        <div class="info-value" id="edit-total-item">0</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Recommended Qty</div>
+                        <div class="info-value" id="edit-total-recommended">0</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="section-note" style="margin-bottom:2px;">Total Final Qty</div>
+                        <div class="info-value" id="edit-total-final">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-footer">
+                <button class="btn btn-default btn-sm">Refresh from SAP</button>
+                <button class="btn btn-default btn-sm">Recalculate Recommendation</button>
+                <button class="btn btn-default btn-sm" onclick="addManualItem('edit-lines-table')">Add Item</button>
+                <button class="btn btn-primary btn-sm">Save Draft</button>
+                <button class="btn btn-success btn-sm">Confirm Forecast</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const forecastDataset = {
+            'FC-001': {
+                forecastNo: 'FC-001', forecastDate: '2026-04-29', period: 'Week 18', company: 'PT TOP', farm: 'Farm Deli', warehouse: 'WH-KDG01',
+                planNo: 'PL-001', planDesc: 'Broiler Cycle 18', age: '21 Hari', docCodeMale: 'DOC-M-001', docCodeFemale: 'DOC-F-001',
+                docNameMale: 'DOC Male Premium', docNameFemale: 'DOC Female Premium', initialStock: '5,000 / 5,000', currentPop: '4,900 / 4,950', totalPop: '9,850', status: 'Draft',
+                lines: [
+                    { itemCode: 'FD-ST-001', itemName: 'Starter Feed', flag: 'Auto', standardNeed: 7000, currentStock: 500, recommendedQty: 7500, manualAdjustment: 300 },
+                    { itemCode: 'FD-GR-003', itemName: 'Grower Feed', flag: 'Auto', standardNeed: 5000, currentStock: 200, recommendedQty: 5500, manualAdjustment: 200 }
+                ]
+            },
+            'FC-002': {
+                forecastNo: 'FC-002', forecastDate: '2026-04-29', period: 'Week 18', company: 'PT TOP', farm: 'Farm Deli', warehouse: 'WH-KDG02',
+                planNo: 'PL-002', planDesc: 'Broiler Cycle 18', age: '23 Hari', docCodeMale: 'DOC-M-001', docCodeFemale: 'DOC-F-001',
+                docNameMale: 'DOC Male Premium', docNameFemale: 'DOC Female Premium', initialStock: '5,000 / 5,000', currentPop: '4,850 / 4,900', totalPop: '9,750', status: 'Confirmed',
+                lines: [
+                    { itemCode: 'FD-ST-001', itemName: 'Starter Feed', flag: 'Auto', standardNeed: 8000, currentStock: 400, recommendedQty: 8000, manualAdjustment: 0 },
+                    { itemCode: 'FD-FN-002', itemName: 'Finisher Feed', flag: 'Auto', standardNeed: 7000, currentStock: 300, recommendedQty: 7000, manualAdjustment: 0 }
+                ]
+            },
+            'FC-003': {
+                forecastNo: 'FC-003', forecastDate: '2026-04-28', period: 'Week 18', company: 'PT AYM', farm: 'Farm Binjai', warehouse: 'WH-KDG03',
+                planNo: 'PL-008', planDesc: 'Broiler Cycle 21', age: '18 Hari', docCodeMale: 'DOC-M-008', docCodeFemale: 'DOC-F-008',
+                docNameMale: 'DOC Male Select', docNameFemale: 'DOC Female Select', initialStock: '4,800 / 4,800', currentPop: '4,600 / 4,650', totalPop: '9,250', status: 'PO Created',
+                lines: [
+                    { itemCode: 'FD-ST-001', itemName: 'Starter Feed', flag: 'Auto', standardNeed: 6200, currentStock: 200, recommendedQty: 6200, manualAdjustment: 0 },
+                    { itemCode: 'FD-GR-003', itemName: 'Grower Feed', flag: 'Manual', standardNeed: 0, currentStock: 0, recommendedQty: 0, manualAdjustment: 4300 }
+                ]
+            }
+        };
+
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(function (panel) { panel.classList.remove('active'); });
+            const target = document.getElementById(panelId);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function openCreateForecast() { showPanel('create-panel'); }
+        function toggleShowMore(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active');
+        }
+
+        function populateHeader(prefix, data) {
+            const map = {
+                'forecast-no': data.forecastNo, 'forecast-date': data.forecastDate, 'period': data.period, 'plan-no': data.planNo, 'plan-desc': data.planDesc,
+                'company': data.company, 'farm': data.farm, 'warehouse': data.warehouse, 'status': data.status, 'age': data.age,
+                'doc-code-male': data.docCodeMale, 'doc-code-female': data.docCodeFemale, 'doc-name-male': data.docNameMale, 'doc-name-female': data.docNameFemale,
+                'initial-stock': data.initialStock, 'current-pop': data.currentPop, 'total-pop': data.totalPop
+            };
+            Object.keys(map).forEach(function (key) {
+                const el = document.getElementById(prefix + '-' + key);
+                if (el) el.value = map[key];
+            });
+        }
+
+        function buildLines(tableId, data, editable) {
+            const tbody = document.querySelector('#' + tableId + ' tbody');
+            tbody.innerHTML = '';
+            data.lines.forEach(function (line) {
+                const finalQty = Number(line.recommendedQty || 0) + Number(line.manualAdjustment || 0);
+                const tr = document.createElement('tr');
+                if (editable) {
+                    tr.innerHTML = `
+            <td>${line.flag === 'Manual' ? '<select class="form-control input-sm" onchange="fillManualItemName(this)"><option value="FD-MN-001|Manual Feed 1">FD-MN-001</option><option value="FD-MN-002|Manual Feed 2">FD-MN-002</option><option value="FD-MN-003|Manual Feed 3">FD-MN-003</option></select>' : line.itemCode}</td>
+            <td>${line.flag === 'Manual' ? '<input class="form-control input-sm readonly-field" value="' + line.itemName + '" readonly />' : line.itemName}</td>
+            <td>${line.flag === 'Manual' ? '<span class="tag-manual">Manual</span>' : '<span class="tag-auto">Auto</span>'}</td>
+            <td class="standard-need ${line.flag === 'Manual' ? 'disabled-cell text-center' : ''}">${line.flag === 'Manual' ? '-' : line.standardNeed}</td>
+            <td class="${line.flag === 'Manual' ? 'disabled-cell text-center' : ''}">${line.flag === 'Manual' ? '-' : line.currentStock}</td>
+            <td class="recommended-qty ${line.flag === 'Manual' ? 'disabled-cell text-center' : ''}">${line.flag === 'Manual' ? '-' : line.recommendedQty}</td>
+            <td><input class="form-control input-sm manual-adjust" value="${line.manualAdjustment}" /></td>
+            <td class="final-qty">${finalQty}</td>
+            <td><button class="btn btn-xs btn-danger" onclick="deleteRow(this)">Delete</button></td>`;
+                } else {
+                    tr.innerHTML = `
+            <td>${line.itemCode}</td>
+            <td>${line.itemName}</td>
+            <td>${line.flag === 'Manual' ? '<span class="tag-manual">Manual</span>' : '<span class="tag-auto">Auto</span>'}</td>
+            <td>${line.flag === 'Manual' ? '-' : line.standardNeed}</td>
+            <td>${line.flag === 'Manual' ? '-' : line.currentStock}</td>
+            <td>${line.flag === 'Manual' ? '-' : line.recommendedQty}</td>
+            <td>${line.manualAdjustment}</td>
+            <td>${finalQty}</td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            recalcTableTotals(tableId);
+        }
+
+        function openViewForecast(forecastNo) {
+            const data = forecastDataset[forecastNo];
+            if (!data) return;
+            populateHeader('view', data);
+            buildLines('view-lines-table', data, false);
+            const footer = document.getElementById('view-footer-actions');
+            if (data.status === 'Confirmed') footer.innerHTML = '<button class="btn btn-success btn-sm">Generate PO</button>';
+            else if (data.status === 'PO Created') footer.innerHTML = '<button class="btn btn-info btn-sm">Open PO</button>';
+            else if (data.status === 'Closed') footer.innerHTML = '<button class="btn btn-default btn-sm" disabled>Closed</button>';
+            else footer.innerHTML = '<button class="btn btn-primary btn-sm">Confirm Forecast</button>';
+            showPanel('view-panel');
+        }
+
+        function openEditForecast(forecastNo) {
+            const data = forecastDataset[forecastNo];
+            if (!data) return;
+            if (data.status !== 'Draft') {
+                alert('Only Draft forecast can be edited.');
+                return;
+            }
+            populateHeader('edit', data);
+            buildLines('edit-lines-table', data, true);
+            showPanel('edit-panel');
+        }
+
+        function generateRecommendation() {
+            document.getElementById('recommendation-result').classList.add('active');
+            recalcTableTotals('create-lines-table');
+        }
+
+        function toggleFilterBox() {
+            document.getElementById('filter-box').classList.toggle('active');
+        }
+
+        function applyPlanData(planId, companyId, planDescId, farmId, warehouseId, ageId, maleCodeId, femaleCodeId, maleNameId, femaleNameId, stockId, popId, totalPopId) {
+            const planNo = document.getElementById(planId);
+            const company = document.getElementById(companyId);
+            const planDesc = document.getElementById(planDescId);
+            const farm = document.getElementById(farmId);
+            const warehouse = document.getElementById(warehouseId);
+            const age = document.getElementById(ageId);
+            const docCodeMale = document.getElementById(maleCodeId);
+            const docCodeFemale = document.getElementById(femaleCodeId);
+            const docNameMale = document.getElementById(maleNameId);
+            const docNameFemale = document.getElementById(femaleNameId);
+            const initialStock = document.getElementById(stockId);
+            const currentPop = document.getElementById(popId);
+            const totalPop = document.getElementById(totalPopId);
+
+            if (planNo.value === 'PL-001') {
+                planNo.value = 'PL-008';
+                company.value = 'PT AYM';
+                planDesc.value = 'Broiler Cycle 21';
+                farm.value = 'Farm Binjai';
+                warehouse.value = 'WH-KDG03';
+                age.value = '18 Hari';
+                docCodeMale.value = 'DOC-M-008';
+                docCodeFemale.value = 'DOC-F-008';
+                docNameMale.value = 'DOC Male Select';
+                docNameFemale.value = 'DOC Female Select';
+                initialStock.value = '4,800 / 4,800';
+                currentPop.value = '4,600 / 4,650';
+                totalPop.value = '9,250';
+            } else {
+                planNo.value = 'PL-001';
+                company.value = 'PT TOP';
+                planDesc.value = 'Broiler Cycle 18';
+                farm.value = 'Farm Deli';
+                warehouse.value = 'WH-KDG01';
+                age.value = '21 Hari';
+                docCodeMale.value = 'DOC-M-001';
+                docCodeFemale.value = 'DOC-F-001';
+                docNameMale.value = 'DOC Male Premium';
+                docNameFemale.value = 'DOC Female Premium';
+                initialStock.value = '5,000 / 5,000';
+                currentPop.value = '4,900 / 4,950';
+                totalPop.value = '9,850';
+            }
+        }
+
+        function pickPlan() {
+            applyPlanData('plan-no-input', 'company-field', 'plan-desc-field', 'farm-field', 'warehouse-field', 'age-field', 'doc-code-male', 'doc-code-female', 'doc-name-male', 'doc-name-female', 'initial-stock', 'current-pop', 'total-pop');
+        }
+
+        function pickPlanForEdit() {
+            applyPlanData('edit-plan-no', 'edit-company', 'edit-plan-desc', 'edit-farm', 'edit-warehouse', 'edit-age', 'edit-doc-code-male', 'edit-doc-code-female', 'edit-doc-name-male', 'edit-doc-name-female', 'edit-initial-stock', 'edit-current-pop', 'edit-total-pop');
+        }
+
+        function addManualItem(tableId) {
+            const tbody = document.querySelector('#' + tableId + ' tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+        <td><select class="form-control input-sm" onchange="fillManualItemName(this)"><option value="FD-MN-001|Manual Feed 1">FD-MN-001</option><option value="FD-MN-002|Manual Feed 2">FD-MN-002</option><option value="FD-MN-003|Manual Feed 3">FD-MN-003</option></select></td>
+        <td><input class="form-control input-sm readonly-field" value="Manual Feed 1" readonly /></td>
+        <td><span class="tag-manual">Manual</span></td>
+        <td class="standard-need disabled-cell text-center">-</td>
+        <td class="disabled-cell text-center">-</td>
+        <td class="recommended-qty disabled-cell text-center">-</td>
+        <td><input class="form-control input-sm manual-adjust" value="0" /></td>
+        <td class="final-qty">0</td>
+        <td><button class="btn btn-xs btn-danger" onclick="deleteRow(this)">Delete</button></td>`;
+            tbody.appendChild(tr);
+            recalcTableTotals(tableId);
+        }
+
+        function fillManualItemName(selectEl) {
+            const parts = selectEl.value.split('|');
+            const row = selectEl.closest('tr');
+            const input = row.cells[1].querySelector('input');
+            if (input) input.value = parts[1];
+        }
+
+        function deleteRow(btn) {
+            const row = btn.closest('tr');
+            const table = row.closest('table');
+            row.remove();
+            recalcTableTotals(table.id);
+        }
+
+        function parseNumber(value) {
+            if (value === null || value === undefined) return 0;
+            const cleaned = String(value).replace(/,/g, '').trim();
+            if (cleaned === '' || cleaned === '-') return 0;
+            const num = Number(cleaned);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function recalcRow(row) {
+            const recommendedCell = row.querySelector('.recommended-qty');
+            const manualInput = row.querySelector('.manual-adjust');
+            const finalCell = row.querySelector('.final-qty');
+            if (!manualInput || !finalCell) return;
+            const recommended = parseNumber(recommendedCell ? recommendedCell.textContent : 0);
+            const adjustment = parseNumber(manualInput.value);
+            finalCell.textContent = recommended + adjustment;
+        }
+
+        function recalcTableTotals(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            let totalItem = 0;
+            let totalRecommended = 0;
+            let totalFinal = 0;
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(function (row) {
+                recalcRow(row);
+                totalItem += 1;
+                const recommendedCell = row.querySelector('.recommended-qty');
+                const finalCell = row.querySelector('.final-qty');
+                totalRecommended += parseNumber(recommendedCell ? recommendedCell.textContent : 0);
+                totalFinal += parseNumber(finalCell ? finalCell.textContent : 0);
+            });
+            if (tableId === 'create-lines-table') {
+                document.getElementById('create-total-item').textContent = totalItem;
+                document.getElementById('create-total-recommended').textContent = totalRecommended;
+                document.getElementById('create-total-final').textContent = totalFinal;
+            }
+            if (tableId === 'edit-lines-table') {
+                document.getElementById('edit-total-item').textContent = totalItem;
+                document.getElementById('edit-total-recommended').textContent = totalRecommended;
+                document.getElementById('edit-total-final').textContent = totalFinal;
+            }
+            if (tableId === 'view-lines-table') {
+                document.getElementById('view-total-item').textContent = totalItem;
+                document.getElementById('view-total-recommended').textContent = totalRecommended;
+                document.getElementById('view-total-final').textContent = totalFinal;
+            }
+        }
+
+        document.addEventListener('input', function (e) {
+            if (e.target.classList.contains('manual-adjust')) {
+                const row = e.target.closest('tr');
+                const table = e.target.closest('table');
+                recalcRow(row);
+                recalcTableTotals(table.id);
+            }
+        });
+
+        function toggleBulk() {
+            const status = document.getElementById('filter-status').value;
+            const bar = document.getElementById('bulk-bar');
+            const label = document.getElementById('bulk-label');
+            const btn = document.getElementById('bulk-btn');
+            if (status === 'DRAFT') {
+                bar.classList.add('active');
+                label.innerText = 'Bulk Confirm Available';
+                btn.innerText = 'Confirm Selected';
+            } else if (status === 'CONFIRMED') {
+                bar.classList.add('active');
+                label.innerText = 'Bulk Generate PO Available';
+                btn.innerText = 'Generate PO';
+            } else {
+                bar.classList.remove('active');
+                label.innerText = '';
+                btn.innerText = 'Execute';
+            }
+        }
+
+        function runTests() {
+            console.assert(typeof openCreateForecast === 'function', 'openCreateForecast should exist');
+            console.assert(typeof openViewForecast === 'function', 'openViewForecast should exist');
+            console.assert(typeof openEditForecast === 'function', 'openEditForecast should exist');
+            console.assert(typeof recalcTableTotals === 'function', 'recalcTableTotals should exist');
+            console.assert(document.getElementById('list-panel') !== null, 'list-panel should exist');
+            console.assert(document.getElementById('create-panel') !== null, 'create-panel should exist');
+            console.assert(document.getElementById('view-panel') !== null, 'view-panel should exist');
+            console.assert(document.getElementById('edit-panel') !== null, 'edit-panel should exist');
+        }
+
+        runTests();
+    </script>
+</body>
+
+</html>

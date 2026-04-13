@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customer - Dashboard | IBOCS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f6fb; color: #1f2937; }
+    :root {
+      --line: #d9e2ec; --line-soft: #e8eef5; --soft: #f8fbff; --muted: #6b7280;
+      --title: #0f172a; --primary: #2563eb; --primary-dark: #1d4ed8;
+      --success: #166534; --success-bg: #dcfce7; --info: #1d4ed8; --info-bg: #dbeafe;
+      --warning: #92400e; --warning-bg: #fef3c7;
+    }
+    .page-shell { background: #fff; border: 1px solid #e7edf5; border-radius: 18px; padding: 28px; box-shadow: 0 10px 28px rgba(15,23,42,.05); }
+    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--line-soft); }
+    .hero-title { margin: 0 0 6px; font-size: 28px; font-weight: 700; color: var(--title); }
+    .hero-subtitle { margin: 0; max-width: 760px; font-size: 13px; color: var(--muted); }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-soft-primary, .btn-soft-outline { min-height: 42px; padding: 0 18px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 700; text-decoration: none; transition: .15s ease; }
+    .btn-soft-primary { background: var(--primary); border: 1px solid var(--primary); color: #fff; }
+    .btn-soft-primary:hover { background: var(--primary-dark); }
+    .btn-soft-outline { background: #fff; border: 1px solid var(--line); color: #374151; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-card { min-height: 122px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
+    .kpi-label { margin-bottom: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .kpi-value { font-size: 28px; font-weight: 700; line-height: 1.1; color: var(--title); }
+    .kpi-note { margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .section-card { margin-bottom: 20px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 4px 18px rgba(15,23,42,.05); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 15px 20px; background: var(--soft); border-bottom: 1px solid var(--line-soft); }
+    .section-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--title); }
+    .section-subtitle { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+    .section-body { padding: 20px; }
+    .status-grid, .chart-grid, .flow-grid { display: grid; gap: 16px; }
+    .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .chart-grid, .flow-grid { grid-template-columns: 1.15fr .85fr; }
+    .mini-panel, .progress-card, .chart-panel { height: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .mini-panel-title { margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--title); }
+    .status-list { display: grid; gap: 10px; }
+    .status-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--soft); }
+    .status-name { font-size: 13px; font-weight: 600; color: #334155; }
+    .status-value { font-size: 18px; font-weight: 700; color: var(--title); }
+    .chart-panel canvas { width: 100% !important; height: 280px !important; }
+    .progress-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); }
+    .progress-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .progress-main { font-size: 34px; font-weight: 700; line-height: 1; color: var(--title); }
+    .progress-caption { font-size: 12px; color: var(--muted); }
+    .progress-bar-shell { width: 100%; height: 12px; margin: 14px 0 16px; border-radius: 999px; background: #e5edf7; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2563eb 0%, #16a34a 100%); }
+    .flow-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .flow-stat { padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: #fff; }
+    .flow-stat-label { margin-bottom: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .flow-stat-value { font-size: 20px; font-weight: 700; color: var(--title); }
+    .alert-list { display: grid; gap: 10px; }
+    .alert-item { padding: 14px; border: 1px solid var(--line-soft); border-radius: 14px; background: #fff; }
+    .alert-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .alert-title { font-size: 13px; font-weight: 700; color: var(--title); }
+    .alert-meta { font-size: 12px; color: var(--muted); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #edf0f5; text-align: left; vertical-align: middle; }
+    th { background: var(--soft); color: #475569; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    tbody tr:hover { background: #fbfdff; }
+    .text-link { color: var(--primary); font-weight: 700; text-decoration: none; }
+    .tag { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .tag-open { background: var(--info-bg); color: var(--info); }
+    .tag-closed { background: var(--success-bg); color: var(--success); }
+    .tag-pending { background: var(--warning-bg); color: var(--warning); }
+    @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-grid, .flow-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .status-grid, .flow-stats { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .page-shell { padding: 20px; border-radius: 14px; } .hero { align-items: stretch; } .hero-actions { width: 100%; } .hero-actions .btn-soft-primary, .hero-actions .btn-soft-outline { flex: 1; } .kpi-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+      <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="customer_profile.html">Profile</a></li>
+            <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+            <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid py-3">
+    <div class="row g-3">
+      <div class="col-lg-2" id="sidebar-container"></div>
+      <div class="col-lg-10">
+        <div class="page-shell">
+          <div class="hero">
+            <div>
+              <h1 class="hero-title">Customer Dashboard</h1>
+              <p class="hero-subtitle">Ringkasan operasional Purchase Order dan GRPO untuk memantau status dokumen, progres penerimaan barang, dan hubungan antara dokumen PO dengan GRPO.</p>
+            </div>
+            <div class="hero-actions">
+              <a class="btn-soft-primary" href="customer_POList.html"><i class="bi bi-file-earmark-text"></i> PO List</a>
+              <a class="btn-soft-outline" href="customer_GRPOList.html"><i class="bi bi-box-seam"></i> GRPO List</a>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Open PO</div><div class="kpi-value" id="kpiPoOpen">0</div><div class="kpi-note">PO aktif yang menunggu penerimaan.</div></div>
+            <div class="kpi-card"><div class="kpi-label">Closed PO</div><div class="kpi-value" id="kpiPoClosed">0</div><div class="kpi-note">PO yang sudah selesai diproses.</div></div>
+            <div class="kpi-card"><div class="kpi-label">Open GRPO</div><div class="kpi-value" id="kpiGrpoOpen">0</div><div class="kpi-note">GRPO yang masih punya sisa qty.</div></div>
+            <div class="kpi-card"><div class="kpi-label">Closed GRPO</div><div class="kpi-value" id="kpiGrpoClosed">0</div><div class="kpi-note">GRPO yang sudah complete.</div></div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header"><div><h2 class="section-title">Status Overview</h2><p class="section-subtitle">Perbandingan status dokumen antara PO dan GRPO.</p></div></div>
+            <div class="section-body">
+              <div class="status-grid">
+                <div class="mini-panel">
+                  <div class="mini-panel-title">Purchase Order</div>
+                  <div class="status-list">
+                    <div class="status-row"><span class="status-name">Open</span><span class="status-value" id="poOpenCount">0</span></div>
+                    <div class="status-row"><span class="status-name">Closed</span><span class="status-value" id="poClosedCount">0</span></div>
+                  </div>
+                </div>
+                <div class="mini-panel">
+                  <div class="mini-panel-title">GRPO</div>
+                  <div class="status-list">
+                    <div class="status-row"><span class="status-name">Open</span><span class="status-value" id="grpoOpenCount">0</span></div>
+                    <div class="status-row"><span class="status-name">Closed</span><span class="status-value" id="grpoClosedCount">0</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2 class="section-title">Charts</h2><p class="section-subtitle">Visual ringkasan status dokumen, progress qty, dan aktivitas dokumen terbaru.</p></div></div>
+            <div class="section-body">
+              <div class="chart-grid">
+                <div class="chart-panel"><div class="mini-panel-title">PO vs GRPO Status</div><canvas id="statusChart"></canvas></div>
+                <div class="chart-panel"><div class="mini-panel-title">Receipt Completion</div><canvas id="completionChart"></canvas></div>
+              </div>
+              <div class="chart-panel mt-3"><div class="mini-panel-title">Recent Document Activity</div><canvas id="activityChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="flow-grid">
+            <div class="section-card">
+              <div class="section-header"><div><h2 class="section-title">PO to GRPO Progress</h2><p class="section-subtitle">Monitoring konversi dokumen dan total qty penerimaan.</p></div></div>
+              <div class="section-body">
+                <div class="progress-card">
+                  <div class="progress-top">
+                    <div>
+                      <div class="progress-main" id="receiptPercent">0%</div>
+                      <div class="progress-caption">Completion received qty vs ordered qty</div>
+                    </div>
+                    <div class="progress-caption" id="progressSummary">0 / 0 qty received</div>
+                  </div>
+                  <div class="progress-bar-shell"><div class="progress-bar-fill" id="receiptBar" style="width:0%;"></div></div>
+                  <div class="flow-stats">
+                    <div class="flow-stat"><div class="flow-stat-label">Total PO Qty</div><div class="flow-stat-value" id="totalPoQty">0</div></div>
+                    <div class="flow-stat"><div class="flow-stat-label">Total Received Qty</div><div class="flow-stat-value" id="totalGrpoQty">0</div></div>
+                    <div class="flow-stat"><div class="flow-stat-label">PO With GRPO</div><div class="flow-stat-value" id="linkedDocCount">0</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header"><div><h2 class="section-title">Attention Needed</h2><p class="section-subtitle">Dokumen yang masih perlu follow-up.</p></div></div>
+              <div class="section-body"><div class="alert-list" id="attentionList"></div></div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-xl-6">
+              <div class="section-card h-100">
+                <div class="section-header"><div><h2 class="section-title">Recent Purchase Orders</h2><p class="section-subtitle">Dokumen PO terbaru.</p></div><a class="btn-soft-outline" href="customer_POList.html">Lihat Semua</a></div>
+                <div class="section-body"><div class="table-wrap"><table><thead><tr><th>PO No</th><th>PO Date</th><th>Store</th><th>Status</th></tr></thead><tbody id="poTableBody"></tbody></table></div></div>
+              </div>
+            </div>
+            <div class="col-xl-6">
+              <div class="section-card h-100">
+                <div class="section-header"><div><h2 class="section-title">Recent GRPO</h2><p class="section-subtitle">Ringkasan penerimaan barang terbaru.</p></div><a class="btn-soft-outline" href="customer_GRPOList.html">Lihat Semua</a></div>
+                <div class="section-body"><div class="table-wrap"><table><thead><tr><th>GRPO No</th><th>GRPO Date</th><th>PO No</th><th>Status</th></tr></thead><tbody id="grpoTableBody"></tbody></table></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!--
+          Legacy dashboard sections are kept here intentionally and commented out.
+          Do not delete yet - these may be reused later.
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-8">
+              <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                  <div class="fw-semibold">Spending Trend (Last 7 Days)</div>
+                  <div class="muted-xs">Daily purchase expenses</div>
+                </div>
+                <div class="card-body">
+                  <canvas id="spendingTrendChart" height="80"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                  <div class="fw-semibold">Payment Status</div>
+                  <div class="muted-xs">Invoice breakdown</div>
+                </div>
+                <div class="card-body">
+                  <div style="position: relative; height: 200px;"><canvas id="paymentChart"></canvas></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          -->
+        </div>
+
+        <div class="text-center text-muted small mt-4 mb-2">&copy; 2026 IBOCS - Customer Portal</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="sidebar.js"></script>
+  <script>
+    const sess = localStorage.getItem("IBOCS_user");
+    if (!sess) window.location.href = "login.html?role=customer";
+
+    const user = JSON.parse(sess);
+    document.getElementById("userBtn").textContent = user.name || "User";
+    document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      localStorage.removeItem("IBOCS_user");
+      window.location.href = "index.html";
+    });
+
+    const chartRefs = [];
+
+    function loadJson(key, fallback) {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }
+
+    const DEMO_PO = [
+      { poNo: "PO-0001", poDate: "2026-04-01", receiptDate: "2026-04-05", store: "Toko Melati", status: "Open", rows: [{ qty: 10 }, { qty: 5 }] },
+      { poNo: "PO-0002", poDate: "2026-04-02", receiptDate: "2026-04-06", store: "Toko ABC", status: "Open", rows: [{ qty: 4 }, { qty: 3 }] },
+      { poNo: "PO-0003", poDate: "2026-04-03", receiptDate: "2026-04-07", store: "Toko Mawar", status: "Closed", rows: [{ qty: 8 }, { qty: 6 }] }
+    ];
+
+    const DEMO_GRPO = [
+      { grpoNo: "GRPO-0001", grpoDate: "2026-04-05", poNo: "PO-0001", store: "Toko Melati", customer: "PT. Melati Customer Jaya", status: "Closed", rows: [{ qtyReceived: 10 }, { qtyReceived: 5 }] },
+      { grpoNo: "GRPO-0002", grpoDate: "2026-04-06", poNo: "PO-0002", store: "Toko ABC", customer: "CV. ABC Sejahtera", status: "Open", rows: [{ qtyReceived: 4 }, { qtyReceived: 2 }] }
+    ];
+    function getPoList() {
+      const stored = loadJson("IBOCS_po_list", []);
+      const storedNos = new Set(stored.map(item => item.poNo));
+      return [...stored, ...DEMO_PO.filter(item => !storedNos.has(item.poNo))];
+    }
+
+    function getGrpoList() {
+      const stored = loadJson("IBOCS_grpo_list", []);
+      const storedNos = new Set(stored.map(item => item.grpoNo));
+      return [...stored, ...DEMO_GRPO.filter(item => !storedNos.has(item.grpoNo))];
+    }
+
+    function formatNumber(value) {
+      return Number(value || 0).toLocaleString("id-ID");
+    }
+
+    function docTag(status) {
+      if (status === "Closed") return '<span class="tag tag-closed">Closed</span>';
+      if (status === "Open") return '<span class="tag tag-open">Open</span>';
+      return `<span class="tag tag-pending">${status || "-"}</span>`;
+    }
+
+    function sumPoQty(poList) {
+      return poList.reduce((sum, po) => sum + (po.rows || []).reduce((rowSum, row) => rowSum + (Number(row.qty) || 0), 0), 0);
+    }
+
+    function sumGrpoQty(grpoList) {
+      return grpoList.reduce((sum, grpo) => sum + (grpo.rows || []).reduce((rowSum, row) => rowSum + (Number(row.qtyReceived) || 0), 0), 0);
+    }
+
+    function destroyCharts() {
+      chartRefs.forEach(chart => chart.destroy());
+      chartRefs.length = 0;
+    }
+
+    function buildActivityBuckets(poList, grpoList) {
+      const bucketMap = new Map();
+
+      poList.forEach(po => {
+        const key = po.poDate || "-";
+        if (!bucketMap.has(key)) bucketMap.set(key, { po: 0, grpo: 0 });
+        bucketMap.get(key).po += 1;
+      });
+
+      grpoList.forEach(grpo => {
+        const key = grpo.grpoDate || "-";
+        if (!bucketMap.has(key)) bucketMap.set(key, { po: 0, grpo: 0 });
+        bucketMap.get(key).grpo += 1;
+      });
+
+      return [...bucketMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-6);
+    }
+
+    function renderStatusChart(summary) {
+      const chart = new Chart(document.getElementById("statusChart"), {
+        type: "bar",
+        data: {
+          labels: ["Open", "Closed"],
+          datasets: [
+            { label: "PO", data: [summary.poOpen, summary.poClosed], backgroundColor: "#2563eb", borderRadius: 8 },
+            { label: "GRPO", data: [summary.grpoOpen, summary.grpoClosed], backgroundColor: "#16a34a", borderRadius: 8 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "top" } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+      chartRefs.push(chart);
+    }
+
+    function renderCompletionChart(totalPoQty, totalGrpoQty) {
+      const remainingQty = Math.max(totalPoQty - totalGrpoQty, 0);
+      const chart = new Chart(document.getElementById("completionChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Received", "Remaining"],
+          datasets: [{ data: [totalGrpoQty, remainingQty], backgroundColor: ["#16a34a", "#dbeafe"], borderColor: "#fff", borderWidth: 2 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: { callbacks: { label: context => `${context.label}: ${formatNumber(context.parsed)}` } }
+          }
+        }
+      });
+      chartRefs.push(chart);
+    }
+
+    function renderActivityChart(poList, grpoList) {
+      const buckets = buildActivityBuckets(poList, grpoList);
+      const labels = buckets.map(([date]) => date);
+      const poValues = buckets.map(([, value]) => value.po);
+      const grpoValues = buckets.map(([, value]) => value.grpo);
+
+      const chart = new Chart(document.getElementById("activityChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "PO", data: poValues, borderColor: "#2563eb", backgroundColor: "rgba(37,99,235,.12)", fill: true, tension: 0.35 },
+            { label: "GRPO", data: grpoValues, borderColor: "#16a34a", backgroundColor: "rgba(22,163,74,.12)", fill: true, tension: 0.35 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "top" } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+      chartRefs.push(chart);
+    }
+
+    function renderPoTable(poList) {
+      const tbody = document.getElementById("poTableBody");
+      const sorted = [...poList].sort((a, b) => (b.poDate || "").localeCompare(a.poDate || "")).slice(0, 5);
+      if (!sorted.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px;color:#6b7280;">Tidak ada data PO.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = sorted.map(po => `
+        <tr>
+          <td><a class="text-link" href="customer_POView.html?poNo=${encodeURIComponent(po.poNo)}">${po.poNo}</a></td>
+          <td>${po.poDate || "-"}</td>
+          <td>${po.store || "-"}</td>
+          <td>${docTag(po.status)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderGrpoTable(grpoList) {
+      const tbody = document.getElementById("grpoTableBody");
+      const sorted = [...grpoList].sort((a, b) => (b.grpoDate || "").localeCompare(a.grpoDate || "")).slice(0, 5);
+      if (!sorted.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px;color:#6b7280;">Tidak ada data GRPO.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = sorted.map(grpo => `
+        <tr>
+          <td><a class="text-link" href="customer_GRPOView.html?grpoNo=${encodeURIComponent(grpo.grpoNo)}">${grpo.grpoNo}</a></td>
+          <td>${grpo.grpoDate || "-"}</td>
+          <td><a class="text-link" href="customer_POView.html?poNo=${encodeURIComponent(grpo.poNo)}">${grpo.poNo || "-"}</a></td>
+          <td>${docTag(grpo.status)}</td>
+        </tr>
+      `).join("");
+    }
+    function renderAttentionList(poList, grpoList, linkedPos) {
+      const wrap = document.getElementById("attentionList");
+      const items = [];
+
+      poList.filter(po => po.status === "Open" && !linkedPos.has(po.poNo)).slice(0, 3).forEach(po => {
+        items.push({
+          title: `${po.poNo} belum punya GRPO`,
+          meta: `${po.store || "-"} • Receipt ${po.receiptDate || "-"} • segera buat GRPO`,
+          tag: '<span class="tag tag-pending">Need GRPO</span>'
+        });
+      });
+
+      grpoList.filter(grpo => grpo.status === "Open").slice(0, 3).forEach(grpo => {
+        items.push({
+          title: `${grpo.grpoNo} masih open`,
+          meta: `${grpo.poNo || "-"} • ${grpo.store || grpo.customer || "-"} • qty belum lengkap`,
+          tag: '<span class="tag tag-open">Open GRPO</span>'
+        });
+      });
+
+      if (!items.length) {
+        wrap.innerHTML = '<div class="alert-item"><div class="alert-title">Semua dokumen terlihat aman</div><div class="alert-meta">Saat ini tidak ada PO atau GRPO yang perlu perhatian khusus.</div></div>';
+        return;
+      }
+
+      wrap.innerHTML = items.slice(0, 5).map(item => `
+        <div class="alert-item">
+          <div class="alert-head">
+            <div class="alert-title">${item.title}</div>
+            ${item.tag}
+          </div>
+          <div class="alert-meta">${item.meta}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderDashboard() {
+      const poList = getPoList();
+      const grpoList = getGrpoList();
+
+      const summary = {
+        poOpen: poList.filter(item => item.status === "Open").length,
+        poClosed: poList.filter(item => item.status === "Closed").length,
+        grpoOpen: grpoList.filter(item => item.status === "Open").length,
+        grpoClosed: grpoList.filter(item => item.status === "Closed").length
+      };
+
+      const totalPoQty = sumPoQty(poList);
+      const totalGrpoQty = sumGrpoQty(grpoList);
+      const linkedPos = new Set(grpoList.map(item => item.poNo).filter(Boolean));
+      const receiptPercent = totalPoQty > 0 ? Math.min(100, (totalGrpoQty / totalPoQty) * 100) : 0;
+
+      document.getElementById("kpiPoOpen").textContent = formatNumber(summary.poOpen);
+      document.getElementById("kpiPoClosed").textContent = formatNumber(summary.poClosed);
+      document.getElementById("kpiGrpoOpen").textContent = formatNumber(summary.grpoOpen);
+      document.getElementById("kpiGrpoClosed").textContent = formatNumber(summary.grpoClosed);
+
+      document.getElementById("poOpenCount").textContent = formatNumber(summary.poOpen);
+      document.getElementById("poClosedCount").textContent = formatNumber(summary.poClosed);
+      document.getElementById("grpoOpenCount").textContent = formatNumber(summary.grpoOpen);
+      document.getElementById("grpoClosedCount").textContent = formatNumber(summary.grpoClosed);
+
+      document.getElementById("totalPoQty").textContent = formatNumber(totalPoQty);
+      document.getElementById("totalGrpoQty").textContent = formatNumber(totalGrpoQty);
+      document.getElementById("linkedDocCount").textContent = formatNumber(linkedPos.size);
+      document.getElementById("receiptPercent").textContent = `${Math.round(receiptPercent)}%`;
+      document.getElementById("progressSummary").textContent = `${formatNumber(totalGrpoQty)} / ${formatNumber(totalPoQty)} qty received`;
+      document.getElementById("receiptBar").style.width = `${receiptPercent}%`;
+
+      renderPoTable(poList);
+      renderGrpoTable(grpoList);
+      renderAttentionList(poList, grpoList, linkedPos);
+
+      destroyCharts();
+      renderStatusChart(summary);
+      renderCompletionChart(totalPoQty, totalGrpoQty);
+      renderActivityChart(poList, grpoList);
+    }
+
+    /*
+    Legacy analytics functions are intentionally commented out for now.
+    They are preserved because the previous dashboard had tables/charts that may be reused later.
+
+    function renderSpendingTrendChart() {}
+    function renderPaymentChart() {}
+    function renderTopSuppliers() {}
+    function renderTopProducts() {}
+    */
+
+    new SidebarSystem(null, 'dashboard').render();
+    renderDashboard();
+  </script>
+</body>
+</html>
+
+
+
+

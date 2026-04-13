@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalog — Belanja Produk | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .product-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .promo-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .price-final {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .floating-cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .category-chip {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-chip:hover {
+            transform: scale(1.05);
+        }
+
+        .category-chip.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .stock-badge {
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Catalog - Belanja Produk</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="customer_dashboard.html">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="customer_orders.html">My Orders</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="row g-3">
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="mb-1">🛒 Product Catalog</h4>
+                        <p class="text-muted small mb-0">Pilih produk dan tambahkan ke keranjang</p>
+                    </div>
+                    <a href="customer_orders.html" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Kembali ke Orders
+                    </a>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Search -->
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="searchInput"
+                                        placeholder="Cari produk...">
+                                </div>
+                            </div>
+
+                            <!-- Vendor Filter -->
+                            <div class="col-md-2">
+                                <select class="form-select" id="vendorFilter">
+                                    <option value="">Semua Vendor</option>
+                                </select>
+                            </div>
+
+                            <!-- Region Filter -->
+                            <div class="col-md-2">
+                                <select class="form-select" id="regionFilter">
+                                    <option value="">Semua Daerah</option>
+                                </select>
+                            </div>
+
+                            <!-- Sort -->
+                            <div class="col-md-2">
+                                <select class="form-select" id="sortBy">
+                                    <option value="name"></option>
+                                    <option value="price-low">Harga Terendah</option>
+                                    <option value="price-high">Harga Tertinggi</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Category Chips -->
+                        <div class="mt-3">
+                            <div class="d-flex gap-2 flex-wrap" id="categoryChips">
+                                <!-- JS will populate -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="row g-3" id="productGrid">
+                    <!-- JS will populate -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="text-center py-5 d-none" id="emptyState">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <p class="text-muted mt-3">Tidak ada produk ditemukan</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button class="btn btn-primary btn-lg rounded-circle floating-cart d-none" id="floatingCart" data-bs-toggle="modal"
+        data-bs-target="#cartModal">
+        <i class="bi bi-cart3 fs-4"></i>
+        <span class="badge bg-danger cart-badge" id="cartCount">0</span>
+    </button>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-cart3 me-2"></i>Keranjang Belanja</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cartItems">
+                        <!-- JS will populate -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold">Total:</span>
+                            <span class="fs-4 fw-bold text-primary" id="cartTotal">Rp 0</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary flex-fill"
+                                data-bs-dismiss="modal">Lanjut Belanja</button>
+                            <button type="button" class="btn btn-primary flex-fill" id="checkoutBtn">
+                                <i class="bi bi-check-circle me-1"></i>Checkout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productDetailTitle">Product Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="productDetailBody">
+                    <!-- JS will populate -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" id="addFromDetailBtn">
+                        <i class="bi bi-cart-plus me-1"></i>Tambah ke Keranjang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // =========================
+        // SESSION GUARD
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • ${user.role}`;
+
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // =========================
+        // DATA LOADING
+        // =========================
+        function loadJson(key, fb) {
+            try {
+                const r = localStorage.getItem(key);
+                return r ? JSON.parse(r) : fb;
+            } catch (e) {
+                return fb;
+            }
+        }
+
+        // Load products from vendor inventory
+        let products = loadJson("IBOCS_vendor_products", []);
+
+        // Ensure vendor and region fields exist (fallback for old data)
+        products = products.map(p => ({
+            ...p,
+            vendor: p.vendor || 'Unknown Vendor',
+            region: p.region || 'Jakarta'
+        }));
+
+        const promotions = loadJson("IBOCS_promotions", []);
+        let cart = [];
+
+        // =========================
+        // CATEGORY MAPPING (Global)
+        // =========================
+        const categoryIcons = {
+            'Food & Beverage': 'bi-cup-straw',
+            'Baby Care': 'bi-heart',
+            'Health': 'bi-capsule',
+            'Household': 'bi-house',
+            'default': 'bi-box-seam'
+        };
+
+        const categoryColors = {
+            'Food & Beverage': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'Baby Care': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'Health': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'Household': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'default': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        };
+
+        // =========================
+        // HELPERS
+        // =========================
+        const rupiah = (n) => "Rp " + (n || 0).toLocaleString("id-ID");
+
+        function getProductPromo(product) {
+            return promotions.find(p => {
+                // Check status (Active for both formats)
+                if (p.status !== 'Active') return false;
+
+                // Support old format: productSKUs (array)
+                if (p.productSKUs && p.productSKUs.includes(product.sku)) {
+                    return true;
+                }
+
+                // Support new vendor format: targetSku (string)
+                if (p.targetSku && p.targetSku === product.sku) {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        function calculatePrice(product, qty) {
+            const promo = getProductPromo(product);
+            if (!promo) return { original: product.price, final: product.price, discount: 0 };
+
+            // Old format: Percentage discount
+            if (promo.type === 'Percentage') {
+                const discount = product.price * (promo.discountPercent / 100);
+                return {
+                    original: product.price,
+                    final: product.price - discount,
+                    discount: promo.discountPercent
+                };
+            }
+            // Old format: Tiered pricing (with 'price' field)
+            else if (promo.type === 'Tiered') {
+                const tier = promo.tiers
+                    .sort((a, b) => b.minQty - a.minQty)
+                    .find(t => qty >= t.minQty);
+
+                if (tier) {
+                    return {
+                        original: product.price,
+                        final: tier.price,
+                        discount: Math.round(((product.price - tier.price) / product.price) * 100)
+                    };
+                }
+            }
+            // New vendor format: TIER_PRICE (with 'discountPrice' field)
+            else if (promo.type === 'TIER_PRICE') {
+                const tier = promo.tiers
+                    .sort((a, b) => b.minQty - a.minQty)
+                    .find(t => qty >= t.minQty);
+
+                if (tier) {
+                    const finalPrice = tier.discountPrice || tier.price; // Support both field names
+                    return {
+                        original: product.price,
+                        final: finalPrice,
+                        discount: Math.round(((product.price - finalPrice) / product.price) * 100)
+                    };
+                }
+            }
+
+            return { original: product.price, final: product.price, discount: 0 };
+        }
+
+        function calculateTotalWithBonus(product, qty) {
+            const promo = getProductPromo(product);
+            const pricing = calculatePrice(product, qty);
+
+            // Check if it's a bonus item promotion (Buy X Get Y)
+            if (promo && (promo.type === 'BuyXGetY' || promo.type === 'BONUS_ITEM')) {
+                const buyQty = promo.buyQty;
+                const getQty = promo.getQty;
+                const setSize = buyQty + getQty; // Total items in one set (e.g., 5+1=6)
+
+                // Calculate how many complete sets
+                const completeSets = Math.floor(qty / setSize);
+                const remainder = qty % setSize;
+
+                // Items to pay for = (complete sets * buyQty) + remainder
+                const itemsToPay = (completeSets * buyQty) + remainder;
+
+                return {
+                    total: pricing.final * itemsToPay,
+                    itemsToPay: itemsToPay,
+                    freeItems: qty - itemsToPay,
+                    unitPrice: pricing.final
+                };
+            }
+
+            // No bonus promotion, calculate normally
+            return {
+                total: pricing.final * qty,
+                itemsToPay: qty,
+                freeItems: 0,
+                unitPrice: pricing.final
+            };
+        }
+
+        // =========================
+        // RENDER FUNCTIONS
+        // =========================
+        function renderCategories() {
+            const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+            const container = document.getElementById('categoryChips');
+
+            container.innerHTML = categories.map(cat => `
+                <span class="badge category-chip ${cat === 'All' ? 'active bg-primary' : 'bg-light text-dark'}" 
+                      data-category="${cat}">
+                    ${cat === 'All' ? '🏷️ Semua' : cat}
+                </span>
+            `).join('');
+
+            // Event listeners
+            container.querySelectorAll('.category-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    container.querySelectorAll('.category-chip').forEach(c => {
+                        c.classList.remove('active', 'bg-primary', 'text-white');
+                        c.classList.add('bg-light', 'text-dark');
+                    });
+                    chip.classList.add('active', 'bg-primary', 'text-white');
+                    chip.classList.remove('bg-light', 'text-dark');
+                    renderProducts();
+                });
+            });
+        }
+
+        function renderVendorFilter() {
+            const vendors = [...new Set(products.map(p => p.vendor).filter(Boolean))];
+            const select = document.getElementById('vendorFilter');
+
+            select.innerHTML = '<option value="">Semua Vendor</option>' +
+                vendors.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            select.addEventListener('change', renderProducts);
+        }
+
+        function renderProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.querySelector('.category-chip.active')?.dataset.category || 'All';
+            const selectedVendor = document.getElementById('vendorFilter').value;
+            const selectedRegion = document.getElementById('regionFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = products.filter(p => {
+                const matchSearch = !searchTerm ||
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.sku.toLowerCase().includes(searchTerm);
+                const matchCategory = selectedCategory === 'All' || p.category === selectedCategory;
+                const matchVendor = !selectedVendor || p.vendor === selectedVendor;
+                const matchRegion = !selectedRegion || p.region === selectedRegion;
+
+                return matchSearch && matchCategory && matchVendor && matchRegion;
+            });
+
+            // Sort
+            if (sortBy === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'price-low') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-high') {
+                filtered.sort((a, b) => b.price - a.price);
+            }
+
+            const grid = document.getElementById('productGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            emptyState.classList.add('d-none');
+
+            grid.innerHTML = filtered.map(product => {
+                const promo = getProductPromo(product);
+                const pricing = calculatePrice(product, 1);
+                const hasDiscount = pricing.discount > 0;
+
+                const icon = categoryIcons[product.category] || categoryIcons.default;
+                const bgColor = categoryColors[product.category] || categoryColors.default;
+
+                return `
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card product-card shadow-sm h-100" data-sku="${product.sku}">
+                            ${promo ? `
+                                <div class="promo-badge">
+                                    <span class="badge bg-danger">
+                                        ${promo.type === 'Percentage' ? `-${promo.discountPercent}%` :
+                            (promo.type === 'TIER_PRICE' && pricing.discount > 0) ? `-${pricing.discount}%` :
+                                'PROMO'}
+                                    </span>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="product-image" style="background: ${bgColor}">
+                                <i class="bi ${icon}"></i>
+                            </div>
+                            
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary stock-badge">${product.category || 'Produk'}</span>
+                                    <span class="badge bg-info stock-badge ms-1">Stok: ${product.stock || 0}</span>
+                                </div>
+                                
+                                <h6 class="card-title mb-1">${product.name}</h6>
+                                <p class="text-muted small mb-2">${product.sku}</p>
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-building me-1"></i>${product.vendor || 'N/A'}
+                                </p>
+                                
+                                <div class="mt-auto">
+                                    ${hasDiscount ? `
+                                        <div class="price-original">${rupiah(pricing.original)}</div>
+                                        <div class="price-final">${rupiah(pricing.final)}</div>
+                                    ` : `
+                                        <div class="price-final">${rupiah(product.price)}</div>
+                                    `}
+                                    
+                                    ${promo && (promo.type === 'BuyXGetY' || promo.type === 'BONUS_ITEM') ? `
+                                        <div class="badge bg-success mt-2 w-100">
+                                            Beli ${promo.buyQty} Gratis ${promo.getQty}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <button class="btn btn-primary btn-sm w-100 mt-2 add-to-cart-btn" 
+                                            data-sku="${product.sku}">
+                                        <i class="bi bi-cart-plus me-1"></i>Tambah
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners
+            grid.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Don't trigger if clicking the add button
+                    if (e.target.closest('.add-to-cart-btn')) return;
+
+                    const sku = card.dataset.sku;
+                    showProductDetail(sku);
+                });
+            });
+
+            grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addToCart(btn.dataset.sku);
+                });
+            });
+        }
+
+        // =========================
+        // PRODUCT DETAIL MODAL
+        // =========================
+        let currentDetailSKU = null;
+
+        function showProductDetail(sku) {
+            const product = products.find(p => p.sku === sku);
+            if (!product) return;
+
+            currentDetailSKU = sku;
+            const promo = getProductPromo(product);
+            const pricing = calculatePrice(product, 1);
+
+            document.getElementById('productDetailTitle').textContent = product.name;
+            document.getElementById('productDetailBody').innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="product-image" style="background: ${categoryColors[product.category] || categoryColors.default}; height: 250px; border-radius: 8px;">
+                            <i class="bi ${categoryIcons[product.category] || categoryIcons.default}"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5 class="mb-3">${product.name}</h5>
+                        
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="150">SKU:</th>
+                                <td><code>${product.sku}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Vendor:</th>
+                                <td><i class="bi bi-building me-1"></i><strong>${product.vendor}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Kategori:</th>
+                                <td><span class="badge bg-secondary">${product.category}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Stok:</th>
+                                <td><span class="badge ${product.stock > 20 ? 'bg-success' : 'bg-warning'}">${product.stock} unit</span></td>
+                            </tr>
+                            <tr>
+                                <th>Min. Order:</th>
+                                <td>${product.minOrder || 1} unit</td>
+                            </tr>
+                            <tr>
+                                <th>Harga:</th>
+                                <td>
+                                    ${pricing.discount > 0 ? `
+                                        <div class="price-original">${rupiah(pricing.original)}</div>
+                                        <div class="price-final fs-5">${rupiah(pricing.final)}</div>
+                                        <span class="badge bg-danger">-${pricing.discount}%</span>
+                                    ` : `
+                                        <div class="fw-bold fs-5 text-primary">${rupiah(product.price)}</div>
+                                    `}
+                                </td>
+                            </tr>
+                        </table>
+
+                        ${product.description ? `
+                            <div class="mt-3">
+                                <h6>Deskripsi:</h6>
+                                <p class="text-muted">${product.description}</p>
+                            </div>
+                        ` : ''}
+
+                        ${promo && (promo.type === 'Tiered' || promo.type === 'TIER_PRICE') ? `
+                            <div class="alert alert-warning mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-bar-chart-steps me-2 fs-5"></i>
+                                    <strong>Harga Grosir Tersedia!</strong>
+                                </div>
+                                <div class="row g-2">
+                                    ${promo.tiers.sort((a, b) => a.minQty - b.minQty).map(tier => {
+                const tierPrice = tier.discountPrice || tier.price;
+                const discount = Math.round(((product.price - tierPrice) / product.price) * 100);
+                return `
+                                            <div class="col-6 col-md-4">
+                                                <div class="border rounded p-2 bg-white text-center">
+                                                    <div class="small text-success fw-bold">-${discount}%</div>
+                                                    <div class="fw-bold text-dark">${rupiah(tierPrice)}</div>
+                                                    <div class="small text-muted">Min. ${tier.minQty} pcs</div>
+                                                </div>
+                                            </div>
+                                        `;
+            }).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${promo && (promo.type === 'BuyXGetY' || promo.type === 'BONUS_ITEM') ? `
+                            <div class="alert alert-success mt-3">
+                                <i class="bi bi-gift me-2"></i>
+                                <strong>Promo Spesial:</strong> Beli ${promo.buyQty} Gratis ${promo.getQty}!
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+            modal.show();
+        }
+
+        document.getElementById('addFromDetailBtn').addEventListener('click', () => {
+            if (currentDetailSKU) {
+                addToCart(currentDetailSKU);
+                bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
+            }
+        });
+
+        // =========================
+        // CART FUNCTIONS
+        // =========================
+        function addToCart(sku) {
+            const product = products.find(p => p.sku === sku);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.sku === sku);
+            if (existingItem) {
+                existingItem.qty++;
+            } else {
+                cart.push({
+                    sku: product.sku,
+                    name: product.name,
+                    price: product.price,
+                    vendor: product.vendor,
+                    qty: 1
+                });
+            }
+
+            updateCart();
+            showToast(`${product.name} ditambahkan ke keranjang`);
+        }
+
+        function removeFromCart(sku) {
+            cart = cart.filter(item => item.sku !== sku);
+            updateCart();
+        }
+
+        function updateCartQty(sku, qty) {
+            const item = cart.find(i => i.sku === sku);
+            if (item) {
+                item.qty = Math.max(1, qty);
+                updateCart();
+            }
+        }
+
+        function updateCart() {
+            const floatingCart = document.getElementById('floatingCart');
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => {
+                const product = products.find(p => p.sku === item.sku);
+                const calculation = calculateTotalWithBonus(product, item.qty);
+                return sum + calculation.total;
+            }, 0);
+
+            // Update floating button
+            if (totalItems > 0) {
+                floatingCart.classList.remove('d-none');
+                cartCount.textContent = totalItems;
+            } else {
+                floatingCart.classList.add('d-none');
+            }
+
+            // Update cart modal
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-cart-x" style="font-size: 3rem;"></i>
+                        <p class="mt-3">Keranjang kosong</p>
+                    </div>
+                `;
+            } else {
+                cartItems.innerHTML = cart.map(item => {
+                    const product = products.find(p => p.sku === item.sku);
+                    const pricing = calculatePrice(product, item.qty);
+                    const calculation = calculateTotalWithBonus(product, item.qty);
+
+                    return `
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${item.name}</h6>
+                                        <p class="text-muted small mb-2">${item.sku} • ${item.vendor}</p>
+                                        ${calculation.freeItems > 0 ? `
+                                            <div class="badge bg-success mb-2">
+                                                <i class="bi bi-gift me-1"></i>
+                                                ${calculation.itemsToPay} dibayar + ${calculation.freeItems} gratis
+                                            </div>
+                                        ` : ''}
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="input-group" style="width: 120px;">
+                                                <button class="btn btn-outline-secondary btn-sm" 
+                                                        onclick="updateCartQty('${item.sku}', ${item.qty - 1})">-</button>
+                                                <input type="number" class="form-control form-control-sm text-center" 
+                                                       value="${item.qty}" min="1"
+                                                       onchange="updateCartQty('${item.sku}', parseInt(this.value))">
+                                                <button class="btn btn-outline-secondary btn-sm" 
+                                                        onclick="updateCartQty('${item.sku}', ${item.qty + 1})">+</button>
+                                            </div>
+                                            <div>
+                                                ${pricing.discount > 0 ? `
+                                                    <div class="price-original">${rupiah(pricing.original)}</div>
+                                                    <div class="price-final">${rupiah(pricing.final)}</div>
+                                                ` : `
+                                                    <div class="fw-bold">${rupiah(pricing.final)}</div>
+                                                `}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-danger mb-2" 
+                                                onclick="removeFromCart('${item.sku}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <div class="fw-bold text-primary">${rupiah(calculation.total)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            cartTotal.textContent = rupiah(totalPrice);
+        }
+
+        function showToast(message) {
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 start-50 translate-middle-x mb-3 alert alert-success';
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `<i class="bi bi-check-circle me-2"></i>${message}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // =========================
+        // CHECKOUT
+        // =========================
+        document.getElementById('checkoutBtn').addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+
+            // Group by vendor
+            const ordersByVendor = {};
+            cart.forEach(item => {
+                if (!ordersByVendor[item.vendor]) {
+                    ordersByVendor[item.vendor] = [];
+                }
+                ordersByVendor[item.vendor].push(item);
+            });
+
+            // Build confirmation message
+            const vendorCount = Object.keys(ordersByVendor).length;
+            let confirmMsg = `🛒 CHECKOUT CONFIRMATION\n\n`;
+            confirmMsg += `Anda akan membuat ${vendorCount} order dari ${vendorCount} vendor berbeda:\n\n`;
+
+            Object.entries(ordersByVendor).forEach(([vendor, items], index) => {
+                const total = items.reduce((sum, item) => {
+                    const product = products.find(p => p.sku === item.sku);
+                    const calculation = calculateTotalWithBonus(product, item.qty);
+                    return sum + calculation.total;
+                }, 0);
+
+                confirmMsg += `📦 ORDER ${index + 1}: ${vendor}\n`;
+                confirmMsg += `   Items: ${items.length} produk (${items.reduce((sum, i) => sum + i.qty, 0)} unit)\n`;
+                confirmMsg += `   Total: ${rupiah(total)}\n\n`;
+            });
+
+            confirmMsg += `Lanjutkan checkout?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            // Create orders
+            const orders = loadJson("IBOCS_customer_orders", []);
+            const orderLines = loadJson("IBOCS_customer_order_lines", {});
+            const createdOrders = [];
+
+            Object.entries(ordersByVendor).forEach(([vendor, items]) => {
+                const orderNo = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+                const total = items.reduce((sum, item) => {
+                    const product = products.find(p => p.sku === item.sku);
+                    const calculation = calculateTotalWithBonus(product, item.qty);
+                    return sum + calculation.total;
+                }, 0);
+
+                orders.push({
+                    no: orderNo,
+                    dist: vendor,
+                    customerName: user.name || 'Customer Customer',
+                    customer: user.name || 'Customer Customer',
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'Dipesan',
+                    total: total
+                });
+
+                orderLines[orderNo] = items.map(item => {
+                    const product = products.find(p => p.sku === item.sku);
+                    const pricing = calculatePrice(product, item.qty);
+                    return {
+                        sku: item.sku,
+                        name: item.name,
+                        qty: item.qty,
+                        price: pricing.final
+                    };
+                });
+
+                createdOrders.push({ orderNo, vendor, total });
+            });
+
+            localStorage.setItem("IBOCS_customer_orders", JSON.stringify(orders));
+            localStorage.setItem("IBOCS_customer_order_lines", JSON.stringify(orderLines));
+
+            // Success message
+            let successMsg = `✅ CHECKOUT BERHASIL!\n\n`;
+            successMsg += `${createdOrders.length} order telah dibuat:\n\n`;
+            createdOrders.forEach((order, index) => {
+                successMsg += `${index + 1}. ${order.orderNo}\n`;
+                successMsg += `   ${order.vendor} - ${rupiah(order.total)}\n\n`;
+            });
+            successMsg += `Lihat detail di halaman Orders.`;
+
+            alert(successMsg);
+
+            cart = [];
+            updateCart();
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+            modal.hide();
+
+            window.location.href = 'customer_orders.html';
+        });
+
+        // =========================
+        // INIT
+        // =========================
+        document.getElementById('searchInput').addEventListener('input', renderProducts);
+        document.getElementById('sortBy').addEventListener('change', renderProducts);
+        document.getElementById('regionFilter').addEventListener('change', renderProducts);
+
+        renderCategories();
+        renderVendorFilter();
+        renderRegionFilter();
+        renderProducts();
+        updateCart();
+
+        function renderRegionFilter() {
+            const regions = [...new Set(products.map(p => p.region).filter(Boolean))];
+            const select = document.getElementById('regionFilter');
+
+            select.innerHTML = '<option value="">Semua Daerah</option>' +
+                regions.map(r => `<option value="${r}">${r}</option>`).join('');
+        }
+    </script>
+
+    <script src="sidebar.js"></script>
+    <script>
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'catalog').render();
+    </script>
+</body>
+
+</html>
+
+

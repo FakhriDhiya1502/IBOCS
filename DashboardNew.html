@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Portal Order Confirmation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background: #f4f6fb;
+            color: #2f3a4a;
+        }
+
+        .page-header-wrap {
+            margin: 20px 0 15px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e6ebf2;
+            transition: all .2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .kpi-card {
+            cursor: pointer;
+        }
+
+        .kpi-card.active {
+            border-color: #b9d7f7;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.08);
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .kpi-subtext {
+            font-size: 12px;
+            color: #7f8c9a;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .section-note {
+            color: #7f8c9a;
+            font-size: 12px;
+            margin-top: -5px;
+            margin-bottom: 12px;
+        }
+
+        .status-green {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-yellow {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-blue {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .toggle button {
+            margin-left: 5px;
+            min-width: 70px;
+        }
+
+        .toggle button.active-view {
+            background: #337ab7;
+            color: #fff;
+            border-color: #2e6da4;
+        }
+
+        .table-hover tbody tr:hover {
+            cursor: pointer;
+            background: #f2f7ff;
+        }
+
+        .drill-panel {
+            display: none;
+            border-left: 4px solid #3498db;
+        }
+
+        .drill-panel.active {
+            display: block;
+        }
+
+        .badge-cat {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .badge-feed {
+            background: #e8f4ff;
+            color: #3498db;
+        }
+
+        .badge-doc {
+            background: #fff3e6;
+            color: #e67e22;
+        }
+
+        .chart-box {
+            height: 220px;
+            background: linear-gradient(180deg, #fbfdff, #f4f8fd);
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            padding: 16px 16px 28px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .chart-title-row {
+            margin-bottom: 10px;
+        }
+
+        .chart-subtitle {
+            color: #8a96a3;
+            font-size: 12px;
+        }
+
+        .chart-grid {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 50px;
+            bottom: 28px;
+        }
+
+        .chart-grid .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #eef3f8;
+        }
+
+        .chart-grid .grid-line:nth-child(1) {
+            top: 0;
+        }
+
+        .chart-grid .grid-line:nth-child(2) {
+            top: 25%;
+        }
+
+        .chart-grid .grid-line:nth-child(3) {
+            top: 50%;
+        }
+
+        .chart-grid .grid-line:nth-child(4) {
+            top: 75%;
+        }
+
+        .chart-grid .grid-line:nth-child(5) {
+            bottom: 0;
+        }
+
+        .mini-line-chart {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            top: 65px;
+            bottom: 38px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .mini-line-chart .point-wrap {
+            width: 12.5%;
+            position: relative;
+            height: 100%;
+        }
+
+        .mini-line-chart .bar-pair {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .mini-line-chart .bar {
+            width: 16px;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+
+        .mini-line-chart .bar.feed-demand {
+            background: #8cc8ff;
+        }
+
+        .mini-line-chart .bar.feed-supply {
+            background: #7fd9a7;
+        }
+
+        .mini-line-chart .bar.doc-plan {
+            background: #ffd08a;
+        }
+
+        .mini-line-chart .bar.doc-ready {
+            background: #ffb35c;
+        }
+
+        .x-labels {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #7f8c9a;
+        }
+
+        .legend-row {
+            display: flex;
+            gap: 18px;
+            font-size: 12px;
+            color: #6c7a89;
+            margin-top: 8px;
+        }
+
+        .legend-item i {
+            margin-right: 6px;
+        }
+
+        .summary-row-active {
+            background: #eef6ff !important;
+        }
+
+        .quick-actions {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .quick-actions .btn {
+            margin-left: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #93a0ae;
+            padding: 25px 0;
+        }
+
+        .pill-link {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #eef5fc;
+            color: #337ab7;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .pill-link:hover {
+            text-decoration: none;
+            background: #e3f0fb;
+        }
+
+        .detail-kpi {
+            border: 1px dashed #dbe5ef;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+            background: #fbfdff;
+        }
+
+        .detail-kpi .label-mini {
+            font-size: 11px;
+            color: #8090a0;
+            text-transform: uppercase;
+        }
+
+        .detail-kpi .value-mini {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .enterprise-shell {
+            background: #ffffff;
+            border: 1px solid #e3eaf2;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(25, 42, 70, 0.05);
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .header-chip {
+            background: #f5f8fc;
+            border: 1px solid #e2eaf3;
+            color: #6e7f92;
+            border-radius: 14px;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .sticky-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f4f6fb;
+            padding-top: 10px;
+        }
+
+        .process-card {
+            min-height: 268px;
+        }
+
+        .process-step {
+            position: relative;
+            padding-left: 34px;
+            margin-bottom: 18px;
+        }
+
+        .process-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .process-step:before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -18px;
+            width: 2px;
+            background: #e7edf5;
+        }
+
+        .process-step:last-child:before {
+            display: none;
+        }
+
+        .step-bullet {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #eef3f9;
+            color: #5c7085;
+            border: 1px solid #dce6f0;
+        }
+
+        .step-bullet.done {
+            background: #e8f8ef;
+            color: #2ecc71;
+            border-color: #bfe9cf;
+        }
+
+        .step-bullet.active {
+            background: #eef6ff;
+            color: #3498db;
+            border-color: #c8defa;
+        }
+
+        .step-bullet.warn {
+            background: #fff6e8;
+            color: #f39c12;
+            border-color: #f7d9a9;
+        }
+
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .step-meta {
+            font-size: 12px;
+            color: #8191a2;
+        }
+
+        .step-progress {
+            margin-top: 6px;
+        }
+
+        .step-progress .progress {
+            height: 8px;
+            margin-bottom: 0;
+            background: #edf2f7;
+            box-shadow: none;
+        }
+
+        .alert-card {
+            min-height: 268px;
+        }
+
+        .alert-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .alert-item {
+            border: 1px solid #edf1f5;
+            border-left: 4px solid #d9e6f5;
+            border-radius: 10px;
+            padding: 12px 12px 12px 14px;
+            margin-bottom: 10px;
+            background: #fcfdff;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-item.critical {
+            border-left-color: #e74c3c;
+            background: #fff8f7;
+        }
+
+        .alert-item.warning {
+            border-left-color: #f39c12;
+            background: #fffaf1;
+        }
+
+        .alert-item.info {
+            border-left-color: #3498db;
+            background: #f8fbff;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .alert-desc {
+            font-size: 12px;
+            color: #738395;
+            margin-bottom: 8px;
+        }
+
+        .alert-meta {
+            font-size: 11px;
+            color: #91a0af;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alert-actions {
+            margin-top: 8px;
+        }
+
+        .alert-actions .btn {
+            margin-right: 6px;
+        }
+
+        .panel-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .mini-info-card {
+            border: 1px solid #e9eef5;
+            border-radius: 10px;
+            padding: 12px;
+            background: #fbfdff;
+        }
+
+        .mini-info-title {
+            font-size: 12px;
+            color: #7b8b9a;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .mini-info-value {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .top-gap {
+            margin-top: 4px;
+        }
+
+        @media (max-width: 991px) {
+            .panel-2col {
+                grid-template-columns: 1fr;
+            }
+
+            .header-meta {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid enterprise-shell">
+
+        <div class="page-header-wrap sticky-topbar">
+            <div class="row">
+                <div class="col-md-7">
+                    <h2 style="margin-top:0;"><i class="fa fa-dashboard"></i> Dashboard - Portal Order Confirmation</h2>
+                    <div class="section-note">Ringkasan kondisi aktif untuk Feed dan DOC, lengkap dengan summary, visual
+                        trend, dan detail interaktif.</div>
+                </div>
+                <div class="col-md-5 text-right">
+                    <label style="margin-right:8px;">Active Week</label>
+                    <select class="form-control" style="width:200px; display:inline-block;">
+                        <option>Week 18 - 2026</option>
+                        <option>Week 19 - 2026</option>
+                        <option>Week 20 - 2026</option>
+                    </select>
+                    <div class="header-meta">
+                        <span class="header-chip"><i class="fa fa-database"></i> Last Sync 09:12</span>
+                        <span class="header-chip"><i class="fa fa-building"></i> 1 Feedmill / Hatchery</span>
+                        <span class="header-chip"><i class="fa fa-sitemap"></i> 5 Farm Companies</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 text-right toggle">
+                <button id="toggle-all" class="btn btn-default active-view" onclick="switchView('all')">All</button>
+                <button id="toggle-feed" class="btn btn-default" onclick="switchView('feed')">Feed</button>
+                <button id="toggle-doc" class="btn btn-default" onclick="switchView('doc')">DOC</button>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- FEED -->
+        <div id="feed-section">
+            <h4 class="section-title"><i class="fa fa-leaf status-blue"></i> Feed Overview</h4>
+            <div class="section-note">Kebutuhan pakan hasil forecast/recommendation dibandingkan dengan stock yang siap
+                dialokasikan.</div>
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('feed-demand')">
+                        <div class="kpi-label">Feed Demand</div>
+                        <div class="kpi-value">120K</div>
+                        <div class="kpi-subtext">Click to view feed demand detail</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('feed-available')">
+                        <div class="kpi-label">Available</div>
+                        <div class="kpi-value">100K</div>
+                        <div class="kpi-subtext">Eligible stock for allocation</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('feed-shortage')">
+                        <div class="kpi-label">Shortage</div>
+                        <div class="kpi-value status-red">20K</div>
+                        <div class="kpi-subtext">Critical gap requiring action</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('feed-coverage')">
+                        <div class="kpi-label">Coverage</div>
+                        <div class="kpi-value status-green">80%</div>
+                        <div class="kpi-subtext">Allocation readiness percentage</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="row chart-title-row">
+                    <div class="col-sm-8">
+                        <h5 style="margin-top:0;"><i class="fa fa-line-chart"></i> Demand vs Supply</h5>
+                        <div class="chart-subtitle">7-week trend to show demand growth and supply coverage pattern.
+                        </div>
+                    </div>
+                    <div class="col-sm-4 text-right">
+                        <a href="#" class="pill-link" onclick="openChartDetail('feed'); return false;">Open Feed Trend
+                            Detail</a>
+                    </div>
+                </div>
+                <div class="chart-box" onclick="openChartDetail('feed')">
+                    <div class="chart-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    <div class="mini-line-chart">
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:60px;"></div>
+                                <div class="bar feed-supply" style="height:50px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:85px;"></div>
+                                <div class="bar feed-supply" style="height:72px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:105px;"></div>
+                                <div class="bar feed-supply" style="height:90px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:130px;"></div>
+                                <div class="bar feed-supply" style="height:104px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:146px;"></div>
+                                <div class="bar feed-supply" style="height:120px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:124px;"></div>
+                                <div class="bar feed-supply" style="height:112px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar feed-demand" style="height:72px;"></div>
+                                <div class="bar feed-supply" style="height:68px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x-labels">
+                        <span>W12</span><span>W13</span><span>W14</span><span>W15</span><span>W16</span><span>W17</span><span>W18</span>
+                    </div>
+                </div>
+                <div class="legend-row">
+                    <span class="legend-item"><i class="fa fa-square" style="color:#8cc8ff;"></i>Demand</span>
+                    <span class="legend-item"><i class="fa fa-square" style="color:#7fd9a7;"></i>Supply</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOC -->
+        <div id="doc-section">
+            <h4 class="section-title"><i class="fa fa-cube" style="color:#e67e22;"></i> DOC Overview</h4>
+            <div class="section-note">Kebutuhan DOC mengikuti plan kandang / draft plan yang ada, lalu dibandingkan
+                dengan readiness dari hatchery.</div>
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('doc-required')">
+                        <div class="kpi-label">Required</div>
+                        <div class="kpi-value">80K</div>
+                        <div class="kpi-subtext">Plan-driven DOC requirement</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('doc-ready')">
+                        <div class="kpi-label">Ready</div>
+                        <div class="kpi-value">70K</div>
+                        <div class="kpi-subtext">DOC ready from hatchery</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('doc-gap')">
+                        <div class="kpi-label">Gap</div>
+                        <div class="kpi-value status-red">10K</div>
+                        <div class="kpi-subtext">Gap between plan and readiness</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card kpi-card" onclick="openKpiDetail('doc-unplanned')">
+                        <div class="kpi-label">Unplanned</div>
+                        <div class="kpi-value status-yellow">5</div>
+                        <div class="kpi-subtext">House without plan assignment</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="row chart-title-row">
+                    <div class="col-sm-8">
+                        <h5 style="margin-top:0;"><i class="fa fa-bar-chart"></i> DOC Plan vs Ready</h5>
+                        <div class="chart-subtitle">Upcoming readiness against planned requirement by week.</div>
+                    </div>
+                    <div class="col-sm-4 text-right">
+                        <a href="#" class="pill-link" onclick="openChartDetail('doc'); return false;">Open DOC Trend
+                            Detail</a>
+                    </div>
+                </div>
+                <div class="chart-box" onclick="openChartDetail('doc')">
+                    <div class="chart-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    <div class="mini-line-chart">
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:56px;"></div>
+                                <div class="bar doc-ready" style="height:52px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:76px;"></div>
+                                <div class="bar doc-ready" style="height:63px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:92px;"></div>
+                                <div class="bar doc-ready" style="height:80px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:115px;"></div>
+                                <div class="bar doc-ready" style="height:95px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:138px;"></div>
+                                <div class="bar doc-ready" style="height:110px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:118px;"></div>
+                                <div class="bar doc-ready" style="height:101px;"></div>
+                            </div>
+                        </div>
+                        <div class="point-wrap">
+                            <div class="bar-pair">
+                                <div class="bar doc-plan" style="height:84px;"></div>
+                                <div class="bar doc-ready" style="height:74px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x-labels">
+                        <span>W12</span><span>W13</span><span>W14</span><span>W15</span><span>W16</span><span>W17</span><span>W18</span>
+                    </div>
+                </div>
+                <div class="legend-row">
+                    <span class="legend-item"><i class="fa fa-square" style="color:#ffd08a;"></i>Plan</span>
+                    <span class="legend-item"><i class="fa fa-square" style="color:#ffb35c;"></i>Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row top-gap">
+            <div class="col-md-6">
+                <div class="card process-card">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <h4 class="section-title"><i class="fa fa-random"></i> Process Progress</h4>
+                            <div class="section-note">Monitor posisi proses dari plan/forecast sampai order confirmation
+                                secara cepat.</div>
+                        </div>
+                        <div class="col-sm-4 text-right quick-actions">
+                            <button class="btn btn-default btn-sm" onclick="openProgressDetail()">Open Progress
+                                Detail</button>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-bullet done"><i class="fa fa-check"></i></div>
+                        <div class="step-title">Forecast / Plan Ready</div>
+                        <div class="step-meta">Feed 92% confirmed • DOC plan 84% ready</div>
+                        <div class="step-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" style="width:92%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-bullet done"><i class="fa fa-check"></i></div>
+                        <div class="step-title">PO Generated</div>
+                        <div class="step-meta">14 of 18 aggregated PO sudah terbentuk</div>
+                        <div class="step-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-primary" style="width:78%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-bullet active">3</div>
+                        <div class="step-title">Allocation Review</div>
+                        <div class="step-meta">8 request masih partial dan menunggu override</div>
+                        <div class="step-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-info" style="width:63%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-bullet warn">4</div>
+                        <div class="step-title">SO / Confirmation</div>
+                        <div class="step-meta">6 SO masih pending create / confirm</div>
+                        <div class="step-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-warning" style="width:46%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card alert-card">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <h4 class="section-title"><i class="fa fa-bell"></i> Alerts & Exceptions</h4>
+                            <div class="section-note">Fokus ke hal yang perlu ditindak, bukan sekadar angka total.</div>
+                        </div>
+                        <div class="col-sm-4 text-right quick-actions">
+                            <button class="btn btn-default btn-sm" onclick="openAlertDetail()">Open Alert
+                                Detail</button>
+                        </div>
+                    </div>
+                    <ul class="alert-list">
+                        <li class="alert-item critical">
+                            <div class="alert-title">Critical Feed Shortage • FD-ST-001</div>
+                            <div class="alert-desc">Gap 10K pada week aktif. 2 farm prioritas tinggi berpotensi
+                                terdampak jika tidak ada override allocation.</div>
+                            <div class="alert-meta"><span>Category: Feed</span><span>Severity:
+                                    Critical</span><span>Company: PT TOP</span></div>
+                            <div class="alert-actions"><button class="btn btn-danger btn-xs"
+                                    onclick="showDrill('feed')">Open Feed Detail</button><button
+                                    class="btn btn-default btn-xs" onclick="openKpiDetail('feed-shortage', this)">Open
+                                    KPI</button></div>
+                        </li>
+                        <li class="alert-item warning">
+                            <div class="alert-title">DOC Gap • DOC-001</div>
+                            <div class="alert-desc">Requirement plan 30K, readiness baru 25K. 2 kandang masih menunggu
+                                kepastian fulfillment.</div>
+                            <div class="alert-meta"><span>Category: DOC</span><span>Severity:
+                                    Medium</span><span>Company: PT AYM</span></div>
+                            <div class="alert-actions"><button class="btn btn-warning btn-xs"
+                                    onclick="showDrill('doc')">Open DOC Detail</button><button
+                                    class="btn btn-default btn-xs" onclick="openKpiDetail('doc-gap', this)">Open
+                                    KPI</button></div>
+                        </li>
+                        <li class="alert-item info">
+                            <div class="alert-title">Unplanned House</div>
+                            <div class="alert-desc">Masih ada 5 kandang yang belum memiliki plan assignment sehingga
+                                belum bisa diproses lebih lanjut.</div>
+                            <div class="alert-meta"><span>Category: DOC</span><span>Severity: Info</span><span>Monitor:
+                                    Planning Team</span></div>
+                            <div class="alert-actions"><button class="btn btn-info btn-xs"
+                                    onclick="openKpiDetail('doc-unplanned', this)">Open Detail</button></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        <div id="summary-card" class="card">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 class="section-title"><i class="fa fa-table"></i> Summary</h4>
+                    <div class="section-note">Summary mengikuti toggle di atas. Klik baris untuk membuka detail sesuai
+                        konteks.</div>
+                </div>
+                <div class="col-sm-4 text-right quick-actions">
+                    <button class="btn btn-default btn-sm" onclick="clearDetail()">Clear Detail</button>
+                </div>
+            </div>
+
+            <div id="summary-all">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Company</th>
+                            <th>Item</th>
+                            <th>Required</th>
+                            <th>Available</th>
+                            <th>Gap</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="row-feed-all" onclick="showDrill('feed')">
+                            <td><span class="badge-cat badge-feed">Feed</span></td>
+                            <td>PT TOP</td>
+                            <td>FD-ST-001</td>
+                            <td>50K</td>
+                            <td>40K</td>
+                            <td>10K</td>
+                            <td class="status-red">Shortage</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('feed'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                        <tr id="row-doc-all" onclick="showDrill('doc')">
+                            <td><span class="badge-cat badge-doc">DOC</span></td>
+                            <td>PT AYM</td>
+                            <td>DOC-001</td>
+                            <td>30K</td>
+                            <td>25K</td>
+                            <td>5K</td>
+                            <td class="status-yellow">Gap</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('doc'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="summary-feed" style="display:none;">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Feed Item</th>
+                            <th>Forecast Demand</th>
+                            <th>Available</th>
+                            <th>Gap</th>
+                            <th>Coverage</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="row-feed-only-1" onclick="showDrill('feed')">
+                            <td>PT TOP</td>
+                            <td>FD-ST-001</td>
+                            <td>50K</td>
+                            <td>40K</td>
+                            <td>10K</td>
+                            <td>80%</td>
+                            <td class="status-red">Shortage</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('feed'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                        <tr id="row-feed-only-2" onclick="showDrill('feed')">
+                            <td>PT TOP</td>
+                            <td>FD-FN-002</td>
+                            <td>32K</td>
+                            <td>32K</td>
+                            <td>0</td>
+                            <td>100%</td>
+                            <td class="status-green">Ready</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('feed'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="summary-doc" style="display:none;">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>DOC Item</th>
+                            <th>Required</th>
+                            <th>Ready</th>
+                            <th>Gap</th>
+                            <th>Unplanned House</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="row-doc-only-1" onclick="showDrill('doc')">
+                            <td>PT AYM</td>
+                            <td>DOC-001</td>
+                            <td>30K</td>
+                            <td>25K</td>
+                            <td>5K</td>
+                            <td>2</td>
+                            <td class="status-yellow">Gap</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('doc'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                        <tr id="row-doc-only-2" onclick="showDrill('doc')">
+                            <td>PT AYM</td>
+                            <td>DOC-002</td>
+                            <td>18K</td>
+                            <td>18K</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="status-green">Ready</td>
+                            <td><a href="#" onclick="event.stopPropagation(); showDrill('doc'); return false;">Open
+                                    Detail</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DRILL -->
+        <div id="drill-feed" class="card drill-panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 style="margin-top:0;"><i class="fa fa-leaf status-blue"></i> Feed Detail</h4>
+                    <div class="section-note">Detail kebutuhan per farm / kandang untuk item feed yang dipilih.</div>
+                </div>
+                <div class="col-sm-4 text-right quick-actions">
+                    <button class="btn btn-default btn-sm" onclick="focusView('feed')">Feed View</button>
+                    <button class="btn btn-primary btn-sm">Open Forecast Screen</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Requested</div>
+                        <div class="value-mini">50K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Allocated</div>
+                        <div class="value-mini">40K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Gap</div>
+                        <div class="value-mini status-red">10K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Priority Farm</div>
+                        <div class="value-mini">2</div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm</th>
+                        <th>Kandang</th>
+                        <th>Forecast</th>
+                        <th>Allocated</th>
+                        <th>Gap</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Farm 1</td>
+                        <td>KDG-01</td>
+                        <td>20K</td>
+                        <td>15K</td>
+                        <td class="status-red">5K</td>
+                        <td class="status-red">High</td>
+                        <td class="status-yellow">Partial</td>
+                    </tr>
+                    <tr>
+                        <td>Farm 1</td>
+                        <td>KDG-02</td>
+                        <td>30K</td>
+                        <td>25K</td>
+                        <td class="status-yellow">5K</td>
+                        <td>Medium</td>
+                        <td class="status-yellow">Partial</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="drill-doc" class="card drill-panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 style="margin-top:0;"><i class="fa fa-cube" style="color:#e67e22;"></i> DOC Detail</h4>
+                    <div class="section-note">Detail kebutuhan DOC berdasarkan plan kandang dan readiness hatchery.
+                    </div>
+                </div>
+                <div class="col-sm-4 text-right quick-actions">
+                    <button class="btn btn-default btn-sm" onclick="focusView('doc')">DOC View</button>
+                    <button class="btn btn-warning btn-sm">Open Plan Screen</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Required</div>
+                        <div class="value-mini">30K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Ready</div>
+                        <div class="value-mini">25K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Gap</div>
+                        <div class="value-mini status-red">5K</div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Unplanned House</div>
+                        <div class="value-mini status-yellow">2</div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm</th>
+                        <th>Kandang</th>
+                        <th>Plan</th>
+                        <th>Ready</th>
+                        <th>Gap</th>
+                        <th>Plan Status</th>
+                        <th>Fulfillment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Farm 2</td>
+                        <td>KDG-01</td>
+                        <td>15K</td>
+                        <td>10K</td>
+                        <td class="status-red">5K</td>
+                        <td class="status-blue">Planned</td>
+                        <td class="status-yellow">Partial</td>
+                    </tr>
+                    <tr>
+                        <td>Farm 2</td>
+                        <td>KDG-02</td>
+                        <td>15K</td>
+                        <td>15K</td>
+                        <td>0</td>
+                        <td class="status-blue">Planned</td>
+                        <td class="status-green">Ready</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="drill-chart-feed" class="card drill-panel">
+            <h4 style="margin-top:0;"><i class="fa fa-line-chart"></i> Feed Trend Detail</h4>
+            <div class="section-note">Trend mingguan ini membantu melihat kapan demand mulai lebih tinggi dari stock
+                yang tersedia.</div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Demand</th>
+                        <th>Supply</th>
+                        <th>Gap</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>W15</td>
+                        <td>44K</td>
+                        <td>36K</td>
+                        <td class="status-red">8K</td>
+                        <td class="status-yellow">Tight</td>
+                    </tr>
+                    <tr>
+                        <td>W16</td>
+                        <td>48K</td>
+                        <td>39K</td>
+                        <td class="status-red">9K</td>
+                        <td class="status-red">Critical</td>
+                    </tr>
+                    <tr>
+                        <td>W17</td>
+                        <td>41K</td>
+                        <td>37K</td>
+                        <td class="status-yellow">4K</td>
+                        <td class="status-yellow">Tight</td>
+                    </tr>
+                    <tr>
+                        <td>W18</td>
+                        <td>50K</td>
+                        <td>40K</td>
+                        <td class="status-red">10K</td>
+                        <td class="status-red">Critical</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="drill-chart-doc" class="card drill-panel">
+            <h4 style="margin-top:0;"><i class="fa fa-bar-chart"></i> DOC Trend Detail</h4>
+            <div class="section-note">Kebutuhan DOC mengikuti plan mingguan, lalu dibandingkan dengan readiness aktual
+                dari hatchery.</div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Planned Requirement</th>
+                        <th>Ready</th>
+                        <th>Gap</th>
+                        <th>Unplanned House</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>W15</td>
+                        <td>22K</td>
+                        <td>20K</td>
+                        <td class="status-yellow">2K</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>W16</td>
+                        <td>26K</td>
+                        <td>22K</td>
+                        <td class="status-red">4K</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>W17</td>
+                        <td>24K</td>
+                        <td>21K</td>
+                        <td class="status-yellow">3K</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>W18</td>
+                        <td>30K</td>
+                        <td>25K</td>
+                        <td class="status-red">5K</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="drill-kpi" class="card drill-panel">
+            <h4 id="kpi-detail-title" style="margin-top:0;"><i class="fa fa-info-circle"></i> KPI Detail</h4>
+            <div id="kpi-detail-note" class="section-note">Selected KPI detail will appear here.</div>
+            <div id="kpi-detail-body">
+                <div class="empty-state">Select one KPI card to open its detail context.</div>
+            </div>
+        </div>
+
+        <div id="drill-progress" class="card drill-panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 style="margin-top:0;"><i class="fa fa-random"></i> Process Progress Detail</h4>
+                    <div class="section-note">Detail ini menunjukkan bottleneck proses yang paling dekat dengan eksekusi
+                        operasional.</div>
+                </div>
+                <div class="col-sm-4 text-right quick-actions">
+                    <button class="btn btn-default btn-sm" onclick="clearDetail()">Close</button>
+                </div>
+            </div>
+            <div class="panel-2col">
+                <div class="mini-info-card">
+                    <div class="mini-info-title">Feed Flow</div>
+                    <div class="mini-info-value">78%</div>
+                    <div class="section-note" style="margin:8px 0 0;">Forecast confirmed dan PO generated sudah tinggi,
+                        bottleneck ada di allocation review.</div>
+                </div>
+                <div class="mini-info-card">
+                    <div class="mini-info-title">DOC Flow</div>
+                    <div class="mini-info-value">64%</div>
+                    <div class="section-note" style="margin:8px 0 0;">Kesiapan plan cukup baik, tetapi readiness
+                        hatchery masih menyisakan gap dan unplanned house.</div>
+                </div>
+            </div>
+            <br>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Process Step</th>
+                        <th>Feed Status</th>
+                        <th>DOC Status</th>
+                        <th>Main Issue</th>
+                        <th>Next Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Plan / Forecast Ready</td>
+                        <td class="status-green">92%</td>
+                        <td class="status-blue">84%</td>
+                        <td>5 unplanned houses</td>
+                        <td>Complete planning assignment</td>
+                    </tr>
+                    <tr>
+                        <td>PO Generated</td>
+                        <td class="status-blue">78%</td>
+                        <td>-</td>
+                        <td>4 PO belum tergenerate</td>
+                        <td>Review pending recommendation</td>
+                    </tr>
+                    <tr>
+                        <td>Allocation Review</td>
+                        <td class="status-yellow">63%</td>
+                        <td class="status-yellow">71%</td>
+                        <td>Partial allocation dan DOC gap</td>
+                        <td>Override / rebalance</td>
+                    </tr>
+                    <tr>
+                        <td>SO / Confirmation</td>
+                        <td class="status-yellow">46%</td>
+                        <td class="status-yellow">52%</td>
+                        <td>6 SO pending</td>
+                        <td>Confirm and create order</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="drill-alert" class="card drill-panel">
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 style="margin-top:0;"><i class="fa fa-bell"></i> Alert Detail</h4>
+                    <div class="section-note">Prioritas utama yang harus ditangani segera pada week aktif.</div>
+                </div>
+                <div class="col-sm-4 text-right quick-actions">
+                    <button class="btn btn-default btn-sm" onclick="clearDetail()">Close</button>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Category</th>
+                        <th>Reference</th>
+                        <th>Description</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="status-red">Critical</td>
+                        <td>Feed</td>
+                        <td>FD-ST-001</td>
+                        <td>Gap 10K dengan dampak ke 2 farm prioritas tinggi</td>
+                        <td>Feedmill Planner</td>
+                        <td><a href="#" onclick="showDrill('feed'); return false;">Open Feed Detail</a></td>
+                    </tr>
+                    <tr>
+                        <td class="status-yellow">Medium</td>
+                        <td>DOC</td>
+                        <td>DOC-001</td>
+                        <td>Gap 5K terhadap requirement plan</td>
+                        <td>Hatchery Planner</td>
+                        <td><a href="#" onclick="showDrill('doc'); return false;">Open DOC Detail</a></td>
+                    </tr>
+                    <tr>
+                        <td class="status-blue">Info</td>
+                        <td>DOC</td>
+                        <td>Unplanned House</td>
+                        <td>5 kandang belum memiliki assignment plan</td>
+                        <td>Farm Planning</td>
+                        <td><a href="#" onclick="openKpiDetail('doc-unplanned', this); return false;">Open KPI
+                                Detail</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        var currentView = 'all';
+
+        function switchView(type) {
+            currentView = type;
+
+            document.getElementById('feed-section').style.display = (type === 'doc') ? 'none' : 'block';
+            document.getElementById('doc-section').style.display = (type === 'feed') ? 'none' : 'block';
+
+            document.getElementById('summary-all').style.display = (type === 'all') ? 'block' : 'none';
+            document.getElementById('summary-feed').style.display = (type === 'feed') ? 'block' : 'none';
+            document.getElementById('summary-doc').style.display = (type === 'doc') ? 'block' : 'none';
+
+            document.getElementById('toggle-all').classList.remove('active-view');
+            document.getElementById('toggle-feed').classList.remove('active-view');
+            document.getElementById('toggle-doc').classList.remove('active-view');
+            document.getElementById('toggle-' + type).classList.add('active-view');
+
+            if (type === 'feed') {
+                hideDrillsExcept(['drill-feed', 'drill-chart-feed', 'drill-kpi']);
+            } else if (type === 'doc') {
+                hideDrillsExcept(['drill-doc', 'drill-chart-doc', 'drill-kpi']);
+            }
+        }
+
+        function hideDrillsExcept(allowedIds) {
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                if (allowedIds.indexOf(panels[i].id) === -1) {
+                    panels[i].classList.remove('active');
+                }
+            }
+        }
+
+        function clearRowHighlight() {
+            var rows = document.querySelectorAll('tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                rows[i].classList.remove('summary-row-active');
+            }
+        }
+
+        function clearKpiSelection() {
+            var cards = document.querySelectorAll('.kpi-card');
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].classList.remove('active');
+            }
+        }
+
+        function showDrill(type) {
+            clearRowHighlight();
+            if (type === 'feed') {
+                var ids = ['row-feed-all', 'row-feed-only-1', 'row-feed-only-2'];
+                ids.forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.add('summary-row-active'); });
+            }
+            if (type === 'doc') {
+                var ids2 = ['row-doc-all', 'row-doc-only-1', 'row-doc-only-2'];
+                ids2.forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.add('summary-row-active'); });
+            }
+
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('drill-' + type).classList.add('active');
+            document.getElementById('drill-' + type).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openChartDetail(type) {
+            if (type === 'feed') {
+                switchView('feed');
+            }
+            if (type === 'doc') {
+                switchView('doc');
+            }
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('drill-chart-' + type).classList.add('active');
+            document.getElementById('drill-chart-' + type).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openKpiDetail(type, triggerEl) {
+            clearKpiSelection();
+            if (triggerEl) {
+                var card = triggerEl.closest ? triggerEl.closest('.kpi-card') : null;
+                if (card) card.classList.add('active');
+            } else if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
+                window.event.currentTarget.classList.add('active');
+            }
+
+            var title = document.getElementById('kpi-detail-title');
+            var note = document.getElementById('kpi-detail-note');
+            var body = document.getElementById('kpi-detail-body');
+
+            var content = {
+                'feed-demand': {
+                    title: 'Feed Demand Detail',
+                    note: 'Akumulasi kebutuhan pakan hasil forecast / recommendation untuk periode aktif.',
+                    body: '<table class="table table-bordered"><tr><th>Company</th><th>Item</th><th>Demand</th><th>Source</th></tr><tr><td>PT TOP</td><td>FD-ST-001</td><td>50K</td><td>Forecast Confirmed</td></tr><tr><td>PT TOP</td><td>FD-FN-002</td><td>32K</td><td>Forecast Confirmed</td></tr><tr><td>PT TOP</td><td>FD-GR-003</td><td>38K</td><td>Recommendation</td></tr></table>'
+                },
+                'feed-available': {
+                    title: 'Available Feed Detail',
+                    note: 'Stock yang tersedia dan dianggap eligible untuk proses alokasi.',
+                    body: '<table class="table table-bordered"><tr><th>Warehouse</th><th>Item</th><th>On Hand</th><th>Safety Stock</th><th>Available</th></tr><tr><td>FG-01</td><td>FD-ST-001</td><td>48K</td><td>8K</td><td>40K</td></tr><tr><td>FG-02</td><td>FD-FN-002</td><td>36K</td><td>4K</td><td>32K</td></tr></table>'
+                },
+                'feed-shortage': {
+                    title: 'Feed Shortage Detail',
+                    note: 'Gap utama yang perlu diprioritaskan untuk allocation override atau replenishment.',
+                    body: '<table class="table table-bordered"><tr><th>Item</th><th>Demand</th><th>Available</th><th>Gap</th><th>Severity</th></tr><tr><td>FD-ST-001</td><td>50K</td><td>40K</td><td class="status-red">10K</td><td class="status-red">Critical</td></tr><tr><td>FD-GR-003</td><td>22K</td><td>18K</td><td class="status-yellow">4K</td><td class="status-yellow">Medium</td></tr></table>'
+                },
+                'feed-coverage': {
+                    title: 'Feed Coverage Detail',
+                    note: 'Persentase coverage demand oleh stock yang available pada periode aktif.',
+                    body: '<table class="table table-bordered"><tr><th>Item</th><th>Coverage</th><th>Status</th></tr><tr><td>FD-ST-001</td><td>80%</td><td class="status-yellow">Partial</td></tr><tr><td>FD-FN-002</td><td>100%</td><td class="status-green">Ready</td></tr></table>'
+                },
+                'doc-required': {
+                    title: 'DOC Required Detail',
+                    note: 'Kebutuhan DOC yang diambil dari plan kandang / plan draft SAP.',
+                    body: '<table class="table table-bordered"><tr><th>Farm</th><th>Kandang</th><th>DOC Item</th><th>Required</th></tr><tr><td>Farm 2</td><td>KDG-01</td><td>DOC-001</td><td>15K</td></tr><tr><td>Farm 2</td><td>KDG-02</td><td>DOC-001</td><td>15K</td></tr></table>'
+                },
+                'doc-ready': {
+                    title: 'DOC Ready Detail',
+                    note: 'Kesiapan DOC yang dapat dialokasikan dari hatchery.',
+                    body: '<table class="table table-bordered"><tr><th>Batch</th><th>DOC Item</th><th>Ready Qty</th><th>Status</th></tr><tr><td>HAT-1801</td><td>DOC-001</td><td>25K</td><td class="status-green">Ready</td></tr><tr><td>HAT-1802</td><td>DOC-002</td><td>18K</td><td class="status-green">Ready</td></tr></table>'
+                },
+                'doc-gap': {
+                    title: 'DOC Gap Detail',
+                    note: 'Gap antara kebutuhan berdasarkan plan dengan readiness aktual.',
+                    body: '<table class="table table-bordered"><tr><th>DOC Item</th><th>Required</th><th>Ready</th><th>Gap</th></tr><tr><td>DOC-001</td><td>30K</td><td>25K</td><td class="status-red">5K</td></tr></table>'
+                },
+                'doc-unplanned': {
+                    title: 'Unplanned House Detail',
+                    note: 'Kandang yang belum memiliki plan assignment pada periode aktif.',
+                    body: '<table class="table table-bordered"><tr><th>Farm</th><th>Kandang</th><th>Status</th></tr><tr><td>Farm 4</td><td>KDG-07</td><td class="status-yellow">No Plan</td></tr><tr><td>Farm 5</td><td>KDG-03</td><td class="status-yellow">No Plan</td></tr></table>'
+                }
+            };
+
+            title.innerHTML = '<i class="fa fa-info-circle"></i> ' + content[type].title;
+            note.innerHTML = content[type].note;
+            body.innerHTML = content[type].body;
+
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('drill-kpi').classList.add('active');
+            document.getElementById('drill-kpi').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openProgressDetail() {
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('drill-progress').classList.add('active');
+            document.getElementById('drill-progress').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openAlertDetail() {
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('drill-alert').classList.add('active');
+            document.getElementById('drill-alert').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function clearDetail() {
+            var panels = document.querySelectorAll('.drill-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            clearRowHighlight();
+            clearKpiSelection();
+        }
+
+        function focusView(type) {
+            switchView(type);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+
+
+    <!-- ================= DOC PLANNING SCREEN ================= -->
+    <div class="container-fluid enterprise-shell" style="margin-top:30px;">
+
+        <div class="page-header-wrap">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2><i class="fa fa-cube"></i> DOC Planning</h2>
+                    <div class="section-note">Monitoring kebutuhan DOC berbasis Plan SAP + readiness dari hatchery.
+                        Tidak ada lifecycle document seperti Feed.</div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <button class="btn btn-default btn-sm"><i class="fa fa-refresh"></i> Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Total Plan</div>
+                    <div class="kpi-value">80K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Ready</div>
+                    <div class="kpi-value status-green">70K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Gap</div>
+                    <div class="kpi-value status-red">10K</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="kpi-label">Unplanned House</div>
+                    <div class="kpi-value status-yellow">5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER -->
+        <div class="card">
+            <div class="row">
+                <div class="col-md-3"><label>Company</label><select class="form-control">
+                        <option>All</option>
+                    </select></div>
+                <div class="col-md-3"><label>Farm</label><select class="form-control">
+                        <option>All</option>
+                    </select></div>
+                <div class="col-md-3"><label>Week</label><select class="form-control">
+                        <option>Week 18</option>
+                    </select></div>
+                <div class="col-md-3"><label>Status</label><select class="form-control">
+                        <option>All</option>
+                        <option>Gap</option>
+                        <option>Ready</option>
+                        <option>Unplanned</option>
+                    </select></div>
+            </div>
+        </div>
+
+        <!-- MAIN TABLE -->
+        <div class="card">
+            <h4 class="section-title">DOC Planning List</h4>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Farm</th>
+                        <th>Warehouse</th>
+                        <th>Plan No</th>
+                        <th>DOC Item</th>
+                        <th>Required</th>
+                        <th>Ready</th>
+                        <th>Gap</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr onclick="openDocDetail()">
+                        <td>PT AYM</td>
+                        <td>Farm 2</td>
+                        <td>KDG-01</td>
+                        <td>PL-001</td>
+                        <td>DOC-001</td>
+                        <td>15K</td>
+                        <td>10K</td>
+                        <td class="status-red">5K</td>
+                        <td class="status-red">Gap</td>
+                    </tr>
+                    <tr onclick="openDocDetail()">
+                        <td>PT AYM</td>
+                        <td>Farm 2</td>
+                        <td>KDG-02</td>
+                        <td>PL-001</td>
+                        <td>DOC-001</td>
+                        <td>15K</td>
+                        <td>15K</td>
+                        <td>0</td>
+                        <td class="status-green">Ready</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="doc-detail" class="card" style="display:none;">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4 class="section-title">DOC Detail per Kandang</h4>
+                </div>
+                <div class="col-md-4 text-right">
+                    <button class="btn btn-default btn-sm" onclick="closeDocDetail()">Close</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Required</div>
+                        <div class="value-mini">15K</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Ready</div>
+                        <div class="value-mini">10K</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">Gap</div>
+                        <div class="value-mini status-red">5K</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="detail-kpi">
+                        <div class="label-mini">DOC Batch</div>
+                        <div class="value-mini">HAT-1801</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Batch</th>
+                        <th>DOC Code</th>
+                        <th>Qty Ready</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>HAT-1801</td>
+                        <td>DOC-001</td>
+                        <td>10K</td>
+                        <td class="status-yellow">Partial</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function openDocDetail() {
+            document.getElementById('doc-detail').style.display = 'block';
+            document.getElementById('doc-detail').scrollIntoView({ behavior: 'smooth' });
+        }
+        function closeDocDetail() {
+            document.getElementById('doc-detail').style.display = 'none';
+        }
+    </script>
+
+</body>
+
+</html>

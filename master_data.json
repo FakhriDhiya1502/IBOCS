@@ -1,0 +1,263 @@
+{
+  "pakan": [
+    {
+      "id": "PKN-001",
+      "nama": "Pakan Ayam Starter (BR-1)",
+      "kategori": "Starter",
+      "deskripsi": "Pakan untuk anak ayam usia 0-4 minggu",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-002",
+      "nama": "Pakan Ayam Grower (BR-2)",
+      "kategori": "Grower",
+      "deskripsi": "Pakan untuk ayam usia 4-8 minggu",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-003",
+      "nama": "Pakan Ayam Finisher (BR-3)",
+      "kategori": "Finisher",
+      "deskripsi": "Pakan untuk ayam usia di atas 8 minggu",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-004",
+      "nama": "Konsentrat Ayam Petelur",
+      "kategori": "Layer",
+      "deskripsi": "Konsentrat khusus untuk meningkatkan produksi telur",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-005",
+      "nama": "Pakan Pre-Starter (S-0)",
+      "kategori": "Pre-Starter",
+      "deskripsi": "Nutrisi tinggi untuk anak ayam baru menetas",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-006",
+      "nama": "Pakan Bebek Petelur",
+      "kategori": "Waterfowl",
+      "deskripsi": "Diformulasikan untuk produktivitas telur bebek",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-007",
+      "nama": "Pakan burung Puyuh",
+      "kategori": "Quail",
+      "deskripsi": "Pakan butiran halus untuk puyuh petelur",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-008",
+      "nama": "Jagung Giling Halus",
+      "kategori": "Bahan Baku",
+      "deskripsi": "Energi utama untuk campuran pakan mandiri",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-009",
+      "nama": "Dedak Padi (Bekatul)",
+      "kategori": "Bahan Baku",
+      "deskripsi": "Sumber serat dan energi ekonomis",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-010",
+      "nama": "Bungkil Kedelai",
+      "kategori": "Bahan Baku",
+      "deskripsi": "Sumber protein nabati terbaik",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-011",
+      "nama": "Pakan Ayam Aduan (Gold)",
+      "kategori": "Hobi",
+      "deskripsi": "Meningkatkan stamina dan massa otot",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-012",
+      "nama": "Tepung Ikan Protein Tinggi",
+      "kategori": "Bahan Baku",
+      "deskripsi": "Sumber protein hewani dan asam amino",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-013",
+      "nama": "Premix Vitamin & Mineral",
+      "kategori": "Suplemen",
+      "deskripsi": "Pelengkap nutrisi mikro untuk kesehatan",
+      "satuan": "Bungkus"
+    },
+    {
+      "id": "PKN-014",
+      "nama": "Pakan Kalkun Dewasa",
+      "kategori": "Turkey",
+      "deskripsi": "Pakan khusus unggas besar",
+      "satuan": "Kg"
+    },
+    {
+      "id": "PKN-015",
+      "nama": "Pakan Ayam Organik",
+      "kategori": "Organik",
+      "deskripsi": "Tanpa campuran bahan kimia dan hormon",
+      "satuan": "Kg"
+    }
+  ],
+  "jenis_ayam": [
+    {
+      "id": "AYM-001",
+      "jenis": "Broiler (Cobb/Ross)",
+      "deskripsi": "Ayam pedaging komersial pertumbuhan super cepat",
+      "periode_panen": "28-35 hari"
+    },
+    {
+      "id": "AYM-002",
+      "jenis": "Layer (Isa Brown)",
+      "deskripsi": "Ayam petelur cokelat produksi tinggi",
+      "periode_panen": "18-80 minggu"
+    },
+    {
+      "id": "AYM-003",
+      "jenis": "Ayam Kampung Asli",
+      "deskripsi": "Ayam lokal yang dilepasliarkan",
+      "periode_panen": "4-6 bulan"
+    },
+    {
+      "id": "AYM-004",
+      "jenis": "Ayam Pejantan",
+      "deskripsi": "Ayam jantan dari galur petelur",
+      "periode_panen": "50-60 hari"
+    },
+    {
+      "id": "AYM-005",
+      "jenis": "Ayam KUB",
+      "deskripsi": "Kampung Unggul Balitnak (tumbuh lebih cepat)",
+      "periode_panen": "70-90 hari"
+    },
+    {
+      "id": "AYM-006",
+      "jenis": "Ayam Arab",
+      "deskripsi": "Dikenal sebagai ayam petelur yang efisien",
+      "periode_panen": "5-6 bulan (mulai bertelur)"
+    },
+    {
+      "id": "AYM-007",
+      "jenis": "Ayam Sentul",
+      "deskripsi": "Ayam dual purpose asli Ciamis",
+      "periode_panen": "3-4 bulan"
+    },
+    {
+      "id": "AYM-008",
+      "jenis": "Ayam Pelung",
+      "deskripsi": "Ayam hobi dengan suara berkokok panjang",
+      "periode_panen": "Hobi/Dewasa"
+    },
+    {
+      "id": "AYM-009",
+      "jenis": "Ayam Ketawa",
+      "deskripsi": "Ayam dengan suara kokok mirip manusia tertawa",
+      "periode_panen": "Hobi"
+    },
+    {
+      "id": "AYM-010",
+      "jenis": "Ayam Serama",
+      "deskripsi": "Ayam terkecil di dunia untuk kontes kecantikan",
+      "periode_panen": "Hobi"
+    },
+    {
+      "id": "AYM-011",
+      "jenis": "Ayam Cemani",
+      "deskripsi": "Ayam serba hitam (daging, kulit, tulang)",
+      "periode_panen": "Hobi/Ritual"
+    },
+    {
+      "id": "AYM-012",
+      "jenis": "Ayam Bangkok",
+      "deskripsi": "Galur ayam aduan/petarung",
+      "periode_panen": "7-9 bulan (siap adu)"
+    },
+    {
+      "id": "AYM-013",
+      "jenis": "Ayam Kate",
+      "deskripsi": "Ayam hias dengan kaki pendek dan badan mungil",
+      "periode_panen": "Hobi"
+    },
+    {
+      "id": "AYM-014",
+      "jenis": "Ayam Merawang",
+      "deskripsi": "Ayam lokal unggul dari Bangka Belitung",
+      "periode_panen": "3-4 bulan"
+    },
+    {
+      "id": "AYM-015",
+      "jenis": "Ayam Gaok",
+      "deskripsi": "Ayam lokal dari Madura dengan kokok khas",
+      "periode_panen": "Hobi"
+    }
+  ],
+  "customers": [
+    {
+      "id": "CUST-001",
+      "code": "C-AYM",
+      "name": "AYM (Customer)",
+      "address": "Jl. Peternakan No. 1, Jakarta",
+      "phone": "0811-001-001"
+    },
+    {
+      "id": "CUST-002",
+      "code": "C-BMAX",
+      "name": "BMAX (Customer)",
+      "address": "Kawasan Industri Blok B, Bekasi",
+      "phone": "0811-002-002"
+    },
+    {
+      "id": "CUST-003",
+      "code": "C-CTU",
+      "name": "CTU (Customer)",
+      "address": "Sentra Bisnis CTU Kav. 5, Tangerang",
+      "phone": "0811-003-003"
+    },
+    {
+      "id": "CUST-004",
+      "code": "C-TOP",
+      "name": "TOP (Customer)",
+      "address": "Komp. Pergudangan TOP, Bogor",
+      "phone": "0811-004-004"
+    }
+  ],
+  "vendors": [
+    {
+      "id": "VEND-001",
+      "code": "V-AYM",
+      "name": "AYM (Vendor)",
+      "address": "Pusat Bibit AYM, Bandung",
+      "phone": "0822-001-001"
+    },
+    {
+      "id": "VEND-002",
+      "code": "V-BMAX",
+      "name": "BMAX (Vendor)",
+      "address": "Pabrik Pakan BMAX, Surabaya",
+      "phone": "0822-002-002"
+    },
+    {
+      "id": "VEND-003",
+      "code": "V-CTU",
+      "name": "CTU (Vendor)",
+      "address": "Logistik Unggas CTU, Semarang",
+      "phone": "0822-003-003"
+    },
+    {
+      "id": "VEND-004",
+      "code": "V-TOP",
+      "name": "TOP (Vendor)",
+      "address": "TOP Farm Center, Lampung",
+      "phone": "0822-004-004"
+    }
+  ]
+}
+
+

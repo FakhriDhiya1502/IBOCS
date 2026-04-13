@@ -1,0 +1,19 @@
+const ITEM_MASTER = [
+  { code: "BRD-001", name: "Butter Croissant", category: "Viennoiserie", uom: "PCS" },
+  { code: "BRD-002", name: "Almond Croissant", category: "Viennoiserie", uom: "PCS" },
+  { code: "BRD-003", name: "Pain Au Chocolat", category: "Viennoiserie", uom: "PCS" },
+  { code: "BRD-004", name: "Classic Baguette", category: "Bread", uom: "PCS" },
+  { code: "BRD-005", name: "Whole Wheat Loaf", category: "Bread", uom: "LOAF" },
+  { code: "BRD-006", name: "Milk Bun", category: "Bread", uom: "PCS" },
+  { code: "BRD-007", name: "Chocolate Donut", category: "Donut", uom: "PCS" },
+  { code: "BRD-008", name: "Glazed Donut", category: "Donut", uom: "PCS" },
+  { code: "BRD-009", name: "Cinnamon Roll", category: "Pastry", uom: "PCS" },
+  { code: "BRD-010", name: "Cheese Danish", category: "Pastry", uom: "PCS" },
+  { code: "BRD-011", name: "Raisin Danish", category: "Pastry", uom: "PCS" },
+  { code: "BRD-012", name: "Sourdough Loaf", category: "Bread", uom: "LOAF" },
+  { code: "BRD-013", name: "Soft Burger Bun", category: "Bread", uom: "PCS" },
+  { code: "BRD-014", name: "Hotdog Bun", category: "Bread", uom: "PCS" },
+  { code: "BRD-015", name: "Mini Palmier", category: "Cookie", uom: "PCS" }
+];
+
+

@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings — IBOCS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 12px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="admin_dashboard.html">
+                <i class="bi bi-shield-lock-fill me-2"></i>IBOCS Admin
+            </a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Platform Management</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">Admin</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="login.html">Switch Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+
+                <div class="mb-4">
+                    <h5 class="fw-bold">Platform Settings</h5>
+                    <div class="text-muted small">Configure platform behavior and preferences</div>
+                </div>
+
+                <!-- Platform Configuration -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold"><i class="bi bi-gear me-2"></i>Platform Configuration</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Platform Name</label>
+                                <input type="text" class="form-control" id="inputPlatformName" value="IBOCS">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Support Email</label>
+                                <input type="email" class="form-control" id="inputSupportEmail"
+                                    value="support@IBOCS.id">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Contact Phone</label>
+                                <input type="text" class="form-control" id="inputContactPhone" value="+62 21 1234 5678">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Default Currency</label>
+                                <select class="form-select" id="selectCurrency">
+                                    <option value="IDR" selected>IDR - Indonesian Rupiah</option>
+                                    <option value="USD">USD - US Dollar</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Payment Settings -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <div class="fw-bold"><i class="bi bi-credit-card me-2"></i>Payment Settings</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Payment Terms (Days)</label>
+                                    <input type="number" class="form-control" id="inputPaymentTerms" value="30" min="1">
+                                    <div class="form-text">Default payment due days from invoice date</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Tax Rate (PPN %)</label>
+                                    <input type="number" class="form-control" id="inputTaxRate" value="11" min="0"
+                                        max="100" step="0.1">
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="chkAutoInvoice" checked>
+                                    <label class="form-check-label" for="chkAutoInvoice">
+                                        <strong>Auto Generate Invoice</strong>
+                                        <div class="small text-muted">Automatically create invoice when order is
+                                            confirmed
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Settings -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <div class="fw-bold"><i class="bi bi-globe me-2"></i>Regional Settings</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Supported Regions</label>
+                                    <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="region1" checked>
+                                            <label class="form-check-label" for="region1">Jakarta</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="region2" checked>
+                                            <label class="form-check-label" for="region2">Bandung</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="region3" checked>
+                                            <label class="form-check-label" for="region3">Surabaya</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="region4">
+                                            <label class="form-check-label" for="region4">Semarang</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="region5">
+                                            <label class="form-check-label" for="region5">Medan</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Confirmation Settings -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold"><i class="bi bi-file-earmark-check me-2"></i>Order Confirmation Settings</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="chkAllowEditApprovedQty" checked>
+                            <label class="form-check-label" for="chkAllowEditApprovedQty">
+                                <strong>Allow Edit Approved Qty</strong>
+                                <div class="small text-muted">Jika aktif, vendor bisa mengubah jumlah barang yang disetujui saat review PO. Jika nonaktif, kolom Approved Qty akan disembunyikan.</div>
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="chkAllowRejectPO" checked>
+                            <label class="form-check-label" for="chkAllowRejectPO">
+                                <strong>Allow Reject PO</strong>
+                                <div class="small text-muted">Jika aktif, vendor dapat menolak (reject) PO dari customer saat Order Confirmation. Jika nonaktif, tombol Reject PO akan disembunyikan.</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PO Input Deadline -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold"><i class="bi bi-clock-history me-2"></i>PO Input Deadline</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="chkPoDeadlineEnabled" checked>
+                            <label class="form-check-label" for="chkPoDeadlineEnabled">
+                                <strong>Aktifkan Batas Input PO</strong>
+                                <div class="small text-muted">Jika nonaktif, PO bisa diinput kapan saja tanpa batasan waktu</div>
+                            </label>
+                        </div>
+                        <div id="poDeadlineFields">
+                        <p class="text-muted small mb-3">
+                            Batasi kapan PO bisa diinput berdasarkan <em>receipt date</em>-nya.
+                            Contoh: jika batas = <strong>2 hari, jam 15:00</strong>, maka PO untuk receipt tgl 7 hanya bisa dibuat sampai tgl 5 pukul 15:00.
+                        </p>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Batas Hari Sebelum Receipt Date</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="inputPoDeadlineDays" value="2" min="0" max="30">
+                                    <span class="input-group-text">hari</span>
+                                </div>
+                                <div class="form-text">0 = hari yang sama dengan receipt date</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Jam Batas Input PO</label>
+                                <div class="input-group">
+                                    <input type="time" class="form-control" id="inputPoDeadlineTime" value="15:00">
+                                </div>
+                                <div class="form-text">Waktu cutoff pada hari batas tersebut</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-info small mb-0 py-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span id="poDeadlinePreview">PO untuk receipt tgl 7 harus dibuat paling lambat tgl 5 pukul 15:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold"><i class="bi bi-sliders me-2"></i>System Settings</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="chkMaintenanceMode">
+                                    <label class="form-check-label" for="chkMaintenanceMode">
+                                        <strong class="text-warning">Maintenance Mode</strong>
+                                        <div class="small text-muted">Disable access for all users (except admin)</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="chkEmailNotif" checked>
+                                    <label class="form-check-label" for="chkEmailNotif">
+                                        <strong>Email Notifications</strong>
+                                        <div class="small text-muted">Send email for order & payment updates</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="chkAutoVerify">
+                                    <label class="form-check-label" for="chkAutoVerify">
+                                        <strong>Auto-Verify New Users</strong>
+                                        <div class="small text-muted">Automatically approve new registrations</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="chkDebugMode">
+                                    <label class="form-check-label" for="chkDebugMode">
+                                        <strong>Debug Mode</strong>
+                                        <div class="small text-muted">Show detailed logs in console</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch border border-primary rounded p-2 bg-primary bg-opacity-10">
+                                    <input class="form-check-input ms-0 me-2" type="checkbox" id="chkBypassLogin">
+                                    <label class="form-check-label" for="chkBypassLogin">
+                                        <strong class="text-primary">Bypass Login Screen</strong>
+                                        <div class="small text-muted">Auto-login without username & password (Dev Only)</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="card shadow-sm mt-4 border-danger">
+                    <div class="card-header bg-danger bg-opacity-10">
+                        <div class="fw-bold text-danger"><i class="bi bi-database me-2"></i>Data Management</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning small">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <strong>Warning:</strong> These actions are irreversible. Use with caution.
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-danger w-100" id="btnClearOrders">
+                                    <i class="bi bi-trash me-1"></i>Clear All Orders
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-danger w-100" id="btnClearUsers">
+                                    <i class="bi bi-person-x me-1"></i>Clear All Users
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-danger w-100" id="btnClearProducts">
+                                    <i class="bi bi-box-seam me-1"></i>Clear All Products
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-danger w-100" id="btnResetAll">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Reset All Data (Factory Reset)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="mt-4 d-flex gap-2 justify-content-end">
+                    <button class="btn btn-secondary" onclick="location.reload()">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </button>
+                    <button class="btn btn-primary" id="btnSave">
+                        <i class="bi bi-check-circle me-1"></i>Save Settings
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'settings').render();
+
+        // Auth Guard
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) { window.location.href = "login.html"; }
+        const user = sess ? JSON.parse(sess) : null;
+        if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("userBtn").textContent = user.name || "Admin";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "login.html";
+        });
+
+        // Settings Storage Key
+        const LS_SETTINGS = 'IBOCS_platform_settings';
+
+        function loadSettings() {
+            try {
+                const raw = localStorage.getItem(LS_SETTINGS);
+                return raw ? JSON.parse(raw) : getDefaultSettings();
+            } catch (e) {
+                return getDefaultSettings();
+            }
+        }
+
+        function getDefaultSettings() {
+            return {
+                platformName: 'IBOCS',
+                supportEmail: 'support@IBOCS.id',
+                contactPhone: '+62 21 1234 5678',
+                currency: 'IDR',
+                paymentTerms: 30,
+                taxRate: 11,
+                autoInvoice: true,
+                regions: {
+                    jakarta: true,
+                    bandung: true,
+                    surabaya: true,
+                    semarang: false,
+                    medan: false
+                },
+                maintenanceMode: false,
+                emailNotif: true,
+                autoVerify: false,
+                debugMode: false,
+                poDeadlineEnabled: true,
+                poDeadlineDays: 2,
+                poDeadlineTime: '15:00',
+                bypassLogin: false,
+                allowEditApprovedQty: true
+            };
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+        }
+
+        // Load settings into form
+        const settings = loadSettings();
+
+        document.getElementById('inputPlatformName').value = settings.platformName;
+        document.getElementById('inputSupportEmail').value = settings.supportEmail;
+        document.getElementById('inputContactPhone').value = settings.contactPhone;
+        document.getElementById('selectCurrency').value = settings.currency;
+        document.getElementById('inputPaymentTerms').value = settings.paymentTerms;
+        document.getElementById('inputTaxRate').value = settings.taxRate;
+        document.getElementById('chkAutoInvoice').checked = settings.autoInvoice;
+
+        document.getElementById('region1').checked = settings.regions.jakarta;
+        document.getElementById('region2').checked = settings.regions.bandung;
+        document.getElementById('region3').checked = settings.regions.surabaya;
+        document.getElementById('region4').checked = settings.regions.semarang;
+        document.getElementById('region5').checked = settings.regions.medan;
+
+        document.getElementById('chkPoDeadlineEnabled').checked = settings.poDeadlineEnabled ?? true;
+        document.getElementById('inputPoDeadlineDays').value = settings.poDeadlineDays ?? 2;
+        document.getElementById('inputPoDeadlineTime').value = settings.poDeadlineTime ?? '15:00';
+        togglePoDeadlineFields();
+        updatePoDeadlinePreview();
+
+        document.getElementById('chkMaintenanceMode').checked = settings.maintenanceMode;
+        document.getElementById('chkEmailNotif').checked = settings.emailNotif;
+        document.getElementById('chkAutoVerify').checked = settings.autoVerify;
+        document.getElementById('chkDebugMode').checked = settings.debugMode;
+        document.getElementById('chkBypassLogin').checked = settings.bypassLogin || false;
+        document.getElementById('chkAllowEditApprovedQty').checked = settings.allowEditApprovedQty ?? true;
+        document.getElementById('chkAllowRejectPO').checked = settings.allowRejectPO ?? true;
+
+        // Save Settings
+        document.getElementById('btnSave').addEventListener('click', () => {
+            const newSettings = {
+                platformName: document.getElementById('inputPlatformName').value,
+                supportEmail: document.getElementById('inputSupportEmail').value,
+                contactPhone: document.getElementById('inputContactPhone').value,
+                currency: document.getElementById('selectCurrency').value,
+                paymentTerms: parseInt(document.getElementById('inputPaymentTerms').value),
+                taxRate: parseFloat(document.getElementById('inputTaxRate').value),
+                autoInvoice: document.getElementById('chkAutoInvoice').checked,
+                regions: {
+                    jakarta: document.getElementById('region1').checked,
+                    bandung: document.getElementById('region2').checked,
+                    surabaya: document.getElementById('region3').checked,
+                    semarang: document.getElementById('region4').checked,
+                    medan: document.getElementById('region5').checked
+                },
+                poDeadlineEnabled: document.getElementById('chkPoDeadlineEnabled').checked,
+                poDeadlineDays: parseInt(document.getElementById('inputPoDeadlineDays').value),
+                poDeadlineTime: document.getElementById('inputPoDeadlineTime').value,
+                maintenanceMode: document.getElementById('chkMaintenanceMode').checked,
+                emailNotif: document.getElementById('chkEmailNotif').checked,
+                autoVerify: document.getElementById('chkAutoVerify').checked,
+                debugMode: document.getElementById('chkDebugMode').checked,
+                bypassLogin: document.getElementById('chkBypassLogin').checked,
+                allowEditApprovedQty: document.getElementById('chkAllowEditApprovedQty').checked,
+                allowRejectPO: document.getElementById('chkAllowRejectPO').checked
+            };
+
+            saveSettings(newSettings);
+            alert('✅ Settings saved successfully!');
+        });
+
+        // PO Deadline Toggle
+        function togglePoDeadlineFields() {
+            const enabled = document.getElementById('chkPoDeadlineEnabled').checked;
+            document.getElementById('poDeadlineFields').style.opacity = enabled ? '1' : '0.4';
+            document.getElementById('poDeadlineFields').style.pointerEvents = enabled ? '' : 'none';
+        }
+        document.getElementById('chkPoDeadlineEnabled').addEventListener('change', togglePoDeadlineFields);
+
+        // PO Deadline Preview
+        function updatePoDeadlinePreview() {
+            const days = parseInt(document.getElementById('inputPoDeadlineDays').value) || 0;
+            const time = document.getElementById('inputPoDeadlineTime').value || '15:00';
+            const exampleReceiptDate = 7;
+            const deadlineDate = exampleReceiptDate - days;
+            document.getElementById('poDeadlinePreview').textContent =
+                `PO untuk receipt tgl ${exampleReceiptDate} harus dibuat paling lambat tgl ${deadlineDate} pukul ${time}`;
+        }
+
+        document.getElementById('inputPoDeadlineDays').addEventListener('input', updatePoDeadlinePreview);
+        document.getElementById('inputPoDeadlineTime').addEventListener('input', updatePoDeadlinePreview);
+
+        // Data Management Actions
+        document.getElementById('btnClearOrders').addEventListener('click', () => {
+            if (!confirm('Clear all orders and related data?\n\nThis will delete:\n- All orders\n- All payments\n- All deliveries\n\nThis action cannot be undone!')) return;
+
+            localStorage.removeItem('IBOCS_customer_orders');
+            localStorage.removeItem('IBOCS_customer_payments');
+            localStorage.removeItem('IBOCS_customer_deliveries');
+            localStorage.removeItem('IBOCS_batch_invoices');
+            localStorage.removeItem('IBOCS_payment_evidence');
+            localStorage.removeItem('IBOCS_order_lines');
+
+            alert('✅ All orders cleared!');
+        });
+
+        document.getElementById('btnClearUsers').addEventListener('click', () => {
+            if (!confirm('Clear all users?\n\nThis will delete:\n- All customers\n- All vendors\n\nThis action cannot be undone!')) return;
+
+            localStorage.removeItem('IBOCS_customer_users');
+            localStorage.removeItem('IBOCS_vendor_users');
+
+            alert('✅ All users cleared!');
+        });
+
+        document.getElementById('btnClearProducts').addEventListener('click', () => {
+            if (!confirm('Clear all products?\n\nThis will delete all vendor inventory products.\n\nThis action cannot be undone!')) return;
+
+            localStorage.removeItem('IBOCS_vendor_products');
+
+            alert('✅ All products cleared!');
+        });
+
+        document.getElementById('btnResetAll').addEventListener('click', () => {
+            if (!confirm('⚠️ FACTORY RESET ⚠️\n\nThis will delete ALL data:\n- Users\n- Orders\n- Products\n- Settings\n- Everything!\n\nAre you ABSOLUTELY sure?')) return;
+
+            if (!confirm('This is your last chance!\n\nType "RESET" in the next prompt to confirm.')) return;
+
+            const confirmation = prompt('Type RESET to confirm factory reset:');
+            if (confirmation !== 'RESET') {
+                alert('❌ Factory reset cancelled.');
+                return;
+            }
+
+            // Clear ALL localStorage
+            localStorage.clear();
+
+            alert('✅ Factory reset complete! The page will reload.');
+            location.reload();
+        });
+    </script>
+</body>
+
+</html>
+
+

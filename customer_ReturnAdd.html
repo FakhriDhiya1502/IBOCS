@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Add Return</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f7fb; color: #1f2937; }
+        .page-shell { max-width:100%; border-radius:12px; background:#fff; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+        .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+        .topbar h1 { margin:0; font-size:24px; }
+        .subtext { margin-top:6px; font-size:13px; color:#6b7280; }
+        .card { background:#fff; border-radius:14px; margin-bottom:18px; box-shadow:0 2px 10px rgba(0,0,0,.05); overflow:hidden; border:1px solid #eef0f4; }
+        .card-header { padding:14px 16px; font-weight:700; border-bottom:1px solid #eef0f4; background:#fafbfc; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .card-body { padding:16px; }
+        .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; }
+        .field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:6px; }
+        .field input, .field select, .field textarea { width:100%; min-height:38px; border:1px solid #d5dae3; border-radius:8px; padding:8px 11px; font-size:13px; background:#fff; }
+        .field textarea { min-height:86px; resize:vertical; }
+        .field input[readonly] { background:#f9fafc; color:#374151; }
+        .lookup-row { display:flex; gap:8px; }
+        .lookup-row input { flex:1; }
+        .btn-main, .btn-soft, .btn-outline-muted {
+            border:0; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer;
+        }
+        .btn-main { background:#2563eb; color:#fff; }
+        .btn-soft { background:#e5e7eb; color:#111827; }
+        .btn-outline-muted { background:#fff; border:1px solid #d5dae3; color:#374151; }
+        .alert-box { border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.5; margin-top:14px; }
+        .alert-info-soft { background:#eff6ff; border:1px solid #93c5fd; color:#1d4ed8; }
+        .alert-warning-soft { background:#fff7ed; border:1px solid #fdba74; color:#9a3412; }
+        .alert-danger-soft { background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; }
+        .summary-strip { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+        .summary-box { border:1px solid #e8ebf1; border-radius:10px; padding:12px; background:#fafbfe; }
+        .summary-box .label { font-size:11px; color:#666; margin-bottom:6px; }
+        .summary-box .value { font-size:18px; font-weight:700; }
+        .tag { display:inline-block; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+        .tag-regular { background:#e0f2fe; color:#075985; }
+        .tag-deduction { background:#fff7ed; color:#9a3412; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; min-width:1200px; }
+        th, td { padding:10px 12px; border-bottom:1px solid #edf0f5; font-size:13px; text-align:left; vertical-align:middle; }
+        th { background:#f9fafc; font-size:12px; color:#555; font-weight:700; white-space:nowrap; }
+        tbody tr:hover { background:#fafcff; }
+        td input, td select { width:100%; height:34px; border:1px solid #d5dae3; border-radius:8px; padding:0 10px; font-size:13px; }
+        .readonly-box { background:#f9fafc !important; color:#374151; }
+        .cell-warning { background:#fff7ed !important; border-color:#fb923c !important; }
+        .high-impact { border-color:#fdba74 !important; box-shadow: inset 0 0 0 1px #fdba74; }
+        .footer-actions { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:18px; }
+        @media (max-width: 1100px) { .grid, .summary-strip { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 700px) { .grid, .summary-strip { grid-template-columns:1fr; } .topbar, .footer-actions { flex-direction:column; align-items:stretch; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-lg-2" id="sidebar-container"></div>
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-success fw-bold"><i class="bi bi-arrow-return-left me-2"></i>Return Management</h4>
+                </div>
+
+                <div class="page-shell" id="pageShell">
+                    <div class="topbar">
+                        <div>
+                            <h1>Add Return</h1>
+                            <div class="subtext">Customer membuat return berdasarkan kondisi barang aktual di store. Bisa dengan referensi GRPO atau manual tanpa GRPO.</div>
+                        </div>
+                        <a href="customer_ReturnList.html" class="btn-soft text-decoration-none">Back to List</a>
+                    </div>
+
+                    <div id="creationRoleBanner" class="alert-box alert-info-soft">
+                        Created by Customer. Vendor tidak membuat return, tetapi hanya mereview deduction return yang berdampak finansial.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>Return Header</span>
+                            <span id="impactTag" class="tag tag-regular">Regular Return</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Return No</label>
+                                    <input type="text" value="AUTO" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Return Date</label>
+                                    <input type="date" id="returnDate">
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <div class="lookup-row">
+                                        <input type="text" id="customerName" placeholder="Select customer" readonly>
+                                        <button class="btn-outline-muted" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">Lookup</button>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Return Type</label>
+                                    <select id="returnType">
+                                        <option value="Regular">Regular Return</option>
+                                        <option value="Deduction">Billing Deduction Return</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Return Mode</label>
+                                    <select id="returnMode">
+                                        <option value="grpo">With GRPO Reference</option>
+                                        <option value="manual">Manual (No GRPO)</option>
+                                    </select>
+                                </div>
+                                <div class="field" id="grpoRefField">
+                                    <label>Reference GRPO</label>
+                                    <div class="lookup-row">
+                                        <input type="text" id="grpoRef" placeholder="Select GRPO" readonly>
+                                        <button class="btn-outline-muted" type="button" data-bs-toggle="modal" data-bs-target="#grpoModal">Lookup</button>
+                                    </div>
+                                </div>
+                                <div class="field" id="billingRefField">
+                                    <label>Billing Reference</label>
+                                    <input type="text" id="billingRef" readonly placeholder="Auto from GRPO">
+                                </div>
+                                <div class="field" id="billingStatusField">
+                                    <label>Billing Status</label>
+                                    <input type="text" id="billingStatus" readonly placeholder="Loaded from billing reference">
+                                </div>
+                                <div class="field">
+                                    <label>Workflow</label>
+                                    <input type="text" id="workflowIndicator" class="readonly-box" value="Regular return will be auto approved" readonly>
+                                </div>
+                                <div class="field" id="grpoAmountField">
+                                    <label>GRPO Total Amount</label>
+                                    <input type="text" id="grpoAmount" readonly placeholder="Loaded after GRPO selection">
+                                </div>
+                                <div class="field" id="approvalField" style="display:none;">
+                                    <label>Approval Flag</label>
+                                    <input type="text" id="approvalFlag" class="readonly-box" value="Approval Required" readonly>
+                                </div>
+                                <div class="field" style="grid-column: span 4;">
+                                    <label>Remarks</label>
+                                    <textarea id="remarks" placeholder="Explain return background and operational context"></textarea>
+                                </div>
+                            </div>
+
+                            <div id="returnInfoBanner" class="alert-box alert-info-soft">
+                                Regular return dibatasi maksimal 5% dari total billing/GRPO reference dan akan auto approved oleh sistem. Pilih GRPO untuk memuat item yang bisa direturn.
+                            </div>
+                            <div id="billingTreatmentBanner" class="alert-box alert-info-soft" style="display:none;"></div>
+                            <div id="limitWarning" class="alert-box alert-warning-soft" style="display:none;"></div>
+                            <div id="limitError" class="alert-box alert-danger-soft" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>Return Items</span>
+                            <button class="btn-outline-muted" type="button" id="btnAddManualRow" style="display:none;" onclick="addManualRow()">+ Add Item</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-wrap">
+                                <table id="itemTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Name</th>
+                                            <th id="thGrpoQty">GRPO Qty</th>
+                                            <th id="thAlreadyReturned">Already Returned Qty</th>
+                                            <th id="thAvailable">Available Qty</th>
+                                            <th>Return Qty</th>
+                                            <th>Reason</th>
+                                            <th id="thAction" style="display:none;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">Select GRPO to load returnable items.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Financial Impact Preview</div>
+                        <div class="card-body">
+                            <div class="summary-strip">
+                                <div class="summary-box">
+                                    <div class="label">Gross Billing Amount</div>
+                                    <div class="value" id="sumGrossBilling">Rp 0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Return Amount</div>
+                                    <div class="value" id="sumReturnAmount">Rp 0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Net Billing Amount</div>
+                                    <div class="value" id="sumNetBilling">Rp 0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Adjustment Method</div>
+                                    <div class="value" id="sumAdjustmentMethod">-</div>
+                                </div>
+                            </div>
+                            <div class="grid mt-3">
+                                <div class="field">
+                                    <label>Credit Memo No</label>
+                                    <input type="text" id="creditMemoNoPreview" readonly placeholder="Generated only if billing is final">
+                                </div>
+                                <div class="field">
+                                    <label>Credit Memo Date</label>
+                                    <input type="text" id="creditMemoDatePreview" readonly placeholder="-">
+                                </div>
+                                <div class="field">
+                                    <label>Credit Memo Status</label>
+                                    <input type="text" id="creditMemoStatusPreview" readonly placeholder="-">
+                                </div>
+                                <div class="field">
+                                    <label>Billing Impact Status</label>
+                                    <input type="text" id="billingImpactStatus" readonly placeholder="-">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Summary</div>
+                        <div class="card-body">
+                            <div class="summary-strip">
+                                <div class="summary-box">
+                                    <div class="label">Reference GRPO</div>
+                                    <div class="value" id="sumGrpo">-</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">5% Regular Limit</div>
+                                    <div class="value" id="sumLimit">Rp 0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Total Return Qty</div>
+                                    <div class="value" id="sumQty">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Estimated Return Amount</div>
+                                    <div class="value" id="sumAmount">Rp 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-actions">
+                        <div class="text-muted small">GRPO is final and remains unchanged. Return must be reviewed and tracked as a separate document.</div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn-soft" id="btnSaveDraft">Save Draft</button>
+                            <button class="btn-main" id="btnSubmit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">© 2026 IBOCS - Vendor Portal</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="customerList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="grpoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Reference GRPO</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-wrap">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>GRPO No</th>
+                                    <th>Customer</th>
+                                    <th>Billing Ref</th>
+                                    <th>Total Qty</th>
+                                    <th>Total Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="grpoList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // ── GRPO helpers ─────────────────────────────────────────────────────────
+        const DEMO_GRPO_RETURN = [
+            {
+                grpoNo: "GRPO-202604-0018",
+                grpoDate: "2026-04-03",
+                poNo: "PO-202604-0011",
+                store: "Sunrise Bakery Mart",
+                customer: "Sunrise Bakery Mart",
+                totalQty: 215,
+                status: "Closed",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qtyOrder: 62, qtyReceived: 62 },
+                    { itemCode: "BRD-007", itemName: "Chocolate Donut", qtyOrder: 54, qtyReceived: 54 },
+                    { itemCode: "BRD-010", itemName: "Cheese Danish", qtyOrder: 39, qtyReceived: 39 },
+                    { itemCode: "BRD-013", itemName: "Soft Burger Bun", qtyOrder: 60, qtyReceived: 60 }
+                ]
+            },
+            {
+                grpoNo: "GRPO-202604-0021",
+                grpoDate: "2026-04-04",
+                poNo: "PO-202604-0012",
+                store: "Golden Crust Bakery",
+                customer: "Golden Crust Bakery",
+                totalQty: 310,
+                status: "Closed",
+                rows: [
+                    { itemCode: "BRD-003", itemName: "Milk Bread", qtyOrder: 120, qtyReceived: 120 },
+                    { itemCode: "BRD-008", itemName: "Sugar Donut", qtyOrder: 90, qtyReceived: 90 },
+                    { itemCode: "BRD-011", itemName: "Cheese Roll", qtyOrder: 100, qtyReceived: 100 }
+                ]
+            }
+        ];
+
+        // Fallback price map ketika tidak ada billing/price list di LS
+        const FALLBACK_PRICES = {
+            "BRD-001": 18000, "BRD-007": 14500, "BRD-010": 21500, "BRD-013": 9000,
+            "BRD-003": 12500, "BRD-008": 11000, "BRD-011": 24000, "BRD-002": 16000,
+            "BRD-005": 15000
+        };
+
+        function loadGrpoList() {
+            try {
+                const stored = JSON.parse(localStorage.getItem("IBOCS_grpo_list") || "[]");
+                const storedNos = new Set(stored.map(g => g.grpoNo));
+                return [...stored, ...DEMO_GRPO_RETURN.filter(d => !storedNos.has(d.grpoNo))];
+            } catch(e) { return DEMO_GRPO_RETURN; }
+        }
+
+        function findBillingForGrpo(grpoNo) {
+            try {
+                const billings = JSON.parse(localStorage.getItem("IBOCS_batch_invoices") || "[]");
+                return billings.find(b => (b.sourceGrpoNos || []).includes(grpoNo)) || null;
+            } catch(e) { return null; }
+        }
+
+        function getPriceMap(billing) {
+            const map = {};
+            if (!billing) return map;
+            (billing.detailRows || []).forEach(row => {
+                const price = row.slots && row.slots.length ? Number(row.slots[0].price || 0) : 0;
+                if (row.itemCode && price) map[row.itemCode] = price;
+            });
+            return map;
+        }
+
+        function calcReturnedQty(grpoNo, itemCode) {
+            try {
+                const returns = JSON.parse(localStorage.getItem("IBOCS_return_list") || "[]");
+                return returns
+                    .filter(r => r.grpo === grpoNo && ["Draft","Submitted","Approved"].includes(r.status))
+                    .reduce((sum, r) => {
+                        const line = (r.lines || []).find(l => l.itemCode === itemCode);
+                        return sum + Number(line?.returnQty || 0);
+                    }, 0);
+            } catch(e) { return 0; }
+        }
+
+        function mapGrpoToReturnFormat(grpo) {
+            const billing = findBillingForGrpo(grpo.grpoNo);
+            const priceMap = { ...FALLBACK_PRICES, ...getPriceMap(billing) };
+            const items = (grpo.rows || []).map(row => {
+                const grpoQty = Number(row.qtyReceived || 0);
+                const returnedQty = calcReturnedQty(grpo.grpoNo, row.itemCode);
+                const price = priceMap[row.itemCode] || 0;
+                return { code: row.itemCode, name: row.itemName, grpoQty, returnedQty, price };
+            });
+            const totalAmount = items.reduce((s, i) => s + i.grpoQty * i.price, 0);
+            return {
+                no: grpo.grpoNo,
+                customer: grpo.store || grpo.customer || "",
+                billingRef: billing ? billing.billingNo : "-",
+                billingStatus: billing ? (billing.status || "Draft") : "-",
+                totalQty: Number(grpo.totalQty || 0),
+                totalAmount,
+                items
+            };
+        }
+
+        // Daftar customer diambil dari GRPO LS
+        function loadCustomerList() {
+            const grpos = loadGrpoList();
+            const names = [...new Set(grpos.map(g => g.store || g.customer).filter(Boolean))];
+            return names.map(n => ({ name: n }));
+        }
+
+        let selectedGrpo = null;
+        const LS_RETURN = "IBOCS_return_list";
+
+        function rupiah(value) {
+            return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+        }
+
+        function loadReturns() {
+            return JSON.parse(localStorage.getItem(LS_RETURN) || "[]");
+        }
+
+        function saveReturns(list) {
+            localStorage.setItem(LS_RETURN, JSON.stringify(list));
+        }
+
+        function generateReturnNo() {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, "0");
+            const list = loadReturns();
+            const seq = String(list.length + 1).padStart(4, "0");
+            return `RET-${y}${m}-${seq}`;
+        }
+
+        function generateCreditMemoNo() {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, "0");
+            const list = loadReturns();
+            const seq = String(list.filter((item) => item.creditMemoNo).length + 1).padStart(4, "0");
+            return `CM-${y}${m}-${seq}`;
+        }
+
+        function isBillingFinal() {
+            return selectedGrpo && ["Confirmed", "Final", "Posted"].includes(selectedGrpo.billingStatus);
+        }
+
+        function getAdjustmentMethod() {
+            return isBillingFinal() ? "Credit Memo Required" : "Direct Billing Reduction";
+        }
+
+        function setToday() {
+            document.getElementById("returnDate").value = new Date().toISOString().slice(0, 10);
+        }
+
+        function renderCustomerList() {
+            const container = document.getElementById("customerList");
+            const customers = loadCustomerList();
+            container.innerHTML = customers.length
+                ? customers.map((c) => `<button type="button" class="list-group-item list-group-item-action" onclick="selectCustomer('${c.name.replace(/'/g,"\\'")}'">${c.name}</button>`).join("")
+                : `<p class="text-muted small p-2">Belum ada customer dari GRPO.</p>`;
+        }
+
+        function renderGrpoList() {
+            const body = document.getElementById("grpoList");
+            const grpos = loadGrpoList();
+            if (!grpos.length) {
+                body.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada GRPO.</td></tr>';
+                return;
+            }
+            body.innerHTML = grpos.map((grpo) => {
+                const mapped = mapGrpoToReturnFormat(grpo);
+                return `
+                <tr>
+                    <td>${mapped.no}</td>
+                    <td>${mapped.customer}</td>
+                    <td>${mapped.billingRef}</td>
+                    <td>${mapped.totalQty}</td>
+                    <td>${rupiah(mapped.totalAmount)}</td>
+                    <td><button class="btn-outline-muted" type="button" onclick="selectGrpo('${mapped.no}')">Select</button></td>
+                </tr>`;
+            }).join("");
+        }
+
+        function selectCustomer(name) {
+            document.getElementById("customerName").value = name;
+            bootstrap.Modal.getInstance(document.getElementById("customerModal")).hide();
+        }
+
+        function selectGrpo(grpoNo) {
+            const raw = loadGrpoList().find(g => g.grpoNo === grpoNo);
+            if (!raw) return;
+            selectedGrpo = mapGrpoToReturnFormat(raw);
+            document.getElementById("customerName").value = selectedGrpo.customer;
+            document.getElementById("grpoRef").value = selectedGrpo.no;
+            document.getElementById("billingRef").value = selectedGrpo.billingRef;
+            document.getElementById("billingStatus").value = selectedGrpo.billingStatus;
+            document.getElementById("grpoAmount").value = rupiah(selectedGrpo.totalAmount);
+            document.getElementById("sumGrpo").textContent = selectedGrpo.no;
+            renderItems();
+            syncReturnTypeUI();
+            recalcSummary();
+            bootstrap.Modal.getInstance(document.getElementById("grpoModal")).hide();
+        }
+
+        function isManualMode() {
+            return document.getElementById("returnMode").value === "manual";
+        }
+
+        function applyModeUI() {
+            const manual = isManualMode();
+            const grpoFields = ["grpoRefField", "billingRefField", "billingStatusField", "grpoAmountField"];
+            grpoFields.forEach(id => {
+                document.getElementById(id).style.display = manual ? "none" : "";
+            });
+            document.getElementById("btnAddManualRow").style.display = manual ? "inline-block" : "none";
+            document.getElementById("thGrpoQty").style.display = manual ? "none" : "";
+            document.getElementById("thAlreadyReturned").style.display = manual ? "none" : "";
+            document.getElementById("thAvailable").style.display = manual ? "none" : "";
+            document.getElementById("thAction").style.display = manual ? "" : "none";
+
+            const infoBanner = document.getElementById("returnInfoBanner");
+            if (manual) {
+                infoBanner.innerHTML = "Mode Manual: isi item return secara manual tanpa referensi GRPO. GRPO Qty tidak diperlukan.";
+                selectedGrpo = null;
+                document.getElementById("grpoRef").value = "";
+                document.getElementById("billingRef").value = "";
+                document.getElementById("billingStatus").value = "";
+                document.getElementById("grpoAmount").value = "";
+                document.getElementById("sumGrpo").textContent = "-";
+                renderManualItems();
+            } else {
+                renderItems();
+                syncReturnTypeUI();
+            }
+            recalcSummary();
+        }
+
+        function renderItems() {
+            const body = document.getElementById("itemTableBody");
+            if (!selectedGrpo) {
+                body.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Select GRPO to load returnable items.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = selectedGrpo.items.map((item, index) => {
+                const available = item.grpoQty - item.returnedQty;
+                return `
+                    <tr>
+                        <td>${item.code}</td>
+                        <td>${item.name}</td>
+                        <td>${item.grpoQty}</td>
+                        <td>${item.returnedQty}</td>
+                        <td data-available="${available}">${available}</td>
+                        <td><input type="number" min="0" max="${available}" value="0" data-index="${index}" class="return-qty"></td>
+                        <td>
+                            <select data-index="${index}">
+                                <option>Damage</option>
+                                <option>Expired</option>
+                                <option>Unsold</option>
+                                <option>Others</option>
+                            </select>
+                        </td>
+                        <td style="display:none;"></td>
+                    </tr>
+                `;
+            }).join("");
+
+            document.querySelectorAll(".return-qty").forEach((input) => {
+                input.addEventListener("input", () => {
+                    validateRow(input);
+                    recalcSummary();
+                });
+            });
+        }
+
+        let manualRowCounter = 0;
+
+        function renderManualItems() {
+            const body = document.getElementById("itemTableBody");
+            body.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Klik "+ Add Item" untuk menambah item return manual.</td></tr>';
+            manualRowCounter = 0;
+        }
+
+        function addManualRow() {
+            const body = document.getElementById("itemTableBody");
+            // Remove placeholder row if present
+            const placeholder = body.querySelector("td[colspan]");
+            if (placeholder) placeholder.closest("tr").remove();
+
+            const idx = manualRowCounter++;
+            const tr = document.createElement("tr");
+            tr.dataset.manualIdx = idx;
+            tr.innerHTML = `
+                <td><input type="text" placeholder="Item Code" class="manual-item-code"></td>
+                <td><input type="text" placeholder="Item Name" class="manual-item-name"></td>
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td style="display:none;"></td>
+                <td><input type="number" min="0" value="0" class="return-qty manual-return-qty"></td>
+                <td>
+                    <select>
+                        <option>Damage</option>
+                        <option>Expired</option>
+                        <option>Unsold</option>
+                        <option>Others</option>
+                    </select>
+                </td>
+                <td><button type="button" onclick="removeManualRow(this)" style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;">✕</button></td>
+            `;
+            body.appendChild(tr);
+            tr.querySelector(".return-qty").addEventListener("input", recalcSummary);
+        }
+
+        function removeManualRow(btn) {
+            const tr = btn.closest("tr");
+            tr.remove();
+            const body = document.getElementById("itemTableBody");
+            if (!body.querySelector("tr")) {
+                body.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Klik "+ Add Item" untuk menambah item return manual.</td></tr>';
+            }
+            recalcSummary();
+        }
+
+        function validateRow(input) {
+            const row = input.closest("tr");
+            const available = Number(row.children[4].dataset.available || 0);
+            let value = Number(input.value || 0);
+            if (value < 0) value = 0;
+            if (value > available) value = available;
+            input.value = value;
+            input.classList.toggle("cell-warning", value === available && available > 0);
+        }
+
+        function recalcSummary() {
+            const manual = isManualMode();
+            const qtyInputs = Array.from(document.querySelectorAll(".return-qty"));
+            const totalQty = qtyInputs.reduce((sum, input) => sum + Number(input.value || 0), 0);
+            let totalAmount = 0;
+
+            if (!manual) {
+                qtyInputs.forEach((input) => {
+                    const item = selectedGrpo ? selectedGrpo.items[Number(input.dataset.index)] : null;
+                    if (!item) return;
+                    totalAmount += Number(input.value || 0) * item.price;
+                });
+            }
+
+            const limitAmount = selectedGrpo && !manual ? selectedGrpo.totalAmount * 0.05 : 0;
+            const type = document.getElementById("returnType").value;
+            const overLimit = !manual && type === "Regular" && totalAmount > limitAmount && limitAmount > 0;
+            const nearLimit = !manual && type === "Regular" && totalAmount > 0 && totalAmount >= limitAmount * 0.8 && !overLimit && limitAmount > 0;
+
+            document.getElementById("sumQty").textContent = totalQty;
+            document.getElementById("sumAmount").textContent = rupiah(totalAmount);
+            document.getElementById("sumLimit").textContent = rupiah(limitAmount);
+            document.getElementById("sumGrossBilling").textContent = rupiah(selectedGrpo ? selectedGrpo.totalAmount : 0);
+            document.getElementById("sumReturnAmount").textContent = rupiah(totalAmount);
+            document.getElementById("sumNetBilling").textContent = rupiah(Math.max((selectedGrpo ? selectedGrpo.totalAmount : 0) - totalAmount, 0));
+            document.getElementById("sumAdjustmentMethod").textContent = selectedGrpo ? getAdjustmentMethod() : "-";
+            document.getElementById("billingImpactStatus").value = selectedGrpo
+                ? (isBillingFinal() ? "Original Billing Locked - Credit Memo Flow" : "Billing can still be reduced directly")
+                : "-";
+            document.getElementById("creditMemoNoPreview").value = selectedGrpo && isBillingFinal() && totalAmount > 0 ? generateCreditMemoNo() : "";
+            document.getElementById("creditMemoDatePreview").value = selectedGrpo && isBillingFinal() && totalAmount > 0 ? document.getElementById("returnDate").value : "";
+            document.getElementById("creditMemoStatusPreview").value = selectedGrpo && isBillingFinal() && totalAmount > 0 ? "To Be Generated" : "";
+
+            const warning = document.getElementById("limitWarning");
+            const error = document.getElementById("limitError");
+            const billingTreatmentBanner = document.getElementById("billingTreatmentBanner");
+            warning.style.display = "none";
+            error.style.display = "none";
+            billingTreatmentBanner.style.display = selectedGrpo ? "block" : "none";
+
+            if (selectedGrpo) {
+                if (isBillingFinal()) {
+                    billingTreatmentBanner.className = "alert-box alert-warning-soft";
+                    billingTreatmentBanner.innerHTML = "<strong>Original Billing cannot be changed.</strong> Return akan menghasilkan Credit Memo sebagai transaksi penyesuaian terpisah untuk menjaga audit trail.";
+                } else {
+                    billingTreatmentBanner.className = "alert-box alert-info-soft";
+                    billingTreatmentBanner.innerHTML = "<strong>Billing Adjustment:</strong> karena billing masih open/draft, return akan mengurangi billing aktif secara langsung tanpa mengubah GRPO.";
+                }
+            }
+
+            if (nearLimit) {
+                warning.style.display = "block";
+                warning.innerHTML = `<strong>Warning:</strong> Total return sudah mendekati batas regular return 5% yaitu ${rupiah(limitAmount)}.`;
+            }
+
+            if (overLimit) {
+                error.style.display = "block";
+                error.innerHTML = `<strong>Validation Error:</strong> Regular return tidak boleh melebihi 5% dari reference amount ${rupiah(limitAmount)}. Turunkan qty return atau ubah ke Billing Deduction Return bila memang perlu proses approval.`;
+            }
+
+            return { totalQty, totalAmount, overLimit };
+        }
+
+        function syncReturnTypeUI() {
+            const type = document.getElementById("returnType").value;
+            const approvalField = document.getElementById("approvalField");
+            const infoBanner = document.getElementById("returnInfoBanner");
+            const impactTag = document.getElementById("impactTag");
+            const shell = document.getElementById("pageShell");
+            const workflowIndicator = document.getElementById("workflowIndicator");
+
+            if (type === "Regular") {
+                approvalField.style.display = "none";
+                infoBanner.className = "alert-box alert-info-soft";
+                infoBanner.innerHTML = "Regular return akan auto approved oleh sistem. Customer cukup input qty dan alasan return, dengan batas maksimal 5% dari total reference GRPO/Billing.";
+                impactTag.className = "tag tag-regular";
+                impactTag.textContent = "Auto Approved";
+                workflowIndicator.value = "System auto approves regular return";
+                shell.classList.remove("high-impact");
+            } else {
+                approvalField.style.display = "block";
+                infoBanner.className = "alert-box alert-warning-soft";
+                infoBanner.innerHTML = "Billing Deduction Return adalah high-impact transaction. Customer submit return ini, lalu Vendor harus approve atau reject sebelum final posting.";
+                impactTag.className = "tag tag-deduction";
+                impactTag.textContent = "Waiting Vendor Approval";
+                workflowIndicator.value = "Requires Vendor approval";
+                shell.classList.add("high-impact");
+            }
+
+            recalcSummary();
+        }
+
+        function requireReferenceData() {
+            if (!document.getElementById("customerName").value) {
+                alert("Select customer first.");
+                return false;
+            }
+            if (!isManualMode() && !selectedGrpo) {
+                alert("Select reference GRPO first, or switch to Manual mode.");
+                return false;
+            }
+            return true;
+        }
+
+        function collectReturnPayload(status) {
+            const summary = recalcSummary();
+            const type = document.getElementById("returnType").value;
+            const manual = isManualMode();
+            const rows = Array.from(document.querySelectorAll("#itemTableBody tr"));
+
+            let lines;
+            if (manual) {
+                lines = rows.map((row) => {
+                    const qtyInput = row.querySelector(".manual-return-qty");
+                    const codeInput = row.querySelector(".manual-item-code");
+                    const nameInput = row.querySelector(".manual-item-name");
+                    const reasonSelect = row.querySelector("select");
+                    const returnQty = Number(qtyInput?.value || 0);
+                    if (!returnQty) return null;
+                    return {
+                        itemCode: codeInput?.value.trim() || "-",
+                        itemName: nameInput?.value.trim() || "-",
+                        grpoQty: null,
+                        alreadyReturnedQty: null,
+                        availableQty: null,
+                        returnQty,
+                        reason: reasonSelect?.value || "Damage",
+                        price: 0
+                    };
+                }).filter(Boolean);
+            } else {
+                lines = rows.map((row, index) => {
+                    const qtyInput = row.querySelector(".return-qty");
+                    const reasonSelect = row.querySelector("select[data-index]");
+                    const returnQty = Number(qtyInput?.value || 0);
+                    if (!returnQty) return null;
+                    const item = selectedGrpo.items[index];
+                    return {
+                        itemCode: item.code,
+                        itemName: item.name,
+                        grpoQty: item.grpoQty,
+                        alreadyReturnedQty: item.returnedQty,
+                        availableQty: item.grpoQty - item.returnedQty,
+                        returnQty,
+                        reason: reasonSelect?.value || "Damage",
+                        price: item.price
+                    };
+                }).filter(Boolean);
+            }
+
+            return {
+                no: generateReturnNo(),
+                date: document.getElementById("returnDate").value,
+                customer: document.getElementById("customerName").value,
+                type,
+                mode: manual ? "Manual" : "GRPO",
+                grpo: manual ? "-" : selectedGrpo.no,
+                billingRef: manual ? "-" : selectedGrpo.billingRef,
+                billingStatus: manual ? "-" : selectedGrpo.billingStatus,
+                grpoAmount: manual ? 0 : selectedGrpo.totalAmount,
+                qty: summary.totalQty,
+                amount: summary.totalAmount,
+                status,
+                financialTreatment: manual ? "Manual Return - No GRPO Reference" : getAdjustmentMethod(),
+                grossBillingAmount: manual ? 0 : selectedGrpo.totalAmount,
+                netBillingAmount: manual ? 0 : Math.max(selectedGrpo.totalAmount - summary.totalAmount, 0),
+                billingImpactStatus: manual ? "Manual return - tidak ada GRPO reference" : (isBillingFinal() ? "Original Billing Locked - Credit Memo Flow" : "Direct Billing Reduction"),
+                by: `Customer - ${user.name || user.email || "User"}`,
+                remarks: document.getElementById("remarks").value.trim(),
+                approvalRequired: type === "Deduction",
+                creditMemoNo: (!manual && isBillingFinal()) ? generateCreditMemoNo() : "",
+                creditMemoDate: (!manual && isBillingFinal()) ? document.getElementById("returnDate").value : "",
+                creditMemoStatus: (!manual && isBillingFinal()) ? (status === "Draft" ? "Planned" : "Pending") : "",
+                approvalInfo: {
+                    approvedBy: "",
+                    approvalDate: "",
+                    approvalRemarks: ""
+                },
+                lines
+            };
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'return-management').render();
+            setToday();
+            renderCustomerList();
+            renderGrpoList();
+            syncReturnTypeUI();
+            document.getElementById("creationRoleBanner").className = "alert-box alert-info-soft";
+            document.getElementById("creationRoleBanner").innerHTML = "<strong>Customer view:</strong> Input return quantity dan reason berdasarkan kondisi barang aktual di store. Regular return akan auto approved, deduction return akan diteruskan ke Vendor.";
+        });
+
+        document.getElementById("returnType").addEventListener("change", syncReturnTypeUI);
+        document.getElementById("returnMode").addEventListener("change", applyModeUI);
+        document.getElementById("btnSaveDraft").addEventListener("click", () => {
+            if (!requireReferenceData()) return;
+            const payload = collectReturnPayload("Draft");
+            if (!payload.lines.length) {
+                alert("Enter at least one return qty before save.");
+                return;
+            }
+            const list = loadReturns();
+            list.unshift(payload);
+            saveReturns(list);
+            alert("Return draft saved. GRPO remains final and unchanged.");
+            window.location.href = `customer_ReturnView.html?retNo=${encodeURIComponent(payload.no)}`;
+        });
+
+        document.getElementById("btnSubmit").addEventListener("click", () => {
+            if (!requireReferenceData()) return;
+            const summary = recalcSummary();
+            if (summary.totalQty <= 0) {
+                alert("Enter at least one return qty before submit.");
+                return;
+            }
+            if (!isManualMode() && summary.overLimit) {
+                alert("Regular return exceeds 5% limit and cannot be submitted.");
+                return;
+            }
+
+            const type = document.getElementById("returnType").value;
+            const status = type === "Deduction" ? "Submitted" : "Approved";
+            const payload = collectReturnPayload(status);
+            const list = loadReturns();
+            list.unshift(payload);
+            saveReturns(list);
+            if (type === "Deduction") {
+                alert("Deduction return submitted by Customer. Document is now waiting for Vendor approval.");
+                window.location.href = `customer_ReturnView.html?retNo=${encodeURIComponent(payload.no)}`;
+                return;
+            }
+
+            alert("Regular return submitted and auto approved by system.");
+            window.location.href = `customer_ReturnView.html?retNo=${encodeURIComponent(payload.no)}`;
+        });
+    </script>
+</body>
+</html>
+
+
+
+

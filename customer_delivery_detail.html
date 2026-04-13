@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer — Delivery Detail | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+        }
+
+        .muted-xs {
+            font-size: .82rem;
+            color: #6c757d;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .kpi {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .timeline {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .timeline li {
+            margin: 8px 0;
+        }
+
+        .badge-soft {
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="customer_profile.html">Profile</a></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <div class="col-lg-2">
+                <div class="card shadow-sm sidebar">
+                    <div class="card-body p-2">
+                        <div class="list-group list-group-flush">
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_dashboard.html">Dashboard</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_catalog.html">Catalog</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_orders.html">Orders</a>
+                            <a class="list-group-item list-group-item-action nav-pill active"
+                                href="customer_delivery.html">Delivery</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_payment.html">Payment Status</a>
+                            <a class="list-group-item list-group-item-action nav-pill" href="customer_pos.html">iREAP POS
+                                Summary</a>
+                            <a class="list-group-item list-group-item-action nav-pill"
+                                href="customer_profile.html">Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-10">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                        <div class="fw-semibold">Delivery Detail</div>
+                        <div class="muted-xs">Monitoring informasi pengiriman dari vendor (read-only).</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary btn-sm" href="customer_delivery.html">← Back to Delivery</a>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <div class="kpi">
+                                    <div class="muted-xs">DO No</div>
+                                    <div class="fw-bold mono" id="hDo">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="kpi">
+                                    <div class="muted-xs">Order No</div>
+                                    <div class="fw-bold mono">
+                                        <a href="#" id="hOrderLink" class="text-decoration-none">-</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="kpi">
+                                    <div class="muted-xs">Vendor</div>
+                                    <div class="fw-bold" id="hDist">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="kpi">
+                                    <div class="muted-xs">ETA</div>
+                                    <div class="fw-bold" id="hEta">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="kpi">
+                                    <div class="muted-xs">Status</div>
+                                    <div class="fw-bold" id="hStatus">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="muted-xs mt-3">
+                            Delivery data bersifat informasi dari vendor. Customer tidak dapat mengubah status
+                            pengiriman.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipment Items -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-white">
+                        <div class="fw-semibold">Shipment Items</div>
+                        <div class="muted-xs">Barang yang disertakan dalam DO ini.</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0" id="tableItems">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Product Name</th>
+                                    <th class="text-end">Qty Shipped</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-white">
+                        <div class="fw-semibold">Timeline</div>
+                        <div class="muted-xs">Riwayat status pengiriman (dummy untuk demo; nanti dari API vendor).
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="timeline" id="timeline"></ul>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    © 2026 IBOCS — Customer Portal
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        const LS_DELIVERIES = "IBOCS_customer_deliveries";
+        function loadJson(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function badgeText(status) {
+            const s = (status || "").toLowerCase();
+            if (s === "do issued") return `<span class="badge bg-info badge-soft">DO Issued</span>`;
+            if (s === "shipped") return `<span class="badge bg-warning text-dark badge-soft">Dikirim</span>`;
+            if (s === "in transit") return `<span class="badge bg-primary badge-soft">Dalam Perjalanan</span>`;
+            if (s === "delivered") return `<span class="badge bg-success badge-soft">Diterima</span>`;
+            return `<span class="badge bg-secondary badge-soft">${status || "-"}</span>`;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const doNo = (params.get("do") || "").trim();
+        if (!doNo) {
+            alert("DO No tidak ditemukan. Pastikan URL: customer_delivery_detail.html?do=DO-xxxxx");
+            window.location.href = "customer_delivery.html";
+        }
+
+        const deliveries = loadJson(LS_DELIVERIES, []);
+        const d = deliveries.find(x => (x.doNo || "").trim() === doNo);
+        if (!d) {
+            alert("Delivery tidak ditemukan di localStorage.");
+            window.location.href = "customer_delivery.html";
+        }
+
+        document.getElementById("hDo").textContent = d.doNo || "-";
+        document.getElementById("hDist").textContent = d.vendor || "-";
+        document.getElementById("hEta").textContent = d.eta || "-";
+        document.getElementById("hStatus").innerHTML = badgeText(d.status);
+
+        const orderLink = document.getElementById("hOrderLink");
+        orderLink.textContent = d.orderNo || "-";
+        orderLink.href = "customer_order_detail.html?no=" + encodeURIComponent(d.orderNo || "");
+
+        const ul = document.getElementById("timeline");
+        ul.innerHTML = "";
+        const t = Array.isArray(d.timeline) ? d.timeline : [];
+        if (t.length === 0) {
+            ul.innerHTML = `<li class="text-muted">Tidak ada timeline.</li>`;
+        } else {
+            function translate(s) {
+                const sv = (s || "").toLowerCase();
+                if (sv === "delivered") return "Diterima";
+                if (sv === "shipped") return "Dikirim";
+                if (sv === "in transit") return "Dalam Perjalanan";
+                return s || "-";
+            }
+            t.forEach(step => {
+                const li = document.createElement("li");
+                li.innerHTML = `<div class="fw-semibold">${translate(step.status)}</div><div class="muted-xs">${step.date || "-"}</div>`;
+                ul.appendChild(li);
+            });
+        }
+
+        // =========================
+        // ITEMS RENDER LOGIC
+        // =========================
+        const LS_ORDER_LINES = "IBOCS_customer_order_lines";
+
+        // 1. Check if DO object already has items (future proof)
+        let items = d.items || [];
+
+        // 2. If no items in DO (dummy data case), fetch from Order Lines
+        if (items.length === 0) {
+            const allLines = loadJson(LS_ORDER_LINES, {});
+            const lines = allLines[d.orderNo] || [];
+
+            if (lines.length > 0) {
+                // Check if it's a split DO setup
+                // Sort sibling DOs to deterministically assign "First Half" vs "Second Half"
+                const siblingDOs = deliveries
+                    .filter(x => x.orderNo === d.orderNo)
+                    .sort((a, b) => a.doNo.localeCompare(b.doNo));
+
+                if (siblingDOs.length > 1) {
+                    // SPLIT SCENARIO LOGIC (DUMMY)
+                    // Determine if current DO is the first or second in the sequence
+                    const idx = siblingDOs.findIndex(x => x.doNo === d.doNo);
+                    const isFirst = idx === 0;
+
+                    // Logic:
+                    // DO 1 (First): Ambil sebagian besar (Math.ceil(qty * 0.6)) -> 60%
+                    // DO 2 (Rest): Ambil sisanya
+                    // If user wants distinct diff, simple split
+
+                    items = lines.map(l => {
+                        const total = l.qty;
+                        // If qty=1, DO 1 gets 1, DO 2 gets 0 (or vice versa? lets say DO 1 gets 1)
+                        // But we want to show items. Ideally both have items.
+                        // If qty > 1, we split.
+
+                        let qtyThisDO = 0;
+                        if (siblingDOs.length === 2) {
+                            const part1 = Math.ceil(total * 0.6); // 60% assigned to first DO
+                            const part2 = total - part1;
+
+                            // If part2 is 0 (e.g. total=1), then DO 2 shouldn't have this line?
+                            // User wants distinct qty.
+
+                            if (isFirst) {
+                                qtyThisDO = part1;
+                            } else {
+                                qtyThisDO = part2;
+                            }
+                        } else {
+                            // Fallback naive split
+                            qtyThisDO = Math.ceil(total / siblingDOs.length);
+                        }
+
+                        return {
+                            sku: l.sku,
+                            name: l.name,
+                            qty: qtyThisDO
+                        };
+                    }).filter(x => x.qty > 0); // Remove item if qty becomes 0 for this DO
+                } else {
+                    // Full Shipment
+                    items = lines;
+                }
+            }
+        }
+
+        const tbody = document.querySelector("#tableItems tbody");
+        tbody.innerHTML = "";
+
+        if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted p-3">Data item tidak tersedia.</td></tr>`;
+        } else {
+            items.forEach(it => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${it.sku}</td>
+                    <td>${it.name}</td>
+                    <td class="text-end">${it.qty}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
+

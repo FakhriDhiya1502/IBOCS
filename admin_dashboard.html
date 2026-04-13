@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard — IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 12px;
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="admin_dashboard.html">
+                <i class="bi bi-shield-lock-fill me-2"></i>IBOCS Admin
+            </a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Platform Management</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">Admin</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="index.html">Switch Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+
+                <div class="mb-4">
+                    <h5 class="fw-bold">Platform Overview</h5>
+                    <div class="text-muted small">Real-time statistics and platform health</div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card shadow-sm stat-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted small">Total Users</div>
+                                        <div class="fs-3 fw-bold" id="totalUsers">0</div>
+                                        <div class="small text-success">
+                                            <i class="bi bi-arrow-up"></i> +12 this week
+                                        </div>
+                                    </div>
+                                    <i class="bi bi-people-fill fs-1 text-primary opacity-25"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card shadow-sm stat-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted small">Active Orders</div>
+                                        <div class="fs-3 fw-bold" id="activeOrders">0</div>
+                                        <div class="small text-info">In progress</div>
+                                    </div>
+                                    <i class="bi bi-cart-fill fs-1 text-info opacity-25"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card shadow-sm stat-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted small">GMV (Monthly)</div>
+                                        <div class="fs-4 fw-bold" id="gmv">Rp 0</div>
+                                        <div class="small text-success">
+                                            <i class="bi bi-graph-up"></i> +15%
+                                        </div>
+                                    </div>
+                                    <i class="bi bi-cash-stack fs-1 text-success opacity-25"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card shadow-sm stat-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted small">Pending Verifications</div>
+                                        <div class="fs-3 fw-bold text-warning" id="pendingUsers">0</div>
+                                        <div class="small text-muted">Needs review</div>
+                                    </div>
+                                    <i class="bi bi-exclamation-triangle-fill fs-1 text-warning opacity-25"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <div class="fw-bold">Order Trends (Last 7 Days)</div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="orderTrendChart" height="80"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <div class="fw-bold">User Distribution</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span><i class="bi bi-shop text-primary"></i> Customers</span>
+                                        <span class="fw-bold" id="customerCount">0</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" id="customerBar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span><i class="bi bi-building text-success"></i> Vendors</span>
+                                        <span class="fw-bold" id="vendorCount">0</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" id="vendorBar" style="width: 0%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold">Recent Activity</div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">No recent activity</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        // Init Sidebar
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'dashboard').render();
+
+        // Auth Guard
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html";
+        const user = JSON.parse(sess);
+        if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) window.location.href = "login.html";
+        // super_admin uses forecast_dashboard as main; admin_dashboard is admin-only
+        if (user.role === 'super_admin') window.location.href = "forecast_dashboard.html";
+
+        document.getElementById("userBtn").textContent = user.name || "Admin";
+        document.getElementById("userInfo").textContent = `${user.email} • role=admin`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "login.html";
+        });
+
+        // Load Mock Data
+        function fmtMoney(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+
+        // Get all users from localStorage
+        const customers = JSON.parse(localStorage.getItem('IBOCS_customer_users') || '[]');
+        const vendors = JSON.parse(localStorage.getItem('IBOCS_vendor_users') || '[]');
+        const orders = JSON.parse(localStorage.getItem('IBOCS_customer_orders') || '[]');
+
+        const totalUsers = customers.length + vendors.length;
+        const pendingUsers = [...customers, ...vendors].filter(u => u.status === 'Pending').length;
+        const activeOrders = orders.filter(o => o.status !== 'Completed' && o.status !== 'Cancelled').length;
+        const gmvMonthly = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+        document.getElementById('totalUsers').textContent = totalUsers;
+        document.getElementById('activeOrders').textContent = activeOrders;
+        document.getElementById('gmv').textContent = fmtMoney(gmvMonthly);
+        document.getElementById('pendingUsers').textContent = pendingUsers;
+
+        document.getElementById('customerCount').textContent = customers.length;
+        document.getElementById('vendorCount').textContent = vendors.length;
+
+        const customerPct = totalUsers > 0 ? (customers.length / totalUsers * 100) : 0;
+        const vendorPct = totalUsers > 0 ? (vendors.length / totalUsers * 100) : 0;
+        document.getElementById('customerBar').style.width = customerPct + '%';
+        document.getElementById('vendorBar').style.width = vendorPct + '%';
+
+        // Order Trend Chart (Simple mock data)
+        const ctx = document.getElementById('orderTrendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Orders',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Recent Activity (Mock)
+        const activities = [
+            { time: '2 min ago', user: 'Toko Maju', action: 'New Order', details: 'ORD-000150 • Rp 1.2M' },
+            { time: '15 min ago', user: 'Vendor A', action: 'Product Added', details: 'SKU: BRG-106' },
+            { time: '1 hour ago', user: 'Warung Sejahtera', action: 'Registration', details: 'Pending verification' }
+        ];
+
+        const tbody = document.getElementById('activityTableBody');
+        tbody.innerHTML = activities.map(a => `
+            <tr>
+                <td class="small text-muted">${a.time}</td>
+                <td><span class="fw-semibold">${a.user}</span></td>
+                <td><span class="badge bg-info text-dark">${a.action}</span></td>
+                <td class="small">${a.details}</td>
+            </tr>
+        `).join('');
+    </script>
+</body>
+
+</html>
+
+
+
+

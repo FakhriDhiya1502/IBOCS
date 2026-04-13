@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor | Incoming PO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        :root {
+            --bg: #f4f6f9;
+            --card: #fff;
+            --line: #d9e0ea;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #2563eb;
+            --soft: #f8fafc;
+        }
+
+        .page {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .subtext {
+            margin-top: 4px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, .05);
+            border: 1px solid var(--line);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            border-bottom: 1px solid var(--line);
+            background: var(--soft);
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 36px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 0 10px;
+            font-size: 13px;
+            background: #fff;
+            outline: none;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+        }
+
+        .filter-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Summary */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .summary-box {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: var(--soft);
+        }
+
+        .summary-box .s-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .summary-box .s-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .s-value.blue {
+            color: #2563eb;
+        }
+
+        .s-value.amber {
+            color: #b45309;
+        }
+
+        .s-value.green {
+            color: #166534;
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 860px;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #edf0f5;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        th {
+            background: var(--soft);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dcfce7;
+        }
+
+        .company-header h6 {
+            margin: 0;
+            font-size: 1.1rem;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .company-header::before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: #15803d;
+            border-radius: 2px;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9em;
+            color: #15803d;
+        }
+
+        tbody tr:hover {
+            background: #f9fbff;
+        }
+
+        /* Bulk toolbar */
+        .bulk-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d4ed8;
+        }
+
+        .bulk-bar.visible {
+            display: flex;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tag-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-reviewed {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag-confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tag-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 8px 14px;
+            background: var(--primary);
+            color: #fff;
+            border: 0;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            padding: 8px 14px;
+            background: #e5e7eb;
+            color: #374151;
+            border: 0;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-xs-review {
+            padding: 6px 12px;
+            background: #2563eb;
+            color: #fff;
+            border: 0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-xs-review:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-xs-view {
+            padding: 6px 12px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-bulk-confirm {
+            padding: 6px 12px;
+            background: #166534;
+            color: #fff;
+            border: 0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-bulk-confirm:hover {
+            background: #14532d;
+        }
+
+        /* Checkbox */
+        input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* Expandable Row */
+        .expand-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expand-btn.expanded {
+            transform: rotate(180deg);
+        }
+
+        .expand-row {
+            display: none;
+            background-color: #f8fafc;
+        }
+
+        .expand-row.open {
+            display: table-row;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .expand-content {
+            padding: 12px 14px 16px 48px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .expand-table {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .expand-table th {
+            background: #f1f5f9;
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            border: none !important;
+            text-transform: uppercase;
+        }
+
+        .expand-table td {
+            padding: 8px 12px !important;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        
+        .expand-table tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        /* ===========================
+           REVIEW MODAL
+           =========================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            backdrop-filter: blur(2px);
+            z-index: 9000;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 16px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 24px;
+            width: 960px;
+            max-width: 100%;
+            box-shadow: 0 25px 80px rgba(15, 23, 42, .3);
+            overflow: hidden;
+            animation: mSlideUp .2s cubic-bezier(.16,1,.3,1);
+            margin: auto;
+        }
+
+        .modal-box-sm {
+            width: 520px;
+            border-radius: 18px;
+        }
+
+        @keyframes mSlideUp {
+            from { transform: translateY(24px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        /* Premium green-gradient header like PO Detail */
+        .modal-header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: none;
+        }
+
+        .modal-header h5 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,.15);
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #fff;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background .15s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,.25); }
+
+        .modal-body {
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #f8fafc;
+        }
+
+        /* Dual info-card layout like PO Detail modal */
+        .po-info-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .po-info-card {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .pi-field { margin-bottom: 12px; }
+        .pi-field:last-child { margin-bottom: 0; }
+
+        .pi-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .pi-value {
+            font-weight: 600;
+            color: var(--text, #1e293b);
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 10px;
+            display: block;
+            font-size: 13px;
+        }
+
+        .pi-value.mono-val {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: #15803d;
+            font-weight: 700;
+        }
+
+        .pi-value-select {
+            width: 100%;
+            font-weight: 600;
+            color: #15803d;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 13px;
+            background: #fff;
+            outline: none;
+            cursor: pointer;
+        }
+        .pi-value-select:focus {
+            border-color: #15803d;
+            box-shadow: 0 0 0 3px rgba(21,128,61,.12);
+        }
+        .pi-value-select:disabled {
+            background: #f8fafc;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+        /* Contents tab pill */
+        .modal-contents-tag {
+            display: inline-block;
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Qty input */
+        .qty-input {
+            width: 76px;
+            height: 32px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 0 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+        }
+
+        .qty-input:focus {
+            border-color: #15803d;
+            box-shadow: 0 0 0 3px rgba(21,128,61,.12);
+        }
+
+        .qty-input.over {
+            border-color: #ef4444 !important;
+            background: #fef2f2;
+        }
+
+        /* Row states */
+        tr.row-zero {
+            background: #fef2f2 !important;
+            color: #991b1b;
+        }
+
+        tr.row-zero td { color: #991b1b; }
+        tr.row-zero .qty-input { border-color: #fca5a5; }
+
+        td.subtotal { font-weight: 700; }
+
+        /* Summary box */
+        .modal-summary-box {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-top: 16px;
+        }
+
+        .modal-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .modal-summary-row.total-row {
+            border-top: 1px solid #cbd5e1;
+            margin-top: 8px;
+            padding-top: 10px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        /* Warn banner */
+        .warn-banner {
+            display: none;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 14px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warn-banner.visible { display: flex; }
+
+        /* Notes area */
+        .notes-area {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            resize: vertical;
+            font-family: inherit;
+            min-height: 64px;
+            outline: none;
+            background: #fff;
+        }
+
+        .notes-area:focus {
+            border-color: #15803d;
+            box-shadow: 0 0 0 3px rgba(21,128,61,.12);
+        }
+
+        /* Confirm modal rows */
+        .mc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+        }
+
+        .mc-row .lbl { color: var(--muted); }
+        .mc-row .val { font-weight: 700; }
+
+        /* Reject button */
+        .btn-reject {
+            padding: 10px 20px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-reject:hover { background: #fecaca; }
+
+        .btn-confirm {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #15803d, #22c55e);
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(21,128,61,.25);
+            transition: all .2s;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(21,128,61,.35);
+        }
+
+        /* Toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .18);
+            animation: mSlideUp .2s ease;
+            color: #fff;
+        }
+
+        @media (max-width: 1100px) {
+
+            .filter-grid,
+            .summary-grid,
+            .modal-info-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .filter-grid,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .modal-info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="vendor_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Vendor Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-success fw-bold">
+                        <i class="bi bi-inbox-fill me-2"></i>Incoming Purchase Orders
+                    </h4>
+                </div>
+
+                <div class="page shadow-sm">
+
+                    <div class="topbar">
+                        <div>
+                            <h1>Incoming PO from Customers</h1>
+                            <div class="subtext">Review and confirm Purchase Orders to generate Sales Orders.</div>
+                        </div>
+                    </div>
+
+                    <!-- Filter -->
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-funnel me-1"></i>Filter</div>
+                        <div class="card-body">
+                            <div class="filter-grid">
+                                <div class="field">
+                                    <label>PO Reference</label>
+                                    <input id="fPoRef" type="text" placeholder="e.g. PO-0001">
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <input id="fVendor" type="text" placeholder="Search customer...">
+                                </div>
+                                <div class="field">
+                                    <label>Status</label>
+                                    <select id="fStatus">
+                                        <option value="">All Status</option>
+                                        <option value="Open">Open</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Rejected">Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Date From</label>
+                                    <input id="fDateFrom" type="date">
+                                </div>
+                                <div class="field">
+                                    <label>Date To</label>
+                                    <input id="fDateTo" type="date">
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn-primary" onclick="renderTable()">
+                                    <i class="bi bi-search me-1"></i>Search
+                                </button>
+                                <button class="btn-secondary" onclick="resetFilter()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-bar-chart me-1"></i>Summary</div>
+                        <div class="card-body">
+                            <div class="summary-grid">
+                                <div class="summary-box">
+                                    <div class="s-label">Total</div>
+                                    <div class="s-value text-primary" id="sumTotal">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="s-label">Open</div>
+                                    <div class="s-value amber" id="sumPending">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="s-label">Closed</div>
+                                    <div class="s-value green" id="sumReviewed">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="s-label">Rejected</div>
+                                    <div class="s-value fw-bold text-danger" id="sumConfirmed">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Action Bar -->
+                    <div class="bulk-bar" id="bulkBar">
+                        <i class="bi bi-check2-square"></i>
+                        <span id="bulkCount">0 PO selected</span>
+                        <button class="btn-bulk-confirm" onclick="bulkConfirm()">
+                            <i class="bi bi-table me-1"></i>Process Selected in Worksheet
+                        </button>
+                        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;"
+                            onclick="clearSelection()">
+                            Clear
+                        </button>
+                    </div>
+
+                    <!-- PO Table -->
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-table me-1"></i>Incoming PO Documents</div>
+                        <div class="card-body">
+                            <div class="table-wrap" id="poContainer">
+                                <!-- Tables injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    © 2026 IBOCS — Vendor Portal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================
+         REVIEW MODAL (Step 1) — Premium Design
+         ============================== -->
+    <div class="modal-overlay" id="reviewModal">
+        <div class="modal-box">
+
+            <!-- Green Gradient Header -->
+            <div class="modal-header">
+                <h5><i class="bi bi-file-earmark-text me-2"></i>Purchase Order Detail</h5>
+                <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Dual Info Cards -->
+                <div class="po-info-cards">
+                    <!-- Left Card: Customer Info -->
+                    <div class="po-info-card">
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <span class="pi-label">PO Reference</span>
+                                <span class="pi-value mono-val" id="mPoRef">-</span>
+                            </div>
+                            <div class="col-8">
+                                <span class="pi-label">Customer / Store</span>
+                                <span class="pi-value" id="mCustomer">-</span>
+                            </div>
+                            <div class="col-12">
+                                <span class="pi-label">Contact Person</span>
+                                <span class="pi-value" id="mContact">-</span>
+                            </div>
+                            <div class="col-12">
+                                <span class="pi-label">Delivery Address</span>
+                                <span class="pi-value" id="mAddress" style="font-size:12px;">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Card: Order Info -->
+                    <div class="po-info-card">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <span class="pi-label">PO Date</span>
+                                <span class="pi-value" id="mPoDate">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="pi-label">Status</span>
+                                <span class="pi-value" id="mStatusBadge">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="pi-label">Requested Delivery</span>
+                                <span class="pi-value" id="mDelivery">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="pi-label">Warehouse</span>
+                                <select id="mWhseSelect" class="pi-value-select">
+                                    <option value="WH-MAIN">WH-MAIN (Main)</option>
+                                    <option value="WH-NORTH">WH-NORTH (North)</option>
+                                    <option value="WH-EAST">WH-EAST (East)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <span class="pi-label">Customer Notes</span>
+                                <span class="pi-value" id="mPoNotes" style="font-weight:400;color:#64748b;font-style:italic;">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contents Tag -->
+                <div class="modal-contents-tag"><i class="bi bi-list-ul me-1"></i>Contents</div>
+
+                <!-- Over-qty warning -->
+                <div class="warn-banner" id="mWarnBanner">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>One or more approved quantities exceed the original PO quantity.</span>
+                </div>
+
+                <!-- Line Items Table — styled like PO Detail -->
+                <div style="border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle" style="min-width:640px;">
+                            <thead>
+                                <tr style="background:#f1f5f9;">
+                                    <th class="ps-3" style="width:40px;font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;">#</th>
+                                    <th style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;">Item No</th>
+                                    <th style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;">Description</th>
+                                    <th class="text-center" id="thOrigQty" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;width:80px;">Qty</th>
+                                    <th class="text-center" id="thApprQty" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;width:110px;">Approved Qty</th>
+                                    <th style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;">Price</th>
+                                    <th class="pe-3 text-end" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mItemBody" class="align-middle"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bottom: Notes + Summary side by side -->
+                <div class="row g-4 align-items-end">
+                    <div class="col-md-6">
+                        <label class="pi-label">Vendor Notes / Remarks</label>
+                        <textarea class="notes-area" id="mVendorNotes"
+                            placeholder="Add internal notes or remarks (optional)..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="modal-summary-box">
+                            <div class="modal-summary-row">
+                                <span class="text-muted">Total Before Tax</span>
+                                <span class="fw-bold" id="mSubTotal">Rp 0</span>
+                            </div>
+                            <div class="modal-summary-row">
+                                <span class="text-muted">PPN (11%)</span>
+                                <span class="fw-bold" id="mTaxTotal">Rp 0</span>
+                            </div>
+                            <div class="modal-summary-row total-row">
+                                <span class="fw-bold text-dark">Total Amount Due</span>
+                                <span id="mGrandTotal" style="color:#15803d;">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary rounded-pill px-4" onclick="closeReviewModal()">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </button>
+                <div class="ms-auto d-flex gap-2">
+                    <button class="btn-reject rounded-pill btn-reject px-4" onclick="rejectPO()" style="border-radius:999px!important;">
+                        <i class="bi bi-x-circle me-1"></i>Reject PO
+                    </button>
+                    <button class="btn-confirm" onclick="openConfirmModal()">
+                        <i class="bi bi-check-circle me-1"></i>Confirm &amp; Generate SO
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==============================
+         CONFIRM MODAL (Step 2)
+         ============================== -->
+    <div class="modal-overlay" id="confirmModal" style="z-index:9100;">
+        <div class="modal-box modal-box-sm">
+            <div class="modal-header">
+                <h5><i class="bi bi-check-circle-fill text-success me-2"></i>Confirm &amp; Generate Sales Order</h5>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#6b7280;margin-bottom:16px;font-size:13px;">
+                    Review the summary below. This action <strong>cannot be undone</strong>.
+                </p>
+                <div id="cModalSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeConfirmModal()">
+                    <i class="bi bi-arrow-left me-1"></i>Go Back
+                </button>
+                <button class="btn-confirm" onclick="finalConfirm()">
+                    <i class="bi bi-check-all me-1"></i>Yes, Generate SO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="master_data.js"></script>
+    <script>
+        // =============================
+        // SESSION GUARD
+        // =============================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=vendor";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // vendorCode from session: "SIC", "CTU", or null (sees all)
+        const SESSION_VENDOR_CODE = user.vendorCode || null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'incoming_po').render();
+
+            // Show vendor identity badge in page title if scoped
+            if (SESSION_VENDOR_CODE) {
+                const badge = document.createElement("span");
+                badge.className = "badge ms-2 align-middle";
+                badge.style.cssText = "font-size:13px;padding:5px 12px;border-radius:20px;background:" +
+                    (SESSION_VENDOR_CODE === "SIC" ? "#dbeafe;color:#1d4ed8" : "#dcfce7;color:#166534");
+                badge.textContent = SESSION_VENDOR_CODE + " Portal";
+                document.querySelector("h4.text-success")?.append(badge);
+            }
+
+            renderTable();
+        });
+
+        // =============================
+        // DATA STORE
+        // PO records from customers grouped by vendor:
+        //   Feed items → SIC (VND-SIC)
+        //   DOC  items → CTU (VND-CTU)
+        // =============================
+
+        const LS_VENDOR_ORDERS = "IBOCS_vendor_incoming_po";
+
+        /**
+         * Static demo PO records aligned with master_data.js.
+         * vendorName = the vendor who handles this PO (SIC or CTU).
+         * customer   = the customer company that issued the PO.
+         */
+        const DEMO_INCOMING_PO = [
+            // ── SIC Incoming POs (Feed / Pakan) ────────────────────────────────────
+            {
+                poRef: "PO-2604-001", poDate: "2026-04-01", deliveryDate: "2026-04-08",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "Kirim pagi sebelum jam 08.00",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG01",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 7500, price: 50000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 5500, price: 48000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-003", poDate: "2026-04-03", deliveryDate: "2026-04-10",
+                customer: "PT AYM (Ayam Yummy Makmur)", contact: "Dewi Rahayu",
+                address: "Jl. Poultry No. 12, Binjai",
+                notes: "",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG03",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 6200, price: 50000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 4300, price: 48000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-005", poDate: "2026-04-05", deliveryDate: "2026-04-12",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "PO sebelumnya — sudah selesai",
+                vendorName: "SIC", status: "Closed", whse: "WH-KDG02",
+                items: [
+                    { sku: "FEED-002", name: "Pakan Starter (BR-1)",  origQty: 8000, price: 50000 },
+                    { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 7000, price: 46000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-007", poDate: "2026-04-07", deliveryDate: "2026-04-14",
+                customer: "PT BMAX", contact: "Andi Susanto",
+                address: "Jl. Farm Raya No. 5, Binjai",
+                notes: "",
+                vendorName: "SIC", status: "Open", whse: "WH-KDG02",
+                items: [
+                    { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 8700, price: 46000 },
+                    { sku: "FEED-003", name: "Pakan Grower (BR-2)",   origQty: 5700, price: 48000 }
+                ]
+            },
+
+            // ── CTU Incoming POs (DOC / Day-Old-Chick) ─────────────────────────────
+            {
+                poRef: "PO-2604-002", poDate: "2026-04-02", deliveryDate: "2026-04-09",
+                customer: "PT TOP Distribusi", contact: "Budi Santoso",
+                address: "Jl. Distribusi No. 1, Medan",
+                notes: "Pastikan kondisi DOC sehat & aktif",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG01",
+                items: [
+                    { sku: "DOC-001", name: "DOC Broiler Cobb 500 (M)", origQty: 10000, price: 7500 },
+                    { sku: "DOC-002", name: "DOC Broiler Cobb 500 (F)", origQty: 10000, price: 7000 }
+                ]
+            },
+            {
+                poRef: "PO-2604-004", poDate: "2026-04-04", deliveryDate: "2026-04-11",
+                customer: "PT AYM (Ayam Yummy Makmur)", contact: "Dewi Rahayu",
+                address: "Jl. Poultry No. 12, Binjai",
+                notes: "Perlu sertifikat veteriner",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG03",
+                items: [
+                    { sku: "DOC-007", name: "DOC Hubbard (M)", origQty: 8000, price: 9000 },
+                    { sku: "DOC-008", name: "DOC Hubbard (F)", origQty: 8000, price: 8500 }
+                ]
+            },
+            {
+                poRef: "PO-2604-006", poDate: "2026-04-06", deliveryDate: "2026-04-13",
+                customer: "PT BMAX", contact: "Andi Susanto",
+                address: "Jl. Farm Raya No. 5, Binjai",
+                notes: "",
+                vendorName: "CTU", status: "Open", whse: "WH-KDG02",
+                items: [
+                    { sku: "DOC-005", name: "DOC Layer Lohmann (M)", origQty: 9500, price: 12000 },
+                    { sku: "DOC-006", name: "DOC Layer Lohmann (F)", origQty: 9500, price: 11000 }
+                ]
+            }
+        ];
+
+        function getList() {
+            // Load any user-updated statuses from localStorage, merge with demo data
+            const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
+            let list = DEMO_INCOMING_PO.map(po => {
+                const override = stored[po.poRef] || {};
+                return { ...po, status: override.status || po.status, whse: override.whse || po.whse };
+            });
+
+            // Scope to logged-in vendor if vendorCode is set (SIC only sees SIC, CTU only CTU)
+            if (SESSION_VENDOR_CODE) {
+                list = list.filter(po => po.vendorName === SESSION_VENDOR_CODE);
+            }
+
+            return list;
+        }
+
+        // Persist only status overrides per PO ref
+        function updateStatus(poRef, newStatus) {
+            const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
+            stored[poRef] = stored[poRef] || {};
+            stored[poRef].status = newStatus;
+            localStorage.setItem(LS_VENDOR_ORDERS, JSON.stringify(stored));
+        }
+
+        // =============================
+        // UTILITIES
+        // =============================
+        function fmt(n) {
+            return "Rp " + Number(n).toLocaleString("id-ID");
+        }
+
+        function statusTag(s) {
+            const map = {
+                Open: '<span class="tag tag-pending">Open</span>',
+                Closed: '<span class="tag tag-confirmed">Closed</span>',
+                Rejected: '<span class="tag tag-rejected">Rejected</span>'
+            };
+            return map[s] || `<span class="tag">${s}</span>`;
+        }
+
+        function showToast(msg, type = "success") {
+            const t = document.createElement("div");
+            t.className = "toast-msg";
+            t.style.background = type === "success" ? "#166534" : "#991b1b";
+            t.textContent = (type === "success" ? "✓ " : "✗ ") + msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        }
+
+        // =============================
+        // LIST TABLE
+        // =============================
+        function renderTable() {
+            const fPoRef = document.getElementById("fPoRef").value.toLowerCase();
+            const fVendor = document.getElementById("fVendor").value.toLowerCase();
+            const fStatus = document.getElementById("fStatus").value;
+            const fDateFrom = document.getElementById("fDateFrom").value;
+            const fDateTo = document.getElementById("fDateTo").value;
+
+            const all = getList();
+
+            if (document.getElementById("sumTotal")) {
+                document.getElementById("sumTotal").textContent = all.length;
+            }
+            document.getElementById("sumPending").textContent = all.filter(p => p.status === "Open").length;
+            document.getElementById("sumReviewed").textContent = all.filter(p => p.status === "Closed").length;
+            document.getElementById("sumConfirmed").textContent = all.filter(p => p.status === "Rejected").length;
+
+            const list = all.filter(p => {
+                if (fPoRef  && !p.poRef.toLowerCase().includes(fPoRef))    return false;
+                // fVendor filter now searches customer name
+                if (fVendor && !p.customer.toLowerCase().includes(fVendor)) return false;
+                if (fStatus && p.status !== fStatus)                         return false;
+                if (fDateFrom && p.poDate < fDateFrom)                       return false;
+                if (fDateTo   && p.poDate > fDateTo)                         return false;
+                return true;
+            });
+
+            const container = document.getElementById("poContainer");
+            if (!list.length) {
+                container.innerHTML = '<div style="text-align:center;padding:28px;color:#6b7280;">No data found.</div>';
+                return;
+            }
+
+            // Group by vendorName (SIC / CTU) — not by customer
+            const groupedOrders = {};
+            list.forEach(p => {
+                const grp = p.vendorName || "Unknown";
+                if (!groupedOrders[grp]) groupedOrders[grp] = [];
+                groupedOrders[grp].push(p);
+            });
+
+            // Vendor group labels
+            const vendorMeta = {
+                SIC: { label: "SIC — Supplier Pakan & Feed", icon: "bi-basket3-fill", color: "#2563eb" },
+                CTU: { label: "CTU — Supplier DOC / Bibit Ayam", icon: "bi-egg-fill",        color: "#15803d" }
+            };
+
+            const canSelect = ["Open"];
+            let html = "";
+
+            // Render SIC first, then CTU
+            ["SIC", "CTU", ...Object.keys(groupedOrders).filter(k => k !== "SIC" && k !== "CTU")]
+                .filter(k => groupedOrders[k])
+                .forEach(company => {
+                const companyOrders = groupedOrders[company];
+                const cleanCompanyStr = company.replace(/[^a-zA-Z0-9]/g, '');
+                const meta = vendorMeta[company] || { label: company, icon: "bi-building", color: "#374151" };
+
+                html += `
+                <div class="company-section mb-4 animate-in">
+                    <div class="company-header d-flex justify-content-between align-items-center w-100 pb-2 mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi ${meta.icon}" style="color:${meta.color};font-size:18px;"></i>
+                            <h6 class="m-0" style="color:${meta.color};">${meta.label}</h6>
+                            <button class="btn btn-sm btn-outline-secondary px-2 py-0 border fw-bold text-muted" style="font-size: 11px; height: 22px;" onclick="toggleExpandGroup('${cleanCompanyStr}', this)">
+                                <i class="bi bi-arrows-expand me-1" style="font-size: 10px;"></i><span class="exp-text">Expand All</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="border: 1px solid var(--line); border-radius: 8px;">
+                        <table class="table table-hover mb-0" style="margin:0; border:0;">
+                            <thead style="background: var(--soft);">
+                                <tr>
+                                    <th style="width:40px;">
+                                        <input type="checkbox" class="group-select-all" data-target="group-${cleanCompanyStr}" onchange="toggleSelectGroup(this)">
+                                    </th>
+                                    <th style="width:40px;"></th>
+                                    <th>PO Reference</th>
+                                    <th>Customer</th>
+                                    <th>Whse</th>
+                                    <th>PO Date</th>
+                                    <th>Total Items</th>
+                                    <th>Total Qty</th>
+                                    <th>Status</th>
+                                    <th style="width:100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                companyOrders.forEach((p, idx) => {
+                    const selectable = canSelect.includes(p.status);
+                    const totalItems = p.items ? p.items.length : 0;
+                    const totalQty = p.items ? p.items.reduce((s, r) => s + r.origQty, 0) : 0;
+
+                    const expandId = `exp-${cleanCompanyStr}-${idx}`;
+
+                    const checkbox = selectable
+                        ? `<input type="checkbox" class="row-check group-${cleanCompanyStr}" data-ref="${p.poRef}" data-exp="${expandId}" onchange="handleRowCheck(this)">`
+                        : `<input type="checkbox" disabled style="opacity:.3">`;
+
+                    const actionBtn = p.status === "Open"
+                        ? `<button class="btn-xs-review" onclick="openReviewModal('${p.poRef}')">Review</button>`
+                        : `<button class="btn-xs-view" onclick="openReviewModal('${p.poRef}')">View</button>`;
+
+                    html += `
+                    <tr>
+                        <td>${checkbox}</td>
+                        <td class="text-center">
+                            <button class="expand-btn" onclick="toggleExpand('${expandId}', this)">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </td>
+                        <td class="mono fw-bold text-dark">${p.poRef}</td>
+                        <td style="font-size:12px;">${p.customer || "-"}</td>
+                        <td><span class="badge bg-light text-dark border-secondary-subtle fw-medium">${p.whse}</span></td>
+                        <td>${p.poDate}</td>
+                        <td>${totalItems}</td>
+                        <td>${totalQty.toLocaleString()}</td>
+                        <td>${statusTag(p.status)}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                    <tr class="expand-row" id="${expandId}">
+                        <td colspan="10" class="p-0">
+                            <div class="expand-content">
+                                <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase;"><i class="bi bi-box-seam me-1"></i> Line Items</div>
+                                <table class="expand-table m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Name</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-end">Price / Unit</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${(p.items || []).map(item => `
+                                            <tr>
+                                                <td class="mono" style="color: #475569;">${item.sku}</td>
+                                                <td class="fw-bold">${item.name}</td>
+                                                <td class="text-center" style="font-weight: 700; color: #2563eb;">${item.origQty.toLocaleString()}</td>
+                                                <td class="text-end">${fmt(item.price)}</td>
+                                                <td class="text-end fw-bold">${fmt(item.origQty * item.price)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table></div></div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function handleRowCheck(cb, doUpdate = true) {
+            const expandId = cb.getAttribute("data-exp");
+            if (expandId) {
+                const row = document.getElementById(expandId);
+                const btn = document.querySelector(`button[onclick*="'${expandId}'"]`);
+                if (row) {
+                    if (cb.checked) {
+                        if (!row.classList.contains("open")) {
+                            row.classList.add("open");
+                            if (btn) btn.classList.add("expanded");
+                        }
+                    } else {
+                        if (row.classList.contains("open")) {
+                            row.classList.remove("open");
+                            if (btn) btn.classList.remove("expanded");
+                        }
+                    }
+                }
+            }
+            if (doUpdate) updateBulkBar();
+        }
+
+        function toggleSelectGroup(cb) {
+            const targetClass = cb.dataset.target;
+            document.querySelectorAll("." + targetClass).forEach(c => {
+                if (!c.disabled) {
+                    c.checked = cb.checked;
+                    handleRowCheck(c, false);
+                }
+            });
+            updateBulkBar();
+        }
+
+        function resetFilter() {
+            ["fPoRef", "fVendor", "fStatus", "fDateFrom", "fDateTo"]
+                .forEach(id => document.getElementById(id).value = "");
+            renderTable();
+        }
+
+        // =============================
+        // BULK SELECTION
+        // =============================
+        function toggleSelectAll(cb) {
+            document.querySelectorAll(".row-check").forEach(c => {
+                if (!c.disabled) {
+                    c.checked = cb.checked;
+                    handleRowCheck(c, false);
+                }
+            });
+            document.querySelectorAll(".group-select-all").forEach(c => {
+                c.checked = cb.checked;
+            });
+            updateBulkBar();
+        }
+
+        function updateBulkBar() {
+            const checked = document.querySelectorAll(".row-check:checked").length;
+            document.getElementById("bulkBar").classList.toggle("visible", checked > 0);
+            document.getElementById("bulkCount").textContent = `${checked} PO selected`;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll(".row-check, .group-select-all").forEach(c => {
+                c.checked = false; c.indeterminate = false;
+            });
+            updateBulkBar();
+        }
+
+        // =============================
+        // BULK CONFIRM REDIRECT
+        // Redirect selected POs to worksheet mode
+        // =============================
+        function bulkConfirm() {
+            const refs = [...document.querySelectorAll(".row-check:checked")].map(c => c.dataset.ref);
+            if (!refs.length) return;
+
+            // Store selected refs in localStorage so the next page knows what to process
+            localStorage.setItem("IBOCS_bulk_po_refs", JSON.stringify(refs));
+
+            // Redirect to the new worksheet page
+            window.location.href = "vendor_bulk_po_process.html";
+        }
+
+        // =============================
+        // REVIEW MODAL STATE
+        // =============================
+        let currentPO = null;
+
+        function openReviewModal(poRef) {
+            const list = getList();
+            currentPO = list.find(p => p.poRef === poRef);
+            if (!currentPO) return;
+
+            // Load Settings for Dynamic Modal UI
+            const settingsRaw = localStorage.getItem('IBOCS_platform_settings');
+            const settings = settingsRaw ? JSON.parse(settingsRaw) : { allowEditApprovedQty: true, allowRejectPO: true };
+            const allowEdit = settings.allowEditApprovedQty ?? true;
+            const allowRejectPO = settings.allowRejectPO ?? true;
+
+            // Toggle Header Labels & Visibility
+            const thOrig = document.getElementById("thOrigQty");
+            const thAppr = document.getElementById("thApprQty");
+            if (!allowEdit) {
+                thOrig.textContent = "Qty";
+                thAppr.style.display = "none";
+            } else {
+                thOrig.textContent = "Original Qty";
+                thAppr.style.display = "";
+            }
+
+            const isReadOnly = currentPO.status !== "Open";
+
+            // Populate header fields
+            document.getElementById("mPoRef").textContent = currentPO.poRef;
+            document.getElementById("mCustomer").textContent = currentPO.customer || currentPO.vendor || "-";
+            document.getElementById("mPoDate").textContent = currentPO.poDate;
+            document.getElementById("mDelivery").textContent = currentPO.deliveryDate || "-";
+            document.getElementById("mContact").textContent = currentPO.contact || "-";
+            document.getElementById("mAddress").textContent = currentPO.address || "-";
+            document.getElementById("mWhseSelect").value = currentPO.whse || "WH-MAIN";
+            document.getElementById("mWhseSelect").disabled = isReadOnly;
+            document.getElementById("mStatusBadge").innerHTML = statusTag(currentPO.status);
+            document.getElementById("mPoNotes").textContent = currentPO.notes || "—";
+            document.getElementById("mVendorNotes").value = "";
+            document.getElementById("mVendorNotes").disabled = isReadOnly;
+            document.getElementById("mWarnBanner").classList.remove("visible");
+
+            // Render items
+            renderModalItems(isReadOnly);
+
+            // Show/hide action buttons for read-only state
+            document.querySelector("#reviewModal .btn-reject").style.display = (isReadOnly || !allowRejectPO) ? "none" : "";
+            document.querySelector("#reviewModal .btn-confirm").style.display = isReadOnly ? "none" : "";
+
+            document.getElementById("reviewModal").classList.add("open");
+        }
+
+        function renderModalItems(readOnly = false) {
+            const settingsRaw = localStorage.getItem('IBOCS_platform_settings');
+            const settings = settingsRaw ? JSON.parse(settingsRaw) : { allowEditApprovedQty: true };
+            const allowEdit = settings.allowEditApprovedQty ?? true;
+
+            const tbody = document.getElementById("mItemBody");
+            tbody.innerHTML = currentPO.items.map((item, i) => {
+                const subtotal = item.origQty * item.price;
+                const inputEl = readOnly
+                    ? `<span style="font-weight:700;">${item.origQty}</span>`
+                    : `<input type="number" class="qty-input" id="mQty-${i}"
+                              value="${item.origQty}" min="0" max="${item.origQty}"
+                              oninput="recalcModalRow(${i})">`;
+
+                const skuHtml = `<span style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-weight:700;font-size:0.88em;">${item.sku}</span>`;
+
+                return `
+                <tr id="mrow-${i}" style="border-bottom:1px solid #f1f5f9;">
+                    <td class="ps-3 text-muted small">${i + 1}</td>
+                    <td>${skuHtml}</td>
+                    <td style="font-weight:500;">${item.name}</td>
+                    <td class="text-center fw-bold text-primary">${item.origQty}</td>
+                    <td class="text-center" style="${allowEdit ? '' : 'display:none;'}">${inputEl}</td>
+                    <td>${fmt(item.price)}</td>
+                    <td class="text-end pe-3 subtotal fw-bold" id="mSub-${i}">${fmt(subtotal)}</td>
+                </tr>`;
+            }).join("");
+            recalcModalGrandTotal();
+        }
+
+        function closeReviewModal() {
+            document.getElementById("reviewModal").classList.remove("open");
+            currentPO = null;
+        }
+
+        // =============================
+        // REAL-TIME CALCULATION (Rules #2, #3)
+        // =============================
+        function recalcModalRow(i) {
+            const item = currentPO.items[i];
+            const input = document.getElementById(`mQty-${i}`);
+            const qty = parseInt(input.value) || 0;
+
+            // Rule #3 — zero qty: red row highlight
+            const row = document.getElementById(`mrow-${i}`);
+            row.classList.toggle("row-zero", qty === 0);
+
+            // Over-qty: red input border
+            input.classList.toggle("over", qty > item.origQty);
+
+            document.getElementById(`mSub-${i}`).textContent = fmt(qty * item.price);
+
+            checkModalOverQty();
+            recalcModalGrandTotal();
+        }
+
+        function recalcModalGrandTotal() {
+            let subtotal = 0;
+            (currentPO?.items || []).forEach((item, i) => {
+                const input = document.getElementById(`mQty-${i}`);
+                const qty = input ? (parseInt(input.value) || 0) : item.origQty;
+                subtotal += qty * item.price;
+            });
+            const tax = subtotal * 0.11;
+            const grand = subtotal + tax;
+            if (document.getElementById("mSubTotal")) document.getElementById("mSubTotal").textContent = fmt(subtotal);
+            if (document.getElementById("mTaxTotal")) document.getElementById("mTaxTotal").textContent = fmt(tax);
+            document.getElementById("mGrandTotal").textContent = fmt(grand);
+        }
+
+        function checkModalOverQty() {
+            const hasOver = (currentPO?.items || []).some((item, i) => {
+                const input = document.getElementById(`mQty-${i}`);
+                return input && (parseInt(input.value) || 0) > item.origQty;
+            });
+            document.getElementById("mWarnBanner").classList.toggle("visible", hasOver);
+        }
+
+        // =============================
+        // BUILD JSON PAYLOAD (Rule #5)
+        // Prices are read from the fixed data — never from the DOM.
+        // =============================
+        function buildPayload() {
+            const items = currentPO.items.map((item, i) => {
+                const input = document.getElementById(`mQty-${i}`);
+                const approvedQty = input ? (parseInt(input.value) || 0) : item.origQty;
+                const subtotal = approvedQty * item.price; // price is read-only, from data
+
+                let lineStatus = "full";
+                if (approvedQty === 0) lineStatus = "rejected";
+                else if (approvedQty < item.origQty) lineStatus = "partial";
+
+                return {
+                    sku: item.sku,
+                    name: item.name,
+                    origQty: item.origQty,
+                    approvedQty,
+                    unitPrice: item.price,    // Rule #4 — price is fixed, not user-editable
+                    subtotal,
+                    lineStatus
+                };
+            });
+
+            return {
+                action: "confirm",
+                poRef: currentPO.poRef,
+                customer: currentPO.vendor,
+                warehouse: document.getElementById("mWhseSelect").value,
+                poDate: currentPO.poDate,
+                deliveryDate: currentPO.deliveryDate,
+                vendorNotes: document.getElementById("mVendorNotes").value.trim(),
+                confirmedBy: user.email,
+                confirmedAt: new Date().toISOString(),
+                items,
+                grandTotal: items.reduce((s, r) => s + r.subtotal, 0)
+            };
+        }
+
+        // =============================
+        // CONFIRM MODAL (Step 2)
+        // =============================
+        function openConfirmModal() {
+            const payload = buildPayload();
+
+            const approved = payload.items.filter(r => r.approvedQty > 0);
+            const rejected = payload.items.filter(r => r.approvedQty === 0);
+
+            let html = `
+            <div class="mc-row"><span class="lbl">PO Reference</span><span class="val">${payload.poRef}</span></div>
+            <div class="mc-row"><span class="lbl">Customer</span><span class="val">${payload.customer}</span></div>
+            <div class="mc-row"><span class="lbl">Warehouse</span><span class="val text-success">${payload.warehouse}</span></div>
+            <div class="mc-row"><span class="lbl">Delivery Date</span><span class="val">${payload.deliveryDate || "-"}</span></div>
+            <div style="margin:12px 0 4px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;">
+                Approved Items (${approved.length})
+            </div>
+            ${approved.map(r => `
+            <div class="mc-row">
+                <span class="lbl">${r.sku} — ${r.name}</span>
+                <span class="val">${r.approvedQty} pcs
+                    ${r.lineStatus === "partial" ? '<span style="color:#b45309;font-weight:400;font-size:11px;"> partial</span>' : ''}
+                </span>
+            </div>`).join("")}
+            ${rejected.length ? `
+            <div style="margin:12px 0 4px;font-size:10px;font-weight:700;color:#991b1b;text-transform:uppercase;">
+                Rejected Lines (${rejected.length})
+            </div>
+            ${rejected.map(r => `
+            <div class="mc-row" style="color:#991b1b;">
+                <span class="lbl">${r.sku} — ${r.name}</span>
+                <span class="val">0 pcs (rejected)</span>
+            </div>`).join("")}` : ""}
+            <div class="mc-row" style="margin-top:10px;">
+                <span class="lbl" style="font-weight:700;">Grand Total</span>
+                <span class="val" style="color:#166534;font-size:15px;">${fmt(payload.grandTotal)}</span>
+            </div>
+            ${payload.vendorNotes
+                    ? `<div class="mc-row"><span class="lbl">Notes</span><span class="val">${payload.vendorNotes}</span></div>`
+                    : ""}
+            <details style="margin-top:14px;">
+                <summary style="font-size:11px;color:var(--muted);cursor:pointer;font-weight:700;user-select:none;">
+                    <i class="bi bi-code-slash me-1"></i>View JSON Payload (Python API)
+                </summary>
+                <pre style="font-size:10.5px;background:#f8fafc;border:1px solid var(--line);
+                    border-radius:6px;padding:10px;margin-top:8px;overflow:auto;
+                    max-height:180px;white-space:pre-wrap;">${JSON.stringify(payload, null, 2)}</pre>
+            </details>`;
+
+            document.getElementById("cModalSummary").innerHTML = html;
+            document.getElementById("confirmModal").classList.add("open");
+        }
+
+        function closeConfirmModal() {
+            document.getElementById("confirmModal").classList.remove("open");
+        }
+
+        // =============================
+        // FINAL CONFIRM — API CALL
+        // =============================
+        function finalConfirm() {
+            const payload = buildPayload();
+
+            // Log for Python API integration
+            console.log("[IBOCS] SO payload →", JSON.stringify(payload, null, 2));
+
+            /*
+             * --- Uncomment to wire up Python API ---
+             * fetch("/api/vendor/sales-orders", {
+             *     method: "POST",
+             *     headers: { "Content-Type": "application/json", "Authorization": "Bearer <token>" },
+             *     body: JSON.stringify(payload)
+             * }).then(r => r.json()).then(data => {
+             *     persistStatus(payload.poRef, "Confirmed");
+             *     closeConfirmModal(); closeReviewModal();
+             *     renderTable();
+             *     showToast(`SO generated for ${payload.poRef}`);
+             * }).catch(err => showToast("API error: " + err.message, "error"));
+             */
+
+            // --- Local simulation ---
+            const orders = JSON.parse(localStorage.getItem('IBOCS_customer_orders') || "[]");
+            const idx = orders.findIndex(o => o.no === payload.poRef);
+            if (idx !== -1) {
+                orders[idx].warehouse = payload.warehouse; // update warehouse selection
+                localStorage.setItem('IBOCS_customer_orders', JSON.stringify(orders));
+            }
+
+            persistStatus(payload.poRef, "Confirmed");
+            closeConfirmModal();
+            closeReviewModal();
+            renderTable();
+            showToast(`SO generated for ${payload.poRef}`);
+        }
+
+        // =============================
+        // REJECT PO
+        // =============================
+        function rejectPO() {
+            if (!confirm(`Reject PO ${currentPO.poRef}?\n\nThe customer will be notified.`)) return;
+
+            const payload = {
+                action: "reject",
+                poRef: currentPO.poRef,
+                customer: currentPO.vendor,
+                rejectedBy: user.email,
+                rejectedAt: new Date().toISOString()
+            };
+
+            console.log("[IBOCS] Reject payload →", JSON.stringify(payload, null, 2));
+
+            /*
+             * fetch("/api/vendor/sales-orders/reject", {
+             *     method: "POST",
+             *     headers: { "Content-Type": "application/json" },
+             *     body: JSON.stringify(payload)
+             * });
+             */
+
+            persistStatus(payload.poRef, "Rejected");
+            closeReviewModal();
+            renderTable();
+            showToast(`PO ${payload.poRef} rejected`, "error");
+        }
+
+        // =============================
+        // CLOSE MODALS ON BACKDROP CLICK
+        // =============================
+        document.getElementById("reviewModal").addEventListener("click", function (e) {
+            if (e.target === this) closeReviewModal();
+        });
+        document.getElementById("confirmModal").addEventListener("click", function (e) {
+            if (e.target === this) closeConfirmModal();
+        });
+
+        // ESC key closes topmost open modal
+        document.addEventListener("keydown", e => {
+            if (e.key !== "Escape") return;
+            if (document.getElementById("confirmModal").classList.contains("open")) {
+                closeConfirmModal();
+            } else if (document.getElementById("reviewModal").classList.contains("open")) {
+                closeReviewModal();
+            }
+        });
+
+        // =============================
+        // EXPANDABLE ROW
+        // =============================
+        function toggleExpand(rowId, btnElement) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                const isOpen = row.classList.contains("open");
+                if (isOpen) {
+                    row.classList.remove("open");
+                    btnElement.classList.remove("expanded");
+                } else {
+                    row.classList.add("open");
+                    btnElement.classList.add("expanded");
+                }
+            }
+        }
+
+        function toggleExpandGroup(groupClass, btnElement) {
+            const textEl = btnElement.querySelector(".exp-text");
+            const isExpanding = textEl.textContent.trim() === "Expand All";
+            
+            const groupRows = document.querySelectorAll(`tr.expand-row[id^="exp-${groupClass}-"]`);
+            
+            groupRows.forEach(row => {
+                const rowId = row.id;
+                const toggleBtn = document.querySelector(`button[onclick*="'${rowId}'"]`);
+                
+                if (isExpanding) {
+                    if (!row.classList.contains("open")) {
+                        row.classList.add("open");
+                        if(toggleBtn) toggleBtn.classList.add("expanded");
+                    }
+                } else {
+                    if (row.classList.contains("open")) {
+                        row.classList.remove("open");
+                        if(toggleBtn) toggleBtn.classList.remove("expanded");
+                    }
+                }
+            });
+            
+            if (isExpanding) {
+                btnElement.innerHTML = `<i class="bi bi-arrows-collapse me-1" style="font-size: 10px;"></i><span class="exp-text">Collapse All</span>`;
+            } else {
+                btnElement.innerHTML = `<i class="bi bi-arrows-expand me-1" style="font-size: 10px;"></i><span class="exp-text">Expand All</span>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

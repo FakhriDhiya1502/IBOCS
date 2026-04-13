@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer | Add GRPO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f6fb; color: #1f2937; }
+
+        :root {
+            --line: #d9e2ec;
+            --line-soft: #e8eef5;
+            --soft: #f8fbff;
+            --muted: #6b7280;
+            --title: #0f172a;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+            --danger-bg: #fee2e2;
+            --danger-text: #991b1b;
+        }
+
+        .page {
+            max-width: 100%;
+            border-radius: 18px;
+            background: #fff;
+            padding: 28px;
+            border: 1px solid #e7edf5;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, .05);
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--line-soft);
+            flex-wrap: wrap;
+        }
+        .page-title {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--title);
+        }
+        .page-subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .po-card {
+            background: #fff;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, .05);
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+        .po-card-header {
+            padding: 15px 20px;
+            font-weight: 700;
+            font-size: 14px;
+            border-bottom: 1px solid var(--line-soft);
+            background: var(--soft);
+            color: var(--title);
+        }
+        .po-card-body { padding: 20px; }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .field input, .field select, .field textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            font-size: 13px;
+            color: #111827;
+            padding: 10px 12px;
+        }
+        .field input { min-height: 42px; }
+        .field input[readonly], .field textarea[readonly] { background: var(--soft); }
+        .field textarea { resize: vertical; }
+        .field.span-2 { grid-column: span 2; }
+        .field.span-4 { grid-column: span 4; }
+
+        .po-select-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .po-select-row input[readonly] { flex: 1; cursor: default; }
+        .btn-search-po,
+        .btn-save,
+        .btn-back {
+            min-height: 42px;
+            padding: 0 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: .15s ease;
+        }
+        .btn-search-po {
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #fff;
+            white-space: nowrap;
+        }
+        .btn-search-po:hover,
+        .btn-save:hover { background: var(--primary-dark); }
+        .btn-save {
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-back {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #374151;
+        }
+
+        .po-modal-backdrop {
+            display: none; position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .45); z-index: 1060;
+            align-items: center; justify-content: center;
+        }
+        .po-modal-backdrop.open { display: flex; }
+        .po-modal {
+            background: #fff; border-radius: 18px; width: 700px; max-width: 95vw;
+            max-height: 85vh; display: flex; flex-direction: column;
+            box-shadow: 0 24px 60px rgba(0,0,0,.22); overflow: hidden;
+            animation: popIn .18s ease;
+        }
+        @keyframes popIn {
+            from { transform: scale(.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .po-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px; border-bottom: 1px solid var(--line-soft);
+            background: var(--soft);
+        }
+        .po-modal-header h6 { margin: 0; font-weight: 700; font-size: 15px; color: var(--title); }
+        .po-modal-close {
+            background: none; border: none; font-size: 20px; line-height: 1;
+            color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 6px;
+        }
+        .po-modal-close:hover { background: #eef2f7; color: #111827; }
+        .po-modal-search-bar { padding: 14px 20px; border-bottom: 1px solid var(--line-soft); }
+        .po-modal-search-bar input {
+            width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--line);
+            border-radius: 10px; font-size: 13px; outline: none;
+        }
+        .po-modal-body { overflow-y: auto; flex: 1; }
+        .po-modal-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .po-modal-table thead th {
+            background: var(--soft); padding: 12px 16px; font-size: 11px; font-weight: 700;
+            color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--line-soft);
+            position: sticky; top: 0; z-index: 1;
+        }
+        .po-modal-table tbody tr { cursor: pointer; transition: background .1s; }
+        .po-modal-table tbody tr:hover { background: #eff6ff; }
+        .po-modal-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+        .po-badge-open {
+            display: inline-block; padding: 4px 10px; border-radius: 999px;
+            background: #dbeafe; color: #1d4ed8; font-size: 11px; font-weight: 700;
+        }
+        .po-modal-empty { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 13px; }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .summary-box {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            background: var(--soft);
+            min-height: 92px;
+        }
+        .summary-box .s-label {
+            font-size: 11px; color: var(--muted); font-weight: 700;
+            text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
+        }
+        .summary-box .s-value { font-size: 24px; font-weight: 700; color: var(--title); }
+
+        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #edf0f5; text-align: left; vertical-align: middle; }
+        th {
+            background: var(--soft); font-size: 12px; color: #475569;
+            font-weight: 700; white-space: nowrap;
+        }
+        tbody tr:hover { background: #fbfdff; }
+
+        .qty-received {
+            width: 110px; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line);
+            border-radius: 10px; font-size: 13px; text-align: right;
+        }
+
+        .banner {
+            padding: 12px 14px; border-radius: 10px; font-size: 13px;
+            margin-bottom: 18px; display: none;
+        }
+        .banner-success { background: var(--success-bg); color: var(--success-text); border: 1px solid #86efac; }
+        .banner-error { background: var(--danger-bg); color: var(--danger-text); border: 1px solid #fca5a5; }
+
+        @media (max-width: 900px) {
+            .field-grid { grid-template-columns: repeat(2, 1fr); }
+            .field.span-2, .field.span-4 { grid-column: span 1; }
+            .summary-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .page { padding: 20px; border-radius: 14px; }
+            .toolbar { align-items: stretch; }
+            .toolbar-actions { width: 100%; }
+            .toolbar-actions .btn-back, .toolbar-actions .btn-save { flex: 1; }
+            .po-select-row { flex-direction: column; align-items: stretch; }
+            .btn-search-po { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-lg-2" id="sidebar-container"></div>
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-primary fw-bold"><i class="bi bi-box-seam me-2"></i>GRPO - Add New</h4>
+                </div>
+
+                <div class="page shadow-sm">
+                    <div class="toolbar">
+                        <div>
+                            <h1 class="page-title">Add GRPO</h1>
+                            <p class="page-subtitle">Buat dokumen penerimaan barang berdasarkan Purchase Order yang masih aktif.</p>
+                        </div>
+                        <div class="toolbar-actions">
+                            <button class="btn-back" onclick="window.location.href='customer_GRPOList.html'">&larr; Back</button>
+                            <button class="btn-save" onclick="saveGRPO()">Save</button>
+                        </div>
+                    </div>
+
+                    <div id="banner" class="banner"></div>
+
+                    <div class="po-card">
+                        <div class="po-card-header">Informasi GRPO</div>
+                        <div class="po-card-body">
+                            <div class="field-grid">
+                                <div class="field">
+                                    <label>GRPO No</label>
+                                    <input id="grpoNo" value="AUTO" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>GRPO Date</label>
+                                    <input id="grpoDate" type="date">
+                                </div>
+                                <div class="field span-2">
+                                    <label>PO No <span style="color:#ef4444;">*</span></label>
+                                    <div class="po-select-row">
+                                        <input id="poSelectDisplay" type="text" readonly placeholder="-- Pilih PO --">
+                                        <button class="btn-search-po" onclick="openPoModal()">
+                                            <i class="bi bi-search"></i> Cari PO
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="poSelect">
+                                </div>
+                                <div class="field">
+                                    <label>PO Date</label>
+                                    <input id="poDate" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Receipt Date</label>
+                                    <input id="receiptDate" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Store</label>
+                                    <input id="store" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <input id="customer" readonly>
+                                </div>
+                                <div class="field span-4">
+                                    <label>Remarks</label>
+                                    <textarea id="remarks" rows="2" placeholder="Optional notes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-card">
+                        <div class="po-card-header">Detail Item</div>
+                        <div class="po-card-body">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width:56px;">No</th>
+                                            <th style="min-width:130px;">Item Code</th>
+                                            <th style="min-width:220px;">Item Name</th>
+                                            <th style="width:130px;">PO Qty</th>
+                                            <th style="width:150px;">Received Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemBody">
+                                        <tr id="emptyRow">
+                                            <td colspan="5" style="text-align:center;padding:28px;color:#6b7280;font-size:13px;">
+                                                <i class="bi bi-info-circle me-1"></i>Pilih PO terlebih dahulu untuk memuat item.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-row">
+                        <div class="summary-box">
+                            <div class="s-label">Total Item</div>
+                            <div class="s-value" id="sumItem">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="s-label">Total PO Qty</div>
+                            <div class="s-value" id="sumPoQty">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="s-label">Total Received Qty</div>
+                            <div class="s-value" id="sumRecQty">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">
+                    &copy; 2026 IBOCS - Customer Portal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="po-modal-backdrop" id="poModalBackdrop" onclick="handleBackdropClick(event)">
+        <div class="po-modal">
+            <div class="po-modal-header">
+                <h6><i class="bi bi-search me-2"></i>Pilih Purchase Order</h6>
+                <button class="po-modal-close" onclick="closePoModal()">&#x2715;</button>
+            </div>
+            <div class="po-modal-search-bar">
+                <input type="text" id="poSearchInput" placeholder="Cari nomor PO atau nama customer..." oninput="filterPoTable()">
+            </div>
+            <div class="po-modal-body">
+                <table class="po-modal-table">
+                    <thead>
+                        <tr>
+                            <th>PO No</th>
+                            <th>Customer</th>
+                            <th>Tanggal PO</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="poModalBody"></tbody>
+                </table>
+                <div class="po-modal-empty" id="poModalEmpty" style="display:none;">
+                    <i class="bi bi-inbox" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                    Tidak ada PO yang sesuai.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'grpo_list').render();
+            document.getElementById("grpoDate").value = new Date().toISOString().slice(0, 10);
+            populatePoSelect();
+        });
+
+        const DEMO_PO = [
+            {
+                poNo: "PO-0001", poDate: "2026-04-01", receiptDate: "2026-04-05", slot: "AM",
+                store: "Toko Melati", customer: "PT. Melati Customer Jaya", status: "Open",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qty: 10 },
+                    { itemCode: "BRD-002", itemName: "Almond Croissant", qty: 5 }
+                ]
+            },
+            {
+                poNo: "PO-0002", poDate: "2026-04-02", receiptDate: "2026-04-06", slot: "PM",
+                store: "Toko ABC", customer: "CV. ABC Sejahtera", status: "Open",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qty: 4 },
+                    { itemCode: "BRD-005", itemName: "Sourdough Loaf", qty: 3 }
+                ]
+            },
+            {
+                poNo: "PO-0003", poDate: "2026-04-03", receiptDate: "2026-04-07", slot: "AM",
+                store: "Toko Mawar", customer: "PT. Mawar Niaga Abadi", status: "Closed",
+                rows: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", qty: 8 },
+                    { itemCode: "BRD-004", itemName: "Cheese Danish", qty: 6 }
+                ]
+            }
+        ];
+
+        function getPoList() {
+            const stored = JSON.parse(localStorage.getItem("IBOCS_po_list") || "[]");
+            const storedNos = new Set(stored.map(p => p.poNo));
+            return [...stored, ...DEMO_PO.filter(d => !storedNos.has(d.poNo))];
+        }
+
+        let _poModalData = [];
+
+        function openPoModal() {
+            const existingGrpoPoNos = new Set(
+                JSON.parse(localStorage.getItem("IBOCS_grpo_list") || "[]").map(g => g.poNo)
+            );
+            _poModalData = getPoList().filter(p => p.status !== "Closed");
+            document.getElementById("poSearchInput").value = "";
+            renderPoModal(_poModalData, existingGrpoPoNos);
+            document.getElementById("poModalBackdrop").classList.add("open");
+            setTimeout(() => document.getElementById("poSearchInput").focus(), 100);
+        }
+
+        function closePoModal() {
+            document.getElementById("poModalBackdrop").classList.remove("open");
+        }
+
+        function handleBackdropClick(e) {
+            if (e.target === document.getElementById("poModalBackdrop")) closePoModal();
+        }
+
+        function filterPoTable() {
+            const q = document.getElementById("poSearchInput").value.toLowerCase();
+            const existingGrpoPoNos = new Set(
+                JSON.parse(localStorage.getItem("IBOCS_grpo_list") || "[]").map(g => g.poNo)
+            );
+            const filtered = _poModalData.filter(p =>
+                p.poNo.toLowerCase().includes(q) ||
+                (p.customer || "").toLowerCase().includes(q) ||
+                (p.store || "").toLowerCase().includes(q)
+            );
+            renderPoModal(filtered, existingGrpoPoNos);
+        }
+
+        function renderPoModal(list, existingGrpoPoNos) {
+            const tbody = document.getElementById("poModalBody");
+            const empty = document.getElementById("poModalEmpty");
+            if (!list.length) {
+                tbody.innerHTML = "";
+                empty.style.display = "block";
+                return;
+            }
+            empty.style.display = "none";
+            tbody.innerHTML = list.map(p => {
+                const hasGrpo = existingGrpoPoNos && existingGrpoPoNos.has(p.poNo);
+                const badge = `<span class="po-badge-open">${p.status}</span>${hasGrpo ? ' <small style="color:#f59e0b;font-weight:700;">[GRPO exists]</small>' : ''}`;
+                return `<tr onclick="selectPoFromModal('${p.poNo}')">
+                    <td><strong>${p.poNo}</strong></td>
+                    <td>${p.customer || p.store || "-"}</td>
+                    <td>${p.poDate || "-"}</td>
+                    <td>${badge}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        function selectPoFromModal(poNo) {
+            document.getElementById("poSelect").value = poNo;
+            const po = getPoList().find(p => p.poNo === poNo);
+            if (po) {
+                document.getElementById("poSelectDisplay").value = `${po.poNo} - ${po.customer || po.store} (${po.poDate})`;
+            }
+            closePoModal();
+            onPoSelected();
+        }
+
+        function populatePoSelect() {
+        }
+
+        function onPoSelected() {
+            const poNo = document.getElementById("poSelect").value;
+            if (!poNo) {
+                ["poDate", "receiptDate", "store", "customer"].forEach(id => document.getElementById(id).value = "");
+                document.getElementById("poSelectDisplay").value = "";
+                clearItems();
+                return;
+            }
+            const po = getPoList().find(p => p.poNo === poNo);
+            if (!po) return;
+
+            document.getElementById("poDate").value = po.poDate || "";
+            document.getElementById("receiptDate").value = po.receiptDate || "";
+            document.getElementById("store").value = po.store || "";
+            document.getElementById("customer").value = po.customer || "";
+
+            loadItems(po.rows || []);
+        }
+
+        function clearItems() {
+            document.getElementById("itemBody").innerHTML = `
+                <tr id="emptyRow">
+                    <td colspan="5" style="text-align:center;padding:28px;color:#6b7280;font-size:13px;">
+                        <i class="bi bi-info-circle me-1"></i>Pilih PO terlebih dahulu untuk memuat item.
+                    </td>
+                </tr>`;
+            recalcSummary();
+        }
+
+        function loadItems(rows) {
+            if (!rows.length) { clearItems(); return; }
+            document.getElementById("itemBody").innerHTML = rows.map((r, i) => `
+                <tr>
+                    <td style="color:#6b7280;">${i + 1}</td>
+                    <td>${r.itemCode || "-"}</td>
+                    <td>${r.itemName || "-"}</td>
+                    <td style="text-align:right;">${formatNumber(r.qty ?? 0)}</td>
+                    <td>
+                        <input type="number" class="qty-received" min="0" max="${r.qty ?? 9999}"
+                               value="${r.qty ?? 0}" data-po-qty="${r.qty ?? 0}" oninput="recalcSummary()">
+                    </td>
+                </tr>`).join("");
+            recalcSummary();
+        }
+
+        function formatNumber(value) {
+            return Number(value || 0).toLocaleString("id-ID");
+        }
+
+        function recalcSummary() {
+            const rows = document.querySelectorAll("#itemBody tr[id!='emptyRow']");
+            let totalPoQty = 0, totalRecQty = 0;
+            rows.forEach(tr => {
+                const poQtyCell = tr.cells[3];
+                const recInput = tr.querySelector(".qty-received");
+                if (poQtyCell) totalPoQty += Number(poQtyCell.textContent.replace(/,/g, "")) || 0;
+                if (recInput) totalRecQty += Number(recInput.value) || 0;
+            });
+            document.getElementById("sumItem").textContent = formatNumber(rows.length);
+            document.getElementById("sumPoQty").textContent = formatNumber(totalPoQty);
+            document.getElementById("sumRecQty").textContent = formatNumber(totalRecQty);
+        }
+
+        function generateNo(prefix) {
+            const now = new Date();
+            const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+            const seq = String(Math.floor(Math.random() * 9000) + 1000);
+            return `${prefix}-${ym}-${seq}`;
+        }
+
+        function showBanner(msg, type) {
+            const el = document.getElementById("banner");
+            el.className = `banner banner-${type}`;
+            el.textContent = msg;
+            el.style.display = "block";
+            setTimeout(() => el.style.display = "none", 3000);
+        }
+
+        function saveGRPO() {
+            const poNo = document.getElementById("poSelect").value;
+            if (!poNo) { showBanner("PO No wajib dipilih.", "error"); return; }
+
+            const rows = [];
+            document.querySelectorAll("#itemBody tr").forEach(tr => {
+                const recInput = tr.querySelector(".qty-received");
+                if (!recInput) return;
+                rows.push({
+                    itemCode: tr.cells[1]?.textContent || "",
+                    itemName: tr.cells[2]?.textContent || "",
+                    qtyOrder: Number(tr.cells[3]?.textContent.replace(/,/g, "")) || 0,
+                    qtyReceived: Number(recInput.value) || 0
+                });
+            });
+
+            if (!rows.length) { showBanner("Tidak ada item untuk disimpan.", "error"); return; }
+
+            const grpoNo = generateNo("GRPO");
+            document.getElementById("grpoNo").value = grpoNo;
+
+            const isClosed = rows.every(r => Number(r.qtyReceived) >= Number(r.qtyOrder));
+            const status = isClosed ? "Closed" : "Open";
+
+            const grpo = {
+                grpoNo,
+                grpoDate: document.getElementById("grpoDate").value,
+                poNo,
+                store: document.getElementById("store").value,
+                customer: document.getElementById("customer").value,
+                totalQty: rows.reduce((s, r) => s + r.qtyReceived, 0),
+                status,
+                remarks: document.getElementById("remarks").value,
+                createdBy: user.name || "User",
+                createdDate: new Date().toLocaleString("id-ID", { hour12: false }).replace(",", ""),
+                rows
+            };
+
+            const list = JSON.parse(localStorage.getItem("IBOCS_grpo_list") || "[]");
+            list.unshift(grpo);
+            localStorage.setItem("IBOCS_grpo_list", JSON.stringify(list));
+
+            showBanner(`GRPO ${grpoNo} berhasil disimpan dengan status ${status}.`, "success");
+            setTimeout(() => window.location.href = "customer_GRPOList.html", 1000);
+        }
+    </script>
+</body>
+</html>
+
+
+
+

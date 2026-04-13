@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer — Order List | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #15803d;
+            --primary-light: #dcfce7;
+            --title: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--title);
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .company-header h6 {
+            margin: 0;
+            font-size: 1.1rem;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        .company-header::before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .table thead th {
+            background: #f1f5f9;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            border-top: 0;
+            padding: 0.75rem 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--primary-light);
+            cursor: pointer;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9em;
+        }
+
+        /* Pagination Styles */
+        .btn-pagination {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .btn-pagination:disabled {
+            opacity: 0.4;
+            background: #f8fafc;
+        }
+
+        .page-info {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        /* Search input styling */
+        #q {
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            background: #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        #q:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+            outline: none;
+        }
+
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInSlideUp 0.3s ease-out forwards;
+        }
+
+        /* Modern PO Modal Style (Inspired by SAP but Styled like IBOCS) */
+        .po-modal .modal-content {
+            border-radius: 24px;
+            border: none;
+        }
+
+        .po-modal .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #166534 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .po-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .po-modal .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .po-info-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .po-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .po-value {
+            font-weight: 600;
+            color: var(--title);
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.4rem 0.75rem;
+            width: 100%;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .po-tabs {
+            margin: 1.5rem 0;
+        }
+
+        .po-tabs .nav-link {
+            border: none;
+            color: var(--muted);
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .po-tabs .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .po-table-container {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .po-summary-box {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .po-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .po-summary-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .po-summary-total {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                            <div>
+                                <div class="d-flex align-items-center gap-3 mb-1">
+                                    <h5 class="fw-bold mb-0">Purchase Order list</h5>
+                                    <button
+                                        class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm border-0"
+                                        style="border-radius: 20px; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), #22c55e); transition: transform 0.2s ease, box-shadow 0.2s ease; font-size: 0.85rem;"
+                                        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 6px rgba(34, 197, 94, 0.25)'"
+                                        onmouseout="this.style.transform='none'; this.style.boxShadow='0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)'"
+                                        onclick="location.href='customer_order_detail.html'">
+                                        <i class="bi bi-plus-lg"></i>
+                                        <span class="fw-bold">New</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <select id="statusFilter" class="form-select form-select-sm" style="width:150px">
+                                    <option value="All">All Status</option>
+                                    <option value="Open" selected>Open</option>
+                                    <option value="Closed">Closed</option>
+                                    <option value="Canceled">Canceled</option>
+                                    <option value="Partially Receipt">Partially Receipt</option>
+                                </select>
+                                <input id="q" class="form-control form-control-sm" style="width:200px"
+                                    placeholder="Search Order No">
+                                <div class="vr d-none d-md-block"></div>
+                                <!-- 
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#createOrderModal">
+                                    <i class="bi bi-plus-circle me-1"></i>Create Order
+                                </button>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#importExcelModal">
+                                    <i class="bi bi-file-earmark-excel me-1"></i>Import Excel
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#apiIntegrationModal">
+                                    <i class="bi bi-cloud-arrow-up me-1"></i>API Integration
+                                </button>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ordersContainer" class="p-3">
+                        <!-- Dynamic sections per company will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal (Modern PO Style) -->
+    <div class="modal fade po-modal" id="orderDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Purchase Order Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- PO Header Info -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="po-info-card h-100">
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <span class="po-label">Vendor Code</span>
+                                        <div class="po-value small" id="poVendorCode">V00001</div>
+                                    </div>
+                                    <div class="col-8">
+                                        <span class="po-label">Vendor Name</span>
+                                        <div class="po-value" id="poVendorName">-</div>
+                                    </div>
+                                    <div class="col-12">
+                                        <span class="po-label">Contact Person</span>
+                                        <div class="po-value" id="poContactPerson">-</div>
+                                    </div>
+                                    <div class="col-12">
+                                        <span class="po-label">Vendor Ref. No.</span>
+                                        <div class="po-value" id="poVendorRef">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="po-info-card h-100">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <span class="po-label">Order Number</span>
+                                        <div class="po-value mono text-primary" id="poOrderNo">-</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="po-label">Status</span>
+                                        <div class="po-value" id="poStatus">-</div>
+                                    </div>
+                                                    <div class="col-6">
+                                        <span class="po-label">Posting Date</span>
+                                        <div class="po-value" id="poPostingDate">-</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="po-label">Delivery Date</span>
+                                        <div class="po-value" id="poDeliveryDate">-</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="po-label">Warehouse</span>
+                                        <div class="po-value small" id="poWhse">-</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="po-label">Plan No</span>
+                                        <div class="po-value small" id="poPlanNo">-</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="po-label">Week</span>
+                                        <div class="po-value small" id="poWeek">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Info (shown only when fcRef exists) -->
+                    <div id="modalFcSection" style="display:none;" class="mt-4">
+                        <div class="p-3 rounded-4" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+                            <div class="d-flex align-items-center gap-2 mb-0" style="cursor:pointer;" onclick="toggleModalFc()">
+                                <i class="bi bi-graph-up-arrow text-success"></i>
+                                <strong class="text-success" style="font-size:.9rem; text-transform:uppercase; letter-spacing:.5px;">Forecast Reference</strong>
+                                <span class="badge bg-success" id="modalFcRef">-</span>
+                                <i class="bi bi-chevron-up text-success ms-auto" id="modalFcChevron" style="font-size:.9rem; transition:transform .25s;"></i>
+                            </div>
+                            <div id="modalFcBody">
+                            <div class="row g-2 mb-3 mt-2">
+                                <div class="col-md-2">
+                                    <div class="po-label">Forecast Date</div>
+                                    <div class="po-value small" id="modalFcDate">-</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="po-label">Period</div>
+                                    <div class="po-value small" id="modalFcPeriod">-</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="po-label">Company</div>
+                                    <div class="po-value small" id="modalFcCompany">-</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="po-label">Farm</div>
+                                    <div class="po-value small" id="modalFcFarm">-</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="po-label">Plan Description</div>
+                                    <div class="po-value small" id="modalFcPlanDesc">-</div>
+                                </div>
+                            </div>
+                            <!-- Forecast Lines mini table -->
+                            <div style="border:1px solid #bbf7d0; border-radius:10px; overflow:hidden;">
+                                <table class="table table-sm mb-0" style="font-size:.8rem;">
+                                    <thead style="background:#dcfce7;">
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Name</th>
+                                            <th>Flag</th>
+                                            <th class="text-end">Rec. Qty</th>
+                                            <th class="text-end">Manual Adj.</th>
+                                            <th class="text-end">Final Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalFcLines">
+                                        <tr><td colspan="6" class="text-center text-muted py-2">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex gap-4 mt-2 ps-1" style="font-size:.8rem;">
+                                <span class="text-muted">Total Item: <strong id="modalFcTotalItem">0</strong></span>
+                                <span class="text-muted">Total Final Qty: <strong id="modalFcTotalFinal">0</strong></span>
+                            </div>
+                            </div><!-- /modalFcBody -->
+                        </div>
+                    </div>
+
+                    <!-- Tabs Area -->
+                    <div class="po-tabs">
+                        <ul class="nav nav-pills gap-2">
+                            <li class="nav-item"><a class="nav-link active" href="#">Contents</a></li>
+                            <!-- 
+                            <li class="nav-item"><a class="nav-link" href="#">Logistics</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Accounting</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Attachments</a></li>
+                            -->
+                        </ul>
+                    </div>
+
+                    <!-- Items Table -->
+                    <div class="po-table-container mb-4">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th class="ps-3" style="width: 50px;">#</th>
+                                        <th>Item No</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Qty</th>
+                                        <th>UoM</th>
+                                        <th class="text-end">Price</th>
+                                        <th>Warehouse</th>
+                                        <th class="text-end pe-3">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="poTbodyItems"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary Area -->
+                    <div class="row g-4 align-items-end">
+                        <div class="col-md-6">
+                            <span class="po-label">Remarks</span>
+                            <div class="bg-light p-3 rounded-4 border" id="poRemarks" style="min-height: 80px;">-</div>
+
+                            <!-- Action Card inside Modal -->
+                            <div id="cardActionIntake" style="display:none" class="mt-3 animate-in">
+                                <div class="card border-primary bg-primary-subtle rounded-4">
+                                    <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-primary small">Order Processing Needed:</span>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm rounded-pill px-3"
+                                                onclick="updateStatusDetail('Dikonfirmasi')">Confirm</button>
+                                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                                onclick="updateStatusDetail('Ditolak')">Reject</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="po-summary-box">
+                                <div class="po-summary-row">
+                                    <span class="po-summary-label">Total Before Discount</span>
+                                    <span class="fw-bold" id="poSubtotal">Rp 0</span>
+                                </div>
+                                <div class="po-summary-row">
+                                    <span class="po-summary-label">Discount & Tax (11%)</span>
+                                    <span class="fw-bold" id="poTax">Rp 0</span>
+                                </div>
+                                <hr>
+                                <div class="po-summary-row mt-2">
+                                    <span class="fw-bold text-dark">Total Amount Due</span>
+                                    <span class="po-summary-total" id="poTotalDue">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Evidence Modal -->
+    <div class="modal fade" id="evidenceModal" tabindex="-1" style="z-index: 2000;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content overflow-hidden border-0" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Payment Proof</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <img src="" id="modalEvidenceImg" class="img-fluid rounded-4 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Create Manual Order</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createOrderForm">
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Manual Order Entry:</strong> Untuk order yang diterima via telepon, WhatsApp, atau
+                        sales kanvas.
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Customer Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="inputCustomerName" required
+                                placeholder="Nama Toko Customer">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Order Date</label>
+                            <input type="date" class="form-control" id="inputOrderDate" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Order Items</label>
+                            <div id="orderItemsContainer">
+                                <div class="row g-2 mb-2 order-item-row">
+                                    <div class="col-md-5">
+                                        <select class="form-select form-select-sm item-product" required>
+                                            <option value="">-- Select Product --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control form-control-sm item-qty"
+                                            placeholder="Qty" min="1" value="1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control form-control-sm item-price"
+                                            placeholder="Price" min="0" required>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-sm btn-danger w-100"
+                                            onclick="removeOrderItem(this)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddOrderItem">
+                                <i class="bi bi-plus-circle me-1"></i>Add Item
+                            </button>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold">Estimated Total:</span>
+                                    <span class="fw-bold fs-5 text-primary" id="orderTotalPreview">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>Create Order
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    -->
+
+    <!-- Import Excel Modal -->
+    <!-- 
+    <div class="modal fade" id="importExcelModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2"></i>Import Orders from Excel/CSV
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Format Excel/CSV:</strong> Kolom harus berurutan:
+                        <code>Customer Name, Order Date, Product SKU, Quantity, Price</code>
+                        <br>
+                        <a href="#" id="btnDownloadOrderTemplate" class="alert-link">Download Template Excel</a>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Upload File</label>
+                        <input type="file" class="form-control" id="fileOrderExcel" accept=".csv,.xlsx,.xls">
+                        <div class="form-text">Format: CSV, Excel (.xlsx, .xls) - Max 5MB</div>
+                    </div>
+
+                    <div id="excelOrderPreviewContainer" class="d-none">
+                        <label class="form-label fw-bold">Preview Data (Max 10 rows)</label>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Product SKU</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="excelOrderPreviewBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="small text-muted mt-2" id="excelOrderSummary"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="btnImportOrderExcelConfirm" disabled>
+                        <i class="bi bi-cloud-upload me-1"></i>Import <span id="importOrderCount">0</span> Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+
+    <!-- API Integration Modal -->
+    <!-- 
+    <div class="modal fade" id="apiIntegrationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="bi bi-cloud-arrow-up me-2"></i>API Integration - Sync Orders</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>API Integration:</strong> Sinkronisasi order dari sistem external (ERP, POS,
+                        Marketplace) secara real-time.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">API Endpoint URL</label>
+                        <input type="text" class="form-control" id="inputOrderAPIEndpoint"
+                            placeholder="https://api.example.com/orders" value="https://demo-api.IBOCS.id/orders">
+                        <div class="form-text">Endpoint untuk fetch data orders (JSON format)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">API Key / Token</label>
+                        <input type="password" class="form-control" id="inputOrderAPIKey"
+                            placeholder="Bearer token atau API key" value="demo_key_orders_12345">
+                        <div class="form-text">Authentication token untuk akses API</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkOrderAutoSync" checked>
+                            <label class="form-check-label" for="chkOrderAutoSync">
+                                <strong>Auto-sync</strong> (Update otomatis setiap 30 menit)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="apiOrderSyncResult" class="d-none">
+                        <hr>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            <strong>Sync Berhasil!</strong> <span id="apiOrderSyncCount">0</span> orders ditemukan dari
+                            API.
+                        </div>
+                        <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>Order No</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="apiOrderSyncBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="apiOrderSyncLoading" class="d-none text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2 text-muted">Fetching data from API...</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnTestOrderAPIConnection">
+                        <i class="bi bi-arrow-repeat me-1"></i>Test & Sync
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnImportOrderAPIConfirm" disabled>
+                        <i class="bi bi-cloud-download me-1"></i>Import <span id="apiOrderImportCount">0</span> Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="forecast_master.js"></script>
+
+    <script>
+        // =========================
+        // SESSION GUARD
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // =========================
+        // DATA SOURCE
+        // =========================
+        const LS_ORDERS = "IBOCS_customer_orders";
+        const LS_ORDER_LINES = "IBOCS_customer_order_lines";
+        const LS_PRODUCTS = "IBOCS_vendor_products";
+        const LS_BATCH_INVOICES = "IBOCS_batch_invoices";
+
+        let orders = [];
+        let orderLines = {};
+        let products = [];
+        let batchInvoices = [];
+
+        try {
+            orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+            orderLines = JSON.parse(localStorage.getItem(LS_ORDER_LINES) || "{}");
+
+            // ── Demo order lines aligned with master_data.js ──────────────────────
+            // Feed items (FEED-xxx) → vendor SIC
+            // DOC  items (DOC-xxx)  → vendor CTU
+            orderLines['PO-2604-001'] = [
+                { sku: 'FEED-002', name: 'Pakan Starter (BR-1)',  qty: 7500,  price: 50000, uom: 'Kg' },
+                { sku: 'FEED-003', name: 'Pakan Grower (BR-2)',   qty: 5500,  price: 48000, uom: 'Kg' }
+            ];
+            orderLines['PO-2604-002'] = [
+                { sku: 'DOC-001', name: 'DOC Broiler Cobb 500 (M)', qty: 10000, price: 7500, uom: 'Ekor' },
+                { sku: 'DOC-002', name: 'DOC Broiler Cobb 500 (F)', qty: 10000, price: 7000, uom: 'Ekor' }
+            ];
+            orderLines['PO-2604-003'] = [
+                { sku: 'FEED-002', name: 'Pakan Starter (BR-1)',  qty: 6200,  price: 50000, uom: 'Kg' },
+                { sku: 'FEED-003', name: 'Pakan Grower (BR-2)',   qty: 4300,  price: 48000, uom: 'Kg' }
+            ];
+            orderLines['PO-2604-004'] = [
+                { sku: 'DOC-007', name: 'DOC Hubbard (M)', qty: 8000, price: 9000, uom: 'Ekor' },
+                { sku: 'DOC-008', name: 'DOC Hubbard (F)', qty: 8000, price: 8500, uom: 'Ekor' }
+            ];
+            orderLines['PO-2604-005'] = [
+                { sku: 'FEED-002', name: 'Pakan Starter (BR-1)',  qty: 8000,  price: 50000, uom: 'Kg' },
+                { sku: 'FEED-004', name: 'Pakan Finisher (BR-3)', qty: 7000,  price: 46000, uom: 'Kg' }
+            ];
+            orderLines['PO-2604-006'] = [
+                { sku: 'DOC-005', name: 'DOC Layer Lohmann (M)', qty: 9500, price: 12000, uom: 'Ekor' },
+                { sku: 'DOC-006', name: 'DOC Layer Lohmann (F)', qty: 9500, price: 11000, uom: 'Ekor' }
+            ];
+            orderLines['PO-2604-007'] = [
+                { sku: 'FEED-004', name: 'Pakan Finisher (BR-3)', qty: 8700, price: 46000, uom: 'Kg' },
+                { sku: 'FEED-003', name: 'Pakan Grower (BR-2)',   qty: 5700, price: 48000, uom: 'Kg' }
+            ];
+
+            localStorage.setItem(LS_ORDER_LINES, JSON.stringify(orderLines));
+
+            // Seed orders if missing or outdated
+            const needsSeed = orders.length === 0 || !orders.some(o => o.no === 'PO-2604-001');
+
+            if (needsSeed) {
+                const baseData = [
+                    { no: 'PO-2604-001', vendorCode: 'SIC', sourceType: 'Feed', customerCode: 'CUST-001', date: '2026-04-01', requiredDate: '2026-04-08', warehouse: 'WH-KDG01', planNo: 'PL-001', week: 'Week 18', fcRef: 'FC-001', status: 'Open' },
+                    { no: 'PO-2604-002', vendorCode: 'CTU', sourceType: 'DOC',  customerCode: 'CUST-001', date: '2026-04-02', requiredDate: '2026-04-09', warehouse: 'WH-KDG01', planNo: 'PL-001', week: 'Week 18', fcRef: 'FC-001', status: 'Open' },
+                    { no: 'PO-2604-003', vendorCode: 'SIC', sourceType: 'Feed', customerCode: 'CUST-002', date: '2026-04-03', requiredDate: '2026-04-10', warehouse: 'WH-KDG03', planNo: 'PL-008', week: 'Week 18', fcRef: 'FC-003', status: 'Open' },
+                    { no: 'PO-2604-004', vendorCode: 'CTU', sourceType: 'DOC',  customerCode: 'CUST-002', date: '2026-04-04', requiredDate: '2026-04-11', warehouse: 'WH-KDG03', planNo: 'PL-008', week: 'Week 18', fcRef: 'FC-003', status: 'Open' },
+                    { no: 'PO-2604-005', vendorCode: 'SIC', sourceType: 'Feed', customerCode: 'CUST-001', date: '2026-04-05', requiredDate: '2026-04-12', warehouse: 'WH-KDG02', planNo: 'PL-002', week: 'Week 18', fcRef: 'FC-002', status: 'Closed' },
+                    { no: 'PO-2604-006', vendorCode: 'CTU', sourceType: 'DOC',  customerCode: 'CUST-003', date: '2026-04-06', requiredDate: '2026-04-13', warehouse: 'WH-KDG02', planNo: 'PL-009', week: 'Week 20', fcRef: 'FC-005', status: 'Open' },
+                    { no: 'PO-2604-007', vendorCode: 'SIC', sourceType: 'Feed', customerCode: 'CUST-003', date: '2026-04-07', requiredDate: '2026-04-14', warehouse: 'WH-KDG02', planNo: 'PL-009', week: 'Week 20', fcRef: 'FC-005', status: 'Open' }
+                ];
+                orders = baseData.map(o => {
+                    const lines = orderLines[o.no] || [];
+                    o.total = lines.reduce((s, it) => s + (it.price * it.qty), 0) * 1.11;
+                    return o;
+                });
+                localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+            }
+            products = JSON.parse(localStorage.getItem(LS_PRODUCTS) || "[]");
+            batchInvoices = JSON.parse(localStorage.getItem(LS_BATCH_INVOICES) || "[]");
+        } catch (e) { }
+
+        function rupiah(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+
+        function todayYMD() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function genOrderNo() {
+            const n = Math.floor(Math.random() * 900000) + 100000;
+            return "ORD-2026-" + String(n);
+        }
+
+        function badgeStatus(status) {
+            const map = {
+                "Open": "bg-primary",
+                "Closed": "bg-secondary",
+                "Canceled": "bg-danger",
+                "Partially Receipt": "bg-warning text-dark",
+                "Dipesan": "bg-primary",
+                "Dikonfirmasi": "bg-info",
+                "Dikirim": "bg-warning text-dark",
+                "Sampai": "bg-success",
+                "Selesai": "bg-success"
+            };
+            const cls = map[status] || "bg-secondary";
+            return `<span class="badge ${cls}">${status}</span>`;
+        }
+
+        let currentPage = 1;
+        const pageSize = 5;
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return "-";
+            const date = new Date(dateStr);
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const d = date.getDate();
+            const m = months[date.getMonth()];
+            const y = String(date.getFullYear()).slice(-2);
+            return `${d}-${m}-${y}`;
+        }
+
+        function changePage(delta) {
+            const q = document.getElementById("q").value.trim().toLowerCase();
+            const filtered = orders.filter(o => {
+                return !q || o.no.toLowerCase().includes(q);
+            });
+
+            const maxPage = Math.ceil(filtered.length / pageSize);
+            currentPage += delta;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > maxPage) currentPage = maxPage;
+            render();
+        }
+
+        function render() {
+            const q = document.getElementById("q").value.trim().toLowerCase();
+            const statusFilter = document.getElementById("statusFilter").value;
+            const container = document.getElementById("ordersContainer");
+            container.innerHTML = "";
+
+            const filtered = orders.filter(o => {
+                const matchQuery  = !q || o.no.toLowerCase().includes(q);
+                const matchStatus = statusFilter === 'All' || (o.status || "Open") === statusFilter;
+                return matchQuery && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center text-muted py-5">No orders found.</div>`;
+                return;
+            }
+
+            // Pagination
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const startIdx = (currentPage - 1) * pageSize;
+            const pageOrders = filtered.slice(startIdx, startIdx + pageSize);
+
+            let tableHtml = `
+                <div class="table-responsive bg-white rounded-4 shadow-sm border">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3" style="width:60px">No</th>
+                                <th style="width:180px">Order Number</th>
+                                <th>Source</th>
+                                <th>Whse</th>
+                                <th>Plan No</th>
+                                <th>Week</th>
+                                <th>Forecast Ref</th>
+                                <th>PO Date</th>
+                                <th>Required Date</th>
+                                <th>Status</th>
+                                <th class="text-end pe-3">Doc Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            pageOrders.forEach((o, index) => {
+                const rowNo = startIdx + index + 1;
+                const reqDate = o.requiredDate || formatDateShort(new Date(new Date(o.date).getTime() + 7 * 24 * 60 * 60 * 1000));
+
+                const fcRefLink = o.fcRef
+                    ? `<a href="#" onclick="event.stopPropagation();openOrderDetail('${o.no}')" class="text-success fw-bold small">${o.fcRef}</a>`
+                    : `<span class="text-muted small">-</span>`;
+                tableHtml += `
+                    <tr onclick="openOrderDetail('${o.no}')">
+                        <td class="ps-3 text-muted small">${rowNo}</td>
+                        <td class="mono text-dark">${o.no}</td>
+                        <td>${o.sourceType === 'DOC' ? '<span class="badge" style="background:#dbeafe;color:#1d4ed8;">DOC</span>' : '<span class="badge" style="background:#dcfce7;color:#166534;">Feed</span>'}</td>
+                        <td><span class="badge bg-light text-dark border fw-medium">${o.warehouse || '-'}</span></td>
+                        <td><span class="badge bg-light text-dark border fw-medium">${o.planNo || '-'}</span></td>
+                        <td><span class="small text-muted">${o.week || '-'}</span></td>
+                        <td>${fcRefLink}</td>
+                        <td>${formatDateShort(o.date)}</td>
+                        <td>${reqDate}</td>
+                        <td>${badgeStatus(o.status || "Open")}</td>
+                        <td class="text-end pe-3 fw-bold text-dark">${rupiah(o.total)}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Pagination Footer
+            tableHtml += `
+                <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
+                    <span class="page-info">Page ${currentPage} of ${totalPages || 1}</span>
+                    <div class="d-flex gap-1">
+                        <button class="btn-pagination" onclick="changePage(-1)" ${currentPage <= 1 ? 'disabled' : ''}>
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="btn-pagination" onclick="changePage(1)" ${currentPage >= totalPages ? 'disabled' : ''}>
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = tableHtml;
+        }
+        // =========================
+        // ORDER DETAIL MODAL LOGIC (Ported from customer_order_detail.html)
+        // =========================
+        let currentOrderNo = null;
+
+        function openOrderDetail(no) {
+            currentOrderNo = no;
+            const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+            const linesMap = JSON.parse(localStorage.getItem(LS_ORDER_LINES) || "{}");
+
+            const order = orders.find(o => o.no === no);
+            if (!order) return;
+
+            // Header Fields — derive vendor from order's vendorCode
+            const vendorMap = {
+                SIC: { code: "VND-SIC", name: "SIC — Supplier Pakan & Feed",      contact: "Agus Prasetyo" },
+                CTU: { code: "VND-CTU", name: "CTU — Supplier DOC / Bibit Ayam",  contact: "Rini Kusuma" }
+            };
+            const vendor = vendorMap[order.vendorCode] || vendorMap["SIC"];
+
+            document.getElementById("poVendorCode").textContent = vendor.code;
+            document.getElementById("poVendorName").textContent = vendor.name;
+            document.getElementById("poContactPerson").textContent = vendor.contact;
+            document.getElementById("poOrderNo").textContent = order.no;
+            document.getElementById("poStatus").textContent = order.status || "Open";
+
+            const postingDate = formatDateShort(order.date);
+            document.getElementById("poPostingDate").textContent = postingDate;
+            document.getElementById("poDeliveryDate").textContent = order.requiredDate || postingDate;
+            document.getElementById("poWhse").textContent   = order.warehouse || "-";
+            document.getElementById("poPlanNo").textContent = order.planNo || "-";
+            document.getElementById("poWeek").textContent   = order.week || "-";
+            document.getElementById("poRemarks").textContent = "Automatic Order Intake from Portal. Customer Reference available.";
+
+            // Forecast info section
+            const fcSection = document.getElementById("modalFcSection");
+            if (order.fcRef) {
+                // Load forecast data from master + localStorage
+                const DEMO_FC_MODAL = window.IBOCS_FORECAST_MASTER || [];
+                const storedFc = JSON.parse(localStorage.getItem("IBOCS_fc_list") || "[]");
+                const storedNos = new Set(storedFc.map(f => f.fcNo));
+                const allFc = [...storedFc, ...DEMO_FC_MODAL.filter(d => !storedNos.has(d.fcNo))];
+                const fc = allFc.find(f => f.fcNo === order.fcRef);
+
+                document.getElementById("modalFcRef").textContent     = order.fcRef;
+                document.getElementById("modalFcDate").textContent    = fc ? fc.fcDate    : "-";
+                document.getElementById("modalFcPeriod").textContent  = fc ? fc.period    : order.week || "-";
+                document.getElementById("modalFcCompany").textContent = fc ? fc.company   : "-";
+                document.getElementById("modalFcFarm").textContent    = fc ? fc.farm      : "-";
+                document.getElementById("modalFcPlanDesc").textContent= fc ? fc.planDesc  : "-";
+
+                const lines = fc ? (fc.lines || []) : [];
+                let totalFinal = 0;
+                document.getElementById("modalFcLines").innerHTML = lines.map(l => {
+                    const fq = (Number(l.recommendedQty)||0) + (Number(l.manualAdjustment)||0);
+                    totalFinal += fq;
+                    const flagCls = l.flag === "Manual" ? "badge bg-warning text-dark" : "badge bg-primary";
+                    return `<tr>
+                        <td class="mono">${l.itemCode}</td>
+                        <td>${l.itemName}</td>
+                        <td><span class="${flagCls}" style="font-size:.7rem;">${l.flag||"Auto"}</span></td>
+                        <td class="text-end">${(l.recommendedQty||0).toLocaleString()}</td>
+                        <td class="text-end">${(l.manualAdjustment||0).toLocaleString()}</td>
+                        <td class="text-end fw-bold text-success">${fq.toLocaleString()}</td>
+                    </tr>`;
+                }).join("") || '<tr><td colspan="6" class="text-center text-muted py-2">No lines</td></tr>';
+
+                document.getElementById("modalFcTotalItem").textContent = lines.length;
+                document.getElementById("modalFcTotalFinal").textContent = totalFinal.toLocaleString();
+                fcSection.style.display = "block";
+                // Reset to expanded state on each open
+                const fcBody = document.getElementById("modalFcBody");
+                const fcChev = document.getElementById("modalFcChevron");
+                if (fcBody) fcBody.style.display = "block";
+                if (fcChev) fcChev.style.transform = "rotate(0deg)";
+            } else {
+                fcSection.style.display = "none";
+            }
+
+            // Fill items
+            const lines = linesMap[no] || [];
+            const tbody = document.getElementById("poTbodyItems");
+            tbody.innerHTML = "";
+            let total = 0;
+            lines.forEach((item, i) => {
+                const sub = (item.price || 0) * (item.qty || 0);
+                const itemUom = item.uom || "PCS";
+                total += sub;
+                tbody.innerHTML += `<tr>
+                    <td class="ps-3 text-muted small">${i + 1}</td>
+                    <td><span class="mono fw-bold">${item.sku}</span></td>
+                    <td>${item.name}</td>
+                    <td class="text-end">${item.qty}</td>
+                    <td>${itemUom}</td>
+                    <td class="text-end">${rupiah(item.price)}</td>
+                    <td>WH-01</td>
+                    <td class="text-end pe-3 fw-bold">${rupiah(sub)}</td>
+                </tr>`;
+            });
+
+            // Summary
+            const tax = total * 0.11;
+            document.getElementById("poSubtotal").textContent = rupiah(total);
+            document.getElementById("poTax").textContent = rupiah(tax);
+            document.getElementById("poTotalDue").textContent = rupiah(total + tax);
+
+            // Logic Controller: Only Order Intake remains
+            const s = order.status;
+            const divIntake = document.getElementById("cardActionIntake");
+            divIntake.style.display = (s === "Dipesan" || s === "Submitted") ? "block" : "none";
+
+            // Show Modal
+            new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+        }
+
+        function toggleModalFc() {
+            const body = document.getElementById("modalFcBody");
+            const chev = document.getElementById("modalFcChevron");
+            const collapsed = body.style.display === "none";
+            body.style.display = collapsed ? "block" : "none";
+            if (chev) chev.style.transform = collapsed ? "rotate(0deg)" : "rotate(180deg)";
+        }
+        window.toggleModalFc = toggleModalFc;
+
+        // Action Porting (Only updateStatusDetail remains)
+        window.updateStatusDetail = function (newStatus) {
+            if (!confirm(`Ubah status ke ${newStatus}?`)) return;
+            const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+            const idx = orders.findIndex(o => o.no === currentOrderNo);
+            if (idx >= 0) {
+                orders[idx].status = newStatus;
+                localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+                bootstrap.Modal.getInstance(document.getElementById('orderDetailModal')).hide();
+                render();
+            }
+        };
+
+        // Storage Keys
+        const LS_RETAIL_DELIVERIES = "IBOCS_customer_deliveries";
+        const LS_RETAIL_PAYMENTS = "IBOCS_customer_payments";
+        const LS_PAYMENT_EVIDENCE = "IBOCS_payment_evidence";
+
+        // Global exposure for onclick
+        window.changePage = changePage;
+        window.openOrderDetail = openOrderDetail;
+
+        // Events
+        document.getElementById("q").addEventListener("input", () => {
+            // Reset page on search
+            currentPage = 1;
+            render();
+        });
+
+        document.getElementById("statusFilter").addEventListener("change", () => {
+            // Reset page on filter change
+            currentPage = 1;
+            render();
+        });
+
+        // Init
+        render();
+
+        /*
+        // =========================
+        // FEATURE 1: MANUAL ORDER CREATION
+        // =========================
+        // ... (code below is commented out) ...
+        // ... (Manual creation logic) ...
+
+        // =========================
+        // FEATURE 2: EXCEL IMPORT
+        // =========================
+        // ... (Excel import logic) ...
+
+        // =========================
+        // FEATURE 3: API INTEGRATION
+        // =========================
+        // ... (API sync logic) ...
+        */
+
+        /*
+        // Populate product dropdown
+        function populateProductDropdowns() {
+            const activeProducts = products.filter(p => p.active);
+            const selects = document.querySelectorAll('.item-product');
+
+            selects.forEach(select => {
+                select.innerHTML = '<option value="">-- Select Product --</option>';
+                activeProducts.forEach(p => {
+                    const option = `<option value="${p.sku}" data-price="${p.price}">${p.sku} - ${p.name} (${rupiah(p.price)})</option>`;
+                    select.innerHTML += option;
+                });
+            });
+        }
+
+        // Auto-fill price when product selected
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('item-product')) {
+                const row = e.target.closest('.order-item-row');
+                const selectedOption = e.target.selectedOptions[0];
+                const price = selectedOption ? selectedOption.dataset.price : 0;
+                row.querySelector('.item-price').value = price || '';
+                updateOrderTotal();
+            }
+        });
+
+        // Update total calculation
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('item-qty') || e.target.classList.contains('item-price')) {
+                updateOrderTotal();
+            }
+        });
+
+        function updateOrderTotal() {
+            let total = 0;
+            document.querySelectorAll('.order-item-row').forEach(row => {
+                const qty = parseInt(row.querySelector('.item-qty').value) || 0;
+                const price = parseInt(row.querySelector('.item-price').value) || 0;
+                total += qty * price;
+            });
+            document.getElementById('orderTotalPreview').textContent = rupiah(total);
+        }
+
+        // Add order item row
+        document.getElementById('btnAddOrderItem').addEventListener('click', () => {
+            const container = document.getElementById('orderItemsContainer');
+            const newRow = `
+                <div class="row g-2 mb-2 order-item-row">
+                    <div class="col-md-5">
+                        <select class="form-select form-select-sm item-product" required>
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control form-control-sm item-qty" 
+                            placeholder="Qty" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control form-control-sm item-price" 
+                            placeholder="Price" min="0" required>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-sm btn-danger w-100" 
+                            onclick="removeOrderItem(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', newRow);
+            populateProductDropdowns();
+        });
+
+        window.removeOrderItem = function (btn) {
+            const container = document.getElementById('orderItemsContainer');
+            if (container.querySelectorAll('.order-item-row').length > 1) {
+                btn.closest('.order-item-row').remove();
+                updateOrderTotal();
+            } else {
+                alert('Minimal harus ada 1 item!');
+            }
+        };
+
+        // Set default date
+        document.getElementById('inputOrderDate').value = todayYMD();
+
+        // Form submit
+        document.getElementById('createOrderForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const customerName = document.getElementById('inputCustomerName').value.trim();
+            const orderDate = document.getElementById('inputOrderDate').value;
+
+            // Collect items
+            const items = [];
+            let total = 0;
+            let isValid = true;
+
+            document.querySelectorAll('.order-item-row').forEach(row => {
+                const sku = row.querySelector('.item-product').value;
+                const productName = row.querySelector('.item-product').selectedOptions[0]?.text.split(' - ')[1]?.split(' (')[0] || sku;
+                const qty = parseInt(row.querySelector('.item-qty').value) || 0;
+                const price = parseInt(row.querySelector('.item-price').value) || 0;
+
+                if (!sku || qty <= 0 || price <= 0) {
+                    isValid = false;
+                    return;
+                }
+
+                items.push({
+                    sku: sku,
+                    name: productName,
+                    qty: qty,
+                    price: price,
+                    lineTotal: qty * price
+                });
+                total += qty * price;
+            });
+
+            if (!isValid || items.length === 0) {
+                alert('Harap lengkapi semua item dengan benar!');
+                return;
+            }
+
+            // Create order
+            const orderNo = genOrderNo();
+            const newOrder = {
+                no: orderNo,
+                customerName: customerName,
+                customer: customerName,
+                dist: user.name || "Vendor Current",
+                date: orderDate,
+                status: "Dipesan",
+                total: total,
+                createdBy: user.email,
+                createdAt: new Date().toISOString()
+            };
+
+            orders.push(newOrder);
+            orderLines[orderNo] = items;
+
+            localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+            localStorage.setItem(LS_ORDER_LINES, JSON.stringify(orderLines));
+
+            alert(`✅ Order ${orderNo} berhasil dibuat!\n\nCustomer: ${customerName}\nTotal: ${rupiah(total)}\nItems: ${items.length}`);
+
+            // Reset form
+            document.getElementById('createOrderForm').reset();
+            document.getElementById('inputOrderDate').value = todayYMD();
+            document.getElementById('orderTotalPreview').textContent = 'Rp 0';
+
+            // Keep only first row
+            const container = document.getElementById('orderItemsContainer');
+            const rows = container.querySelectorAll('.order-item-row');
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].remove();
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('createOrderModal')).hide();
+            render();
+        });
+
+        // Populate products when modal opens
+        document.getElementById('createOrderModal').addEventListener('show.bs.modal', () => {
+            populateProductDropdowns();
+        });
+        */
+
+        // =========================
+        // FEATURE 2: EXCEL IMPORT
+        // =========================
+
+        let parsedOrderData = [];
+
+        document.getElementById('fileOrderExcel').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File terlalu besar! Maksimal 5MB');
+                e.target.value = '';
+                return;
+            }
+
+            if (file.name.endsWith('.csv')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    parseOrderCSV(text);
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Demo: Gunakan file CSV. Untuk Excel (.xlsx), perlu library SheetJS di production.');
+            }
+        });
+
+        function parseOrderCSV(text) {
+            const lines = text.split('\n').filter(l => l.trim());
+            if (lines.length < 2) {
+                alert('File CSV kosong!');
+                return;
+            }
+
+            // Skip header
+            const dataLines = lines.slice(1);
+            parsedOrderData = dataLines.map(line => {
+                const parts = line.split(',').map(p => p.trim().replace(/"/g, ''));
+                return {
+                    customer: parts[0] || '',
+                    date: parts[1] || todayYMD(),
+                    sku: parts[2] || '',
+                    qty: parseInt(parts[3]) || 0,
+                    price: parseInt(parts[4]) || 0
+                };
+            }).filter(p => p.customer && p.sku && p.qty > 0);
+
+            // Preview
+            const previewBody = document.getElementById('excelOrderPreviewBody');
+            previewBody.innerHTML = parsedOrderData.slice(0, 10).map(p => `
+                <tr>
+                    <td>${p.customer}</td>
+                    <td>${p.date}</td>
+                    <td>${p.sku}</td>
+                    <td>${p.qty}</td>
+                    <td>${rupiah(p.price)}</td>
+                    <td>${rupiah(p.qty * p.price)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('excelOrderPreviewContainer').classList.remove('d-none');
+
+            // Group by customer to count orders
+            const ordersByCustomer = {};
+            parsedOrderData.forEach(item => {
+                if (!ordersByCustomer[item.customer]) {
+                    ordersByCustomer[item.customer] = [];
+                }
+                ordersByCustomer[item.customer].push(item);
+            });
+            const orderCount = Object.keys(ordersByCustomer).length;
+
+            document.getElementById('excelOrderSummary').textContent =
+                `Total ${orderCount} order dari ${parsedOrderData.length} items. ${parsedOrderData.length > 10 ? 'Menampilkan 10 pertama.' : ''}`;
+            document.getElementById('importOrderCount').textContent = orderCount;
+            document.getElementById('btnImportOrderExcelConfirm').disabled = parsedOrderData.length === 0;
+        }
+
+        // Download template
+        document.getElementById('btnDownloadOrderTemplate').addEventListener('click', (e) => {
+            e.preventDefault();
+            const csvContent = `Customer Name,Order Date,Product SKU,Quantity,Price
+Toko Maju Jaya,2026-01-11,BRG-001,12,105000
+Toko Maju Jaya,2026-01-11,BRG-002,8,65000
+Warung Sejahtera,2026-01-11,BRG-003,10,21000`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'template_order_IBOCS.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Import confirm
+        document.getElementById('btnImportOrderExcelConfirm').addEventListener('click', () => {
+            if (parsedOrderData.length === 0) return;
+
+            // Group items by customer
+            const ordersByCustomer = {};
+            parsedOrderData.forEach(item => {
+                if (!ordersByCustomer[item.customer]) {
+                    ordersByCustomer[item.customer] = {
+                        customer: item.customer,
+                        date: item.date,
+                        items: []
+                    };
+                }
+                ordersByCustomer[item.customer].items.push(item);
+            });
+
+            let imported = 0;
+            Object.values(ordersByCustomer).forEach(orderData => {
+                const orderNo = genOrderNo();
+                const total = orderData.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+
+                const newOrder = {
+                    no: orderNo,
+                    customerName: orderData.customer,
+                    customer: orderData.customer,
+                    dist: user.name || "Vendor Current",
+                    date: orderData.date,
+                    status: "Dipesan",
+                    total: total,
+                    createdBy: user.email + " (Excel Import)",
+                    createdAt: new Date().toISOString()
+                };
+
+                const items = orderData.items.map(item => ({
+                    sku: item.sku,
+                    name: item.sku, // In real scenario, lookup product name
+                    qty: item.qty,
+                    price: item.price,
+                    lineTotal: item.qty * item.price
+                }));
+
+                orders.push(newOrder);
+                orderLines[orderNo] = items;
+                imported++;
+            });
+
+            localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+            localStorage.setItem(LS_ORDER_LINES, JSON.stringify(orderLines));
+
+            bootstrap.Modal.getInstance(document.getElementById('importExcelModal')).hide();
+            alert(`✅ Import Berhasil!\n\n${imported} order diimport dari ${parsedOrderData.length} items`);
+
+            // Reset
+            document.getElementById('fileOrderExcel').value = '';
+            document.getElementById('excelOrderPreviewContainer').classList.add('d-none');
+            render();
+        });
+
+        // =========================
+        // FEATURE 3: API INTEGRATION
+        // =========================
+
+        let apiSyncedOrders = [];
+
+        document.getElementById('btnTestOrderAPIConnection').addEventListener('click', () => {
+            const endpoint = document.getElementById('inputOrderAPIEndpoint').value;
+            const apiKey = document.getElementById('inputOrderAPIKey').value;
+
+            if (!endpoint || !apiKey) {
+                alert('Harap isi API Endpoint dan API Key!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('apiOrderSyncResult').classList.add('d-none');
+            document.getElementById('apiOrderSyncLoading').classList.remove('d-none');
+            document.getElementById('btnImportOrderAPIConfirm').disabled = true;
+
+            // Simulate API fetch (2 seconds delay)
+            setTimeout(() => {
+                // Mock API response
+                apiSyncedOrders = [
+                    {
+                        orderNo: 'API-ORD-001',
+                        customer: 'Toko Sinar Jaya',
+                        date: '2026-01-10',
+                        items: [
+                            { sku: 'BRG-001', name: 'SGM Eksplor 1+ Madu 900g', qty: 10, price: 105000 },
+                            { sku: 'BRG-002', name: 'MamyPoko Pants L 30', qty: 6, price: 65000 }
+                        ]
+                    },
+                    {
+                        orderNo: 'API-ORD-002',
+                        customer: 'Warung Berkah',
+                        date: '2026-01-10',
+                        items: [
+                            { sku: 'BRG-003', name: 'Zwitsal Baby Bath 200ml', qty: 12, price: 21000 }
+                        ]
+                    },
+                    {
+                        orderNo: 'API-ORD-003',
+                        customer: 'Minimarket ABC',
+                        date: '2026-01-11',
+                        items: [
+                            { sku: 'BRG-001', name: 'SGM Eksplor 1+ Madu 900g', qty: 20, price: 105000 },
+                            { sku: 'BRG-004', name: 'Dancow 1+ Vanilla 800g', qty: 15, price: 112000 }
+                        ]
+                    }
+                ];
+
+                // Render preview
+                const tbody = document.getElementById('apiOrderSyncBody');
+                tbody.innerHTML = apiSyncedOrders.map(o => {
+                    const total = o.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+                    return `
+                        <tr>
+                            <td><span class="badge bg-info">${o.orderNo}</span></td>
+                            <td>${o.customer}</td>
+                            <td>${o.date}</td>
+                            <td>${o.items.length} items</td>
+                            <td>${rupiah(total)}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                document.getElementById('apiOrderSyncCount').textContent = apiSyncedOrders.length;
+                document.getElementById('apiOrderImportCount').textContent = apiSyncedOrders.length;
+
+                // Hide loading, show result
+                document.getElementById('apiOrderSyncLoading').classList.add('d-none');
+                document.getElementById('apiOrderSyncResult').classList.remove('d-none');
+                document.getElementById('btnImportOrderAPIConfirm').disabled = false;
+            }, 2000);
+        });
+
+        // Import from API
+        document.getElementById('btnImportOrderAPIConfirm').addEventListener('click', () => {
+            if (apiSyncedOrders.length === 0) return;
+
+            let imported = 0;
+            let skipped = 0;
+
+            apiSyncedOrders.forEach(apiOrder => {
+                // Check duplicate order number
+                if (orders.find(o => o.no === apiOrder.orderNo)) {
+                    skipped++;
+                    return;
+                }
+
+                const total = apiOrder.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+
+                const newOrder = {
+                    no: apiOrder.orderNo,
+                    customerName: apiOrder.customer,
+                    customer: apiOrder.customer,
+                    dist: user.name || "Vendor Current",
+                    date: apiOrder.date,
+                    status: "Dipesan",
+                    total: total,
+                    createdBy: user.email + " (API Sync)",
+                    createdAt: new Date().toISOString()
+                };
+
+                orders.push(newOrder);
+                orderLines[apiOrder.orderNo] = apiOrder.items.map(item => ({
+                    sku: item.sku,
+                    name: item.name,
+                    qty: item.qty,
+                    price: item.price,
+                    lineTotal: item.qty * item.price
+                }));
+                imported++;
+            });
+
+            localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+            localStorage.setItem(LS_ORDER_LINES, JSON.stringify(orderLines));
+
+            bootstrap.Modal.getInstance(document.getElementById('apiIntegrationModal')).hide();
+            alert(`✅ API Sync Berhasil!\n\n${imported} order baru ditambahkan\n${skipped} order diskip (duplikat)`);
+            render();
+        });
+
+    </script>
+    <script src="sidebar.js"></script>
+    <script>
+        // Init Sidebar
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'orders').render();
+    </script>
+</body>
+
+</html>
+
+

@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer — Profile | IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+        }
+
+        .muted-xs {
+            font-size: .82rem;
+            color: #6c757d;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="customer_profile.html">Profile</a></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10">
+                <!-- Alert Container -->
+                <div id="alertContainer"></div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="mb-0">Customer Profile</h5>
+                        <div class="muted-xs">Kelola informasi toko dan kontak.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="btnReset"><i
+                                class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+                        <button class="btn btn-primary btn-sm" id="btnSave"><i
+                                class="bi bi-save me-1"></i>Simpan</button>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Column 1: Store Info & Contact -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0 text-primary"><i class="bi bi-shop me-2"></i>Informasi Toko</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Customer
+                                        Code</label>
+                                    <input type="text" class="form-control bg-light" id="inpCustomerCode" readonly>
+                                    <div class="form-text small">Kode unik toko Anda (tidak dapat diubah).</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Nama Toko <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control fw-bold" id="inpCustomerName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Wilayah
+                                        (Region)</label>
+                                    <select class="form-select" id="inpRegion">
+                                        <option value="Jabodetabek">Jabodetabek</option>
+                                        <option value="Jawa Barat">Jawa Barat</option>
+                                        <option value="Jawa Tengah">Jawa Tengah</option>
+                                        <option value="Jawa Timur">Jawa Timur</option>
+                                        <option value="Bali">Bali</option>
+                                        <option value="Sumatera">Sumatera</option>
+                                        <option value="Kalimantan">Kalimantan</option>
+                                        <option value="Sulawesi">Sulawesi</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0 text-primary"><i class="bi bi-person-lines-fill me-2"></i>Kontak</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Nama
+                                        Pemilik</label>
+                                    <input type="text" class="form-control" id="inpOwnerName">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small text-muted text-uppercase fw-bold">No. Telepon
+                                            <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="inpPhone" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small text-muted text-uppercase fw-bold">Email</label>
+                                        <input type="email" class="form-control bg-light" id="inpEmail" readonly>
+                                        <div class="form-text small">Email login (hubungi admin untuk ubah user).</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="card shadow-sm mt-3">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0 text-primary"><i class="bi bi-shield-lock-fill me-2"></i>Keamanan</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Password Saat
+                                        Ini</label>
+                                    <input type="password" class="form-control" id="inpCurPwd" placeholder="••••••••">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small text-muted text-uppercase fw-bold">Password
+                                            Baru</label>
+                                        <input type="password" class="form-control" id="inpNewPwd"
+                                            placeholder="••••••••">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label
+                                            class="form-label small text-muted text-uppercase fw-bold">Konfirmasi</label>
+                                        <input type="password" class="form-control" id="inpConfPwd"
+                                            placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-primary btn-sm" id="btnChangePwd">Ganti
+                                        Password</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Address & Admin -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0 text-primary"><i class="bi bi-geo-alt-fill me-2"></i>Alamat</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Alamat
+                                        Lengkap</label>
+                                    <textarea class="form-control" id="inpAddress" rows="3"></textarea>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small text-muted text-uppercase fw-bold">Kota /
+                                            Kab</label>
+                                        <input type="text" class="form-control" id="inpCity">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label
+                                            class="form-label small text-muted text-uppercase fw-bold">Provinsi</label>
+                                        <input type="text" class="form-control" id="inpProvince">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small text-muted text-uppercase fw-bold">Kode
+                                            Pos</label>
+                                        <input type="text" class="form-control mono" id="inpPostalCode" pattern="[0-9]*"
+                                            maxlength="5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Administrasi
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">NPWP / Tax
+                                        ID</label>
+                                    <input type="text" class="form-control mono" id="inpTaxId"
+                                        placeholder="XX.XXX.XXX.X-XXX.XXX">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold">Catatan
+                                        Tambahan</label>
+                                    <textarea class="form-control" id="inpNotes" rows="2"
+                                        placeholder="Jam operasional, instruksi pengiriman, dll."></textarea>
+                                </div>
+                                <div class="text-end small text-muted fst-italic mt-3" id="lblLastUpdate">
+                                    Not updated yet.
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // =========================
+        // SESSION & INIT
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        // Security Check
+        if (user.role !== 'customer') {
+            document.body.innerHTML = '<div class="container py-5 text-center"><h3>Unauthorized Access</h3><a href="index.html">Go Home</a></div>';
+            throw new Error("Unauthorized");
+        }
+
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        // =========================
+        // PROFILE LOGIC
+        // =========================
+        const LS_PROFILE = "IBOCS_customer_profile";
+
+        const DEFAULT_SEED = {
+            customerCode: "RET-" + Math.floor(1000 + Math.random() * 9000),
+            customerName: user.name || "Customer Toko Baru",
+            region: "Jabodetabek",
+            ownerName: user.name || "Owner",
+            phone: "",
+            email: user.email,
+            address: "",
+            city: "Jakarta",
+            province: "DKI Jakarta",
+            postalCode: "",
+            taxId: "",
+            notes: "",
+            updatedAt: null
+        };
+
+        function getProfile() {
+            const s = localStorage.getItem(LS_PROFILE);
+            if (!s) return { ...DEFAULT_SEED }; // Clone default
+            return JSON.parse(s);
+        }
+
+        function loadData() {
+            const data = getProfile();
+
+            // Populate
+            document.getElementById("inpCustomerCode").value = data.customerCode || "";
+            document.getElementById("inpCustomerName").value = data.customerName || "";
+            document.getElementById("inpRegion").value = data.region || "Lainnya";
+            document.getElementById("inpOwnerName").value = data.ownerName || "";
+            document.getElementById("inpPhone").value = data.phone || "";
+            document.getElementById("inpEmail").value = data.email || user.email; // Ensure email sync
+            document.getElementById("inpAddress").value = data.address || "";
+            document.getElementById("inpCity").value = data.city || "";
+            document.getElementById("inpProvince").value = data.province || "";
+            document.getElementById("inpPostalCode").value = data.postalCode || "";
+            document.getElementById("inpTaxId").value = data.taxId || "";
+            document.getElementById("inpNotes").value = data.notes || "";
+
+            if (data.updatedAt) {
+                const date = new Date(data.updatedAt);
+                document.getElementById("lblLastUpdate").textContent = "Terakhir disimpan: " + date.toLocaleString("id-ID");
+            } else {
+                document.getElementById("lblLastUpdate").textContent = "Belum pernah disimpan.";
+            }
+
+            return data;
+        }
+
+        function saveData() {
+            // Validate
+            const name = document.getElementById("inpCustomerName").value.trim();
+            const phone = document.getElementById("inpPhone").value.trim();
+
+            if (!name) {
+                alert("Nama Toko wajib diisi.");
+                return;
+            }
+            if (!phone) {
+                alert("Nomor Telepon wajib diisi.");
+                return;
+            }
+
+            // Collect
+            const data = {
+                customerCode: document.getElementById("inpCustomerCode").value, // Preserve code
+                customerName: name,
+                region: document.getElementById("inpRegion").value,
+                ownerName: document.getElementById("inpOwnerName").value,
+                phone: phone,
+                email: document.getElementById("inpEmail").value,
+                address: document.getElementById("inpAddress").value,
+                city: document.getElementById("inpCity").value,
+                province: document.getElementById("inpProvince").value,
+                postalCode: document.getElementById("inpPostalCode").value,
+                taxId: document.getElementById("inpTaxId").value,
+                notes: document.getElementById("inpNotes").value,
+                updatedAt: new Date().toISOString()
+            };
+
+            // Save
+            localStorage.setItem(LS_PROFILE, JSON.stringify(data));
+
+            // Feedback
+            showAlert("Profil berhasil disimpan.", "success");
+            loadData(); // refresh UI text if needed
+        }
+
+        function showAlert(msg, type) {
+            const alertContainer = document.getElementById("alertContainer");
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>${msg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            // Auto close
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(alertContainer.querySelector(".alert"));
+                if (alert) alert.close();
+            }, 3000);
+        }
+
+        function resetData() {
+            if (confirm("Reset perubahan ke data terakhir disimpan?")) {
+                loadData();
+            }
+        }
+
+        // Init
+        window.addEventListener("DOMContentLoaded", () => {
+            // First load - populate defaults if empty, but don't save yet unless user clicks save
+            // Just populate UI from getProfile logic
+            loadData();
+
+            document.getElementById("btnSave").addEventListener("click", saveData);
+            document.getElementById("btnReset").addEventListener("click", resetData);
+
+            // Password Change Logic
+            const LS_USERS = "IBOCS_users";
+
+            document.getElementById("btnChangePwd").addEventListener("click", () => {
+                const curPwd = document.getElementById("inpCurPwd").value;
+                const newPwd = document.getElementById("inpNewPwd").value;
+                const confPwd = document.getElementById("inpConfPwd").value;
+
+                if (!curPwd || !newPwd || !confPwd) {
+                    alert("Mohon lengkapi semua field password.");
+                    return;
+                }
+
+                if (newPwd !== confPwd) {
+                    alert("Konfirmasi password tidak sesuai.");
+                    return;
+                }
+
+                // Load Users
+                const raw = localStorage.getItem(LS_USERS);
+                const users = raw ? JSON.parse(raw) : [];
+
+                // Find Current User
+                const idx = users.findIndex(u => u.email === user.email);
+
+                if (idx < 0) {
+                    // This happens if user logged in via old dummy logic and localStorage is empty/mismatch
+                    // We can try to match the "hardcoded fallback" but better to ask relogin
+                    alert("Data user tidak ditemukan di storage. Mohon logout dan login kembali untuk sinkronisasi.");
+                    return;
+                }
+
+                const storedUser = users[idx];
+
+                // Verify Old Pwd
+                if (storedUser.password !== curPwd) {
+                    alert("Password saat ini salah.");
+                    return;
+                }
+
+                // Update
+                storedUser.password = newPwd;
+                users[idx] = storedUser;
+                localStorage.setItem(LS_USERS, JSON.stringify(users));
+
+                // Cleanup
+                document.getElementById("inpCurPwd").value = "";
+                document.getElementById("inpNewPwd").value = "";
+                document.getElementById("inpConfPwd").value = "";
+
+                showAlert("Password berhasil diubah!", "success");
+            });
+
+        });
+
+    </script>
+    <script src="sidebar.js"></script>
+    <script>
+        // Init Sidebar
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'profile').render();
+    </script>
+</body>
+
+</html>
+
+

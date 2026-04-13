@@ -1,0 +1,50 @@
+{
+  "V-BMAX|C-CTU": {
+    "PKN-001": [
+      { "targetId": "PKN-001", "multiplier": 1, "uom": "Kg" }
+    ],
+    "PKN-002": [
+      { "targetId": "PKN-002", "multiplier": 1000, "uom": "Gram" }
+    ],
+    "PKN-005": [
+      { "targetId": "PKN-005", "multiplier": 1, "uom": "Zak" }
+    ],
+    "AYM-001": [
+      { "targetId": "AYM-001", "multiplier": 100, "uom": "Box" }
+    ]
+  },
+  "V-AYM|C-BMAX": {
+    "AYM-001": [
+      { "targetId": "AYM-001", "multiplier": 1, "uom": "Ekor" }
+    ],
+    "AYM-002": [
+      { "targetId": "AYM-002", "multiplier": 1, "uom": "Ekor" }
+    ],
+    "PKN-015": [
+      { "targetId": "PKN-015", "multiplier": 0.001, "uom": "Ton" }
+    ]
+  },
+  "V-TOP|C-AYM": {
+    "PKN-008": [
+      { "targetId": "PKN-008", "multiplier": 1, "uom": "Kg" }
+    ],
+    "PKN-009": [
+      { "targetId": "PKN-009", "multiplier": 50, "uom": "Kg/Zak" }
+    ],
+    "AYM-003": [
+      { "targetId": "AYM-003", "multiplier": 1, "uom": "Ekor" }
+    ]
+  },
+  "V-CTU|C-TOP": {
+    "PKN-013": [
+      { "targetId": "PKN-013", "multiplier": 10, "uom": "Sachet" }
+    ],
+    "AYM-005": [
+      { "targetId": "AYM-005", "multiplier": 1, "uom": "Ekor" },
+      { "targetId": "PKN-001", "multiplier": 0.5, "uom": "Kg" }
+    ]
+  }
+}
+
+
+

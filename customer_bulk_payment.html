@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bulk Payment Upload — IBOCS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 8px;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .invoice-card {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .invoice-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-card.selected {
+            border: 2px solid #0d6efd;
+            background: #f0f7ff;
+        }
+
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #0d6efd;
+            background: #f8f9fa;
+        }
+
+        .upload-area.has-file {
+            border-color: #198754;
+            background: #f0fff4;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <span class="text-white small me-2" id="userInfo">User</span>
+                <a class="btn btn-sm btn-outline-light" href="customer_orders.html">Back to Orders</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- Header -->
+        <div class="mb-4">
+            <h4 class="fw-bold mb-1">Bulk Payment Upload</h4>
+            <p class="text-muted">Upload one payment evidence for multiple invoices</p>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Left: Invoice Selection -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold">Select Unpaid Invoices</div>
+                        <small class="text-muted">Click to select invoices you want to pay with one transfer</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="invoicesList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Payment Evidence Upload -->
+            <div class="col-lg-5">
+
+                <!-- Selected Summary -->
+                <div class="card shadow-sm mb-3" id="summaryCard" style="display:none">
+                    <div class="card-header bg-primary text-white">
+                        <div class="fw-bold">Selected Invoices</div>
+                    </div>
+                    <div class="card-body">
+                        <div id="selectedList" class="mb-3"></div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Total Amount:</span>
+                            <span class="fs-4 fw-bold text-primary" id="totalAmount">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Evidence -->
+                <div class="card shadow-sm" id="uploadCard" style="display:none">
+                    <div class="card-header bg-white">
+                        <div class="fw-bold">Upload Payment Evidence</div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                            <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                            <div class="mt-2 fw-bold">Click to upload image</div>
+                            <div class="small text-muted">JPG, PNG, or PDF (Max 5MB)</div>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none">
+
+                        <div id="previewArea" style="display:none" class="mt-3">
+                            <img id="previewImage" class="preview-image">
+                            <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeFile()">
+                                <i class="bi bi-trash me-1"></i>Remove
+                            </button>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-bold">Note (Optional)</label>
+                            <textarea class="form-control" id="paymentNote" rows="3"
+                                placeholder="e.g., Transfer BCA dari rekening atas nama..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mt-3" id="btnSubmit" onclick="submitPayment()" disabled>
+                            <i class="bi bi-check-circle me-1"></i>Submit Payment Evidence
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // =========================
+        // SESSION GUARD
+        // =========================
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+
+        document.getElementById("userInfo").textContent = user.name || "User";
+
+        // =========================
+        // DATA LOADING
+        // =========================
+        function loadJson(key, fb) {
+            try {
+                const r = localStorage.getItem(key);
+                return r ? JSON.parse(r) : fb;
+            } catch (e) { return fb; }
+        }
+
+        function saveJson(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        function rupiah(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+
+        const orders = loadJson("IBOCS_customer_orders", []);
+        const evidences = loadJson("IBOCS_payment_evidence", []);
+
+        // Filter unpaid invoices only
+        const unpaidInvoices = orders.filter(o => {
+            return o.invoiceNo &&
+                (o.status === "Sampai" || o.status === "Delivered") &&
+                (!o.paymentStatus || o.paymentStatus === "Unpaid");
+        });
+
+        let selectedInvoices = [];
+        let uploadedFile = null;
+
+        // =========================
+        // RENDER INVOICES
+        // =========================
+        function renderInvoices() {
+            const container = document.getElementById("invoicesList");
+
+            if (unpaidInvoices.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-check-circle fs-1"></i>
+                        <div class="mt-2">No unpaid invoices found</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = unpaidInvoices.map(invoice => {
+                const isSelected = selectedInvoices.includes(invoice.invoiceNo);
+                return `
+                    <div class="invoice-card card mb-2 ${isSelected ? 'selected' : ''}" 
+                         onclick="toggleInvoice('${invoice.invoiceNo}')">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           ${isSelected ? 'checked' : ''} 
+                                           onclick="event.stopPropagation()">
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="fw-bold mono">${invoice.invoiceNo}</div>
+                                    <div class="small text-muted">Order: ${invoice.no} • ${invoice.date}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-primary">${rupiah(invoice.total)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleInvoice(invoiceNo) {
+            const index = selectedInvoices.indexOf(invoiceNo);
+            if (index > -1) {
+                selectedInvoices.splice(index, 1);
+            } else {
+                selectedInvoices.push(invoiceNo);
+            }
+            renderInvoices();
+            updateSummary();
+        }
+
+        // =========================
+        // UPDATE SUMMARY
+        // =========================
+        function updateSummary() {
+            const summaryCard = document.getElementById("summaryCard");
+            const uploadCard = document.getElementById("uploadCard");
+            const selectedList = document.getElementById("selectedList");
+            const totalAmount = document.getElementById("totalAmount");
+
+            if (selectedInvoices.length === 0) {
+                summaryCard.style.display = "none";
+                uploadCard.style.display = "none";
+                return;
+            }
+
+            summaryCard.style.display = "block";
+            uploadCard.style.display = "block";
+
+            let total = 0;
+            selectedList.innerHTML = selectedInvoices.map(invoiceNo => {
+                const invoice = orders.find(o => o.invoiceNo === invoiceNo);
+                total += invoice.total;
+                return `
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="mono">${invoiceNo}</span>
+                        <span class="fw-bold">${rupiah(invoice.total)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            totalAmount.textContent = rupiah(total);
+            updateSubmitButton();
+        }
+
+        // =========================
+        // FILE UPLOAD
+        // =========================
+        document.getElementById("fileInput").addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File size must be less than 5MB!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                uploadedFile = event.target.result;
+
+                document.getElementById("uploadArea").classList.add("has-file");
+                document.getElementById("previewArea").style.display = "block";
+                document.getElementById("previewImage").src = uploadedFile;
+
+                updateSubmitButton();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function removeFile() {
+            uploadedFile = null;
+            document.getElementById("fileInput").value = "";
+            document.getElementById("uploadArea").classList.remove("has-file");
+            document.getElementById("previewArea").style.display = "none";
+            updateSubmitButton();
+        }
+
+        function updateSubmitButton() {
+            const btn = document.getElementById("btnSubmit");
+            btn.disabled = !(selectedInvoices.length > 0 && uploadedFile);
+        }
+
+        // =========================
+        // SUBMIT PAYMENT
+        // =========================
+        function submitPayment() {
+            if (selectedInvoices.length === 0 || !uploadedFile) {
+                alert("Please select invoices and upload payment evidence!");
+                return;
+            }
+
+            const note = document.getElementById("paymentNote").value;
+            const total = selectedInvoices.reduce((sum, invoiceNo) => {
+                const invoice = orders.find(o => o.invoiceNo === invoiceNo);
+                return sum + invoice.total;
+            }, 0);
+
+            // Create evidence record
+            const evidenceId = "EVD-" + Date.now();
+            const evidence = {
+                evidenceId: evidenceId,
+                imageData: uploadedFile,
+                uploadDate: new Date().toISOString().split('T')[0],
+                totalAmount: total,
+                relatedInvoices: selectedInvoices,
+                note: note || "Bulk payment for " + selectedInvoices.length + " invoices",
+                status: "REPORTED",
+                uploadedBy: user.name || "Customer"
+            };
+
+            evidences.push(evidence);
+
+            // Update all selected orders
+            selectedInvoices.forEach(invoiceNo => {
+                const order = orders.find(o => o.invoiceNo === invoiceNo);
+                if (order) {
+                    order.evidenceId = evidenceId;
+                    order.paymentStatus = "Reported";
+                }
+            });
+
+            // Save to localStorage
+            saveJson("IBOCS_payment_evidence", evidences);
+            saveJson("IBOCS_customer_orders", orders);
+
+            alert(`Payment evidence submitted successfully!\n\n${selectedInvoices.length} invoices marked as "Payment Reported"\nTotal: ${rupiah(total)}\n\nWaiting for vendor verification.`);
+
+            window.location.href = "customer_orders.html";
+        }
+
+        // =========================
+        // INIT
+        // =========================
+        renderInvoices();
+    </script>
+</body>
+
+</html>
+

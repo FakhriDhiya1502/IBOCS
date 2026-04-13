@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Return List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f7fb; color: #1f2937; }
+        .page-shell { max-width: 100%; border-radius: 12px; background: #fff; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+        .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+        .topbar h1 { margin:0; font-size:24px; }
+        .subtext { margin-top:6px; font-size:13px; color:#6b7280; }
+        .card { background:#fff; border-radius:14px; margin-bottom:18px; box-shadow:0 2px 10px rgba(0,0,0,.05); overflow:hidden; border:1px solid #eef0f4; }
+        .card-header { padding:14px 16px; font-weight:700; border-bottom:1px solid #eef0f4; background:#fafbfc; }
+        .card-body { padding:16px; }
+        .grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; }
+        .field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:6px; }
+        .field input, .field select { width:100%; height:38px; border:1px solid #d5dae3; border-radius:8px; padding:0 11px; font-size:13px; background:#fff; }
+        .btn-main, .btn-soft { border:0; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; }
+        .btn-main { background:#2563eb; color:#fff; }
+        .btn-soft { background:#e5e7eb; color:#111827; }
+        .summary-strip { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+        .summary-box { border:1px solid #e8ebf1; border-radius:10px; padding:12px; background:#fafbfe; }
+        .summary-box .label { font-size:11px; color:#666; margin-bottom:6px; }
+        .summary-box .value { font-size:20px; font-weight:700; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; min-width:1200px; }
+        th, td { padding:10px 12px; border-bottom:1px solid #edf0f5; font-size:13px; text-align:left; vertical-align:middle; }
+        th { background:#f9fafc; font-size:12px; color:#555; font-weight:700; white-space:nowrap; }
+        tbody tr:hover { background:#fafcff; }
+        .tag { display:inline-block; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+        .tag-regular { background:#e0f2fe; color:#075985; }
+        .tag-deduction { background:#fff7ed; color:#9a3412; }
+        .tag-draft { background:#f3f4f6; color:#4b5563; }
+        .tag-submitted { background:#dbeafe; color:#1d4ed8; }
+        .tag-approved { background:#dcfce7; color:#166534; }
+        .tag-rejected { background:#fee2e2; color:#b91c1c; }
+        .tag-auto { background:#ecfccb; color:#3f6212; }
+        .tag-waiting { background:#fff7ed; color:#9a3412; }
+        .btn-view { background:#dbeafe; color:#1d4ed8; border:0; border-radius:7px; padding:7px 10px; font-size:12px; font-weight:700; text-decoration:none; display:inline-block; }
+        @media (max-width: 1100px) { .grid, .summary-strip { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 700px) { .grid, .summary-strip { grid-template-columns:1fr; } .topbar { flex-direction:column; align-items:stretch; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-lg-2" id="sidebar-container"></div>
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-success fw-bold"><i class="bi bi-arrow-return-left me-2"></i>Return Management</h4>
+                </div>
+
+                <div class="page-shell">
+                    <div class="topbar">
+                        <div>
+                            <h1>Return List</h1>
+                            <div class="subtext">Customer membuat return berdasarkan kondisi barang aktual di toko. Return diproses terpisah dari GRPO dan diteruskan ke Vendor hanya bila berdampak finansial.</div>
+                        </div>
+                        <a href="customer_ReturnAdd.html" class="btn-main text-decoration-none" id="btnAddReturn">Add Return</a>
+                    </div>
+
+                    <div id="roleBanner" class="alert alert-light border mb-3 small">
+                        Workflow control: Customer handles operational input, Vendor controls approval for deduction return.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Filter</div>
+                        <div class="card-body">
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Return Date From</label>
+                                    <input type="date" id="filterDateFrom">
+                                </div>
+                                <div class="field">
+                                    <label>Return Date To</label>
+                                    <input type="date" id="filterDateTo">
+                                </div>
+                                <div class="field">
+                                    <label>Customer</label>
+                                    <input type="text" id="filterCustomer" placeholder="Search customer">
+                                </div>
+                                <div class="field">
+                                    <label>Status</label>
+                                    <select id="filterStatus">
+                                        <option value="">All Status</option>
+                                        <option>Draft</option>
+                                        <option>Submitted</option>
+                                        <option>Approved</option>
+                                        <option>Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Return Type</label>
+                                    <select id="filterType">
+                                        <option value="">All Type</option>
+                                        <option>Regular</option>
+                                        <option>Deduction</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap mt-3">
+                                <button class="btn-main" id="btnSearch">Search</button>
+                                <button class="btn-soft" id="btnReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Summary</div>
+                        <div class="card-body">
+                            <div class="summary-strip">
+                                <div class="summary-box">
+                                    <div class="label">Total Return Doc</div>
+                                    <div class="value" id="sumTotal">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Submitted / Waiting Approval</div>
+                                    <div class="value" id="sumSubmitted">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Approved</div>
+                                    <div class="value" id="sumApproved">0</div>
+                                </div>
+                                <div class="summary-box">
+                                    <div class="label">Total Return Amount</div>
+                                    <div class="value" id="sumAmount">Rp 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Return Documents</div>
+                        <div class="card-body">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Return No</th>
+                                            <th>Return Date</th>
+                                            <th>Customer</th>
+                                            <th>Return Type</th>
+                                            <th>Reference GRPO</th>
+                                            <th>Total Qty</th>
+                                            <th>Total Amount</th>
+                                            <th>Status</th>
+                                            <th>Workflow</th>
+                                            <th>Created By</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="returnTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">© 2026 IBOCS - Vendor Portal</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        const LS_RETURN = "IBOCS_return_list";
+        const seededReturns = [
+            {
+                no: "RET-202604-9001",
+                date: "2026-04-06",
+                customer: "Sunrise Bakery Mart",
+                type: "Deduction",
+                grpo: "GRPO-202604-0018",
+                billingRef: "BILL-202604-0001",
+                billingStatus: "Confirmed",
+                qty: 6,
+                amount: 108000,
+                grpoAmount: 3322500,
+                grossBillingAmount: 3322500,
+                netBillingAmount: 3214500,
+                financialTreatment: "Credit Memo Required",
+                billingImpactStatus: "Original Billing Locked - Credit Memo Flow",
+                creditMemoNo: "CM-202604-9001",
+                creditMemoDate: "2026-04-06",
+                creditMemoStatus: "Pending",
+                status: "Submitted",
+                by: "Customer - Demo User",
+                remarks: "Dummy return from customer for expired croissant packs. Billing already confirmed, so financial impact will use Credit Memo.",
+                approvalRequired: true,
+                approvalInfo: {
+                    approvedBy: "",
+                    approvalDate: "",
+                    approvalRemarks: "Pending vendor review."
+                },
+                lines: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", grpoQty: 62, alreadyReturnedQty: 0, availableQty: 62, returnQty: 6, reason: "Expired" }
+                ]
+            },
+            {
+                no: "RET-202604-9002",
+                date: "2026-04-07",
+                customer: "Sunrise Bakery Mart",
+                type: "Deduction",
+                grpo: "GRPO-202604-0018",
+                billingRef: "BILL-202604-0001",
+                billingStatus: "Confirmed",
+                qty: 4,
+                amount: 72000,
+                grpoAmount: 3322500,
+                grossBillingAmount: 3322500,
+                netBillingAmount: 3250500,
+                financialTreatment: "Credit Memo Required",
+                billingImpactStatus: "Original Billing Locked - Credit Memo Flow",
+                creditMemoNo: "CM-202604-0001",
+                creditMemoDate: "2026-04-07",
+                creditMemoStatus: "Issued",
+                status: "Approved",
+                by: "Customer - Demo User",
+                remarks: "Dummy approved return for credit memo demonstration. Original billing stays intact and financial correction is handled through Credit Memo.",
+                approvalRequired: true,
+                approvalInfo: {
+                    approvedBy: "Vendor - Finance Supervisor",
+                    approvalDate: "2026-04-07 15:10",
+                    approvalRemarks: "Approved for accounting adjustment through Credit Memo."
+                },
+                lines: [
+                    { itemCode: "BRD-001", itemName: "Butter Croissant", grpoQty: 62, alreadyReturnedQty: 6, availableQty: 56, returnQty: 4, reason: "Expired" }
+                ]
+            }
+        ];
+
+        function loadReturnList() {
+            const stored = JSON.parse(localStorage.getItem(LS_RETURN) || "[]");
+            if (stored.length) return stored;
+            localStorage.setItem(LS_RETURN, JSON.stringify(seededReturns));
+            return seededReturns;
+        }
+
+        function rupiah(value) {
+            return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+        }
+
+        function typeTag(type) {
+            return `<span class="tag ${type === "Regular" ? "tag-regular" : "tag-deduction"}">${type === "Regular" ? "Regular" : "Billing Deduction"}</span>`;
+        }
+
+        function statusTag(status) {
+            const cls = {
+                Draft: "tag-draft",
+                Submitted: "tag-submitted",
+                Approved: "tag-approved",
+                Rejected: "tag-rejected"
+            }[status] || "tag-draft";
+            return `<span class="tag ${cls}">${status}</span>`;
+        }
+
+        function workflowTag(row) {
+            if (row.type === "Regular") {
+                return '<span class="tag tag-auto">Auto Approved</span>';
+            }
+            if (row.status === "Submitted") {
+                return '<span class="tag tag-waiting">Waiting for Vendor Approval</span>';
+            }
+            return '<span class="tag tag-deduction">Vendor Controlled</span>';
+        }
+
+        function renderTable(rows) {
+            const body = document.getElementById("returnTableBody");
+            body.innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row.no}</td>
+                    <td>${row.date}</td>
+                    <td>${row.customer}</td>
+                    <td>${typeTag(row.type)}</td>
+                    <td>${row.grpo}</td>
+                    <td>${row.qty}</td>
+                    <td>${rupiah(row.amount)}</td>
+                    <td>${statusTag(row.status)}</td>
+                    <td>${workflowTag(row)}</td>
+                    <td>${row.by}</td>
+                    <td><a class="btn-view" href="customer_ReturnView.html?retNo=${encodeURIComponent(row.no)}">View</a></td>
+                </tr>
+            `).join("");
+
+            document.getElementById("sumTotal").textContent = rows.length;
+            document.getElementById("sumSubmitted").textContent = rows.filter((row) => row.status === "Submitted").length;
+            document.getElementById("sumApproved").textContent = rows.filter((row) => row.status === "Approved").length;
+            document.getElementById("sumAmount").textContent = rupiah(rows.reduce((sum, row) => sum + row.amount, 0));
+        }
+
+        function applyFilters() {
+            const from = document.getElementById("filterDateFrom").value;
+            const to = document.getElementById("filterDateTo").value;
+            const customer = document.getElementById("filterCustomer").value.toLowerCase();
+            const status = document.getElementById("filterStatus").value;
+            const type = document.getElementById("filterType").value;
+
+            const filtered = loadReturnList().filter((row) => {
+                const matchFrom = !from || row.date >= from;
+                const matchTo = !to || row.date <= to;
+                const matchCustomer = !customer || row.customer.toLowerCase().includes(customer);
+                const matchStatus = !status || row.status === status;
+                const matchType = !type || row.type === type;
+                return matchFrom && matchTo && matchCustomer && matchStatus && matchType;
+            });
+
+            renderTable(filtered);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'return-management').render();
+            const addBtn = document.getElementById("btnAddReturn");
+            const roleBanner = document.getElementById("roleBanner");
+            addBtn.style.display = "";
+            roleBanner.className = "alert alert-info border mb-3 small";
+            roleBanner.textContent = "Customer view: create return based on goods condition at store. Regular return is auto approved; deduction return will be routed to Vendor.";
+            renderTable(loadReturnList());
+        });
+
+        document.getElementById("btnSearch").addEventListener("click", applyFilters);
+        document.getElementById("btnReset").addEventListener("click", () => {
+            ["filterDateFrom", "filterDateTo", "filterCustomer", "filterStatus", "filterType"].forEach((id) => {
+                document.getElementById(id).value = "";
+            });
+            renderTable(loadReturnList());
+        });
+    </script>
+</body>
+</html>
+
+
+
+

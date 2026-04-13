@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Management — IBOCS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+
+        .nav-pill {
+            border-radius: 10px;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="admin_dashboard.html">
+                <i class="bi bi-shield-lock-fill me-2"></i>IBOCS Admin
+            </a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Platform Management</span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        id="userBtn">Admin</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="login.html">Switch Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold mb-0">User Management</h5>
+                        <div class="text-muted small">Manage customers and vendors</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="btnSeedUsers">
+                        <i class="bi bi-database me-1"></i>Seed Demo Users
+                    </button>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-3" id="userTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="customers-tab" data-bs-toggle="tab"
+                            data-bs-target="#customers" type="button">
+                            <i class="bi bi-shop me-1"></i>Customers (<span id="customerCountTab">0</span>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="vendors-tab" data-bs-toggle="tab"
+                            data-bs-target="#vendors" type="button">
+                            <i class="bi bi-building me-1"></i>Vendors (<span id="vendorCountTab">0</span>)
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="userTabsContent">
+                    <!-- Customers Tab -->
+                    <div class="tab-pane fade show active" id="customers">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="fw-bold">Registered Customers</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="text" class="form-control form-control-sm" id="searchCustomers"
+                                            placeholder="Search..." style="width: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Store Name</th>
+                                            <th>Email</th>
+                                            <th>Region</th>
+                                            <th>Status</th>
+                                            <th>Registered</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customersTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">No customers found</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendors Tab -->
+                    <div class="tab-pane fade" id="vendors">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="fw-bold">Registered Vendors</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="text" class="form-control form-control-sm" id="searchVendors"
+                                            placeholder="Search..." style="width: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Company Name</th>
+                                            <th>Email</th>
+                                            <th>Region</th>
+                                            <th>Status</th>
+                                            <th>Registered</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vendorsTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">No vendors found
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-badge me-2"></i>User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Contact Information -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <div class="fw-bold small"><i class="bi bi-person-lines-fill me-1"></i>Contact
+                                        Information</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Name</div>
+                                        <div class="fw-semibold" id="detailName">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Email</div>
+                                        <div class="fw-semibold" id="detailEmail">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Phone</div>
+                                        <div class="fw-semibold" id="detailPhone">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Address</div>
+                                        <div class="fw-semibold" id="detailAddress">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business Information -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <div class="fw-bold small"><i class="bi bi-building me-1"></i>Business Information
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Region</div>
+                                        <div class="fw-semibold" id="detailRegion">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Status</div>
+                                        <div id="detailStatus">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">Registered Date</div>
+                                        <div class="fw-semibold" id="detailRegistered">-</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted">User Type</div>
+                                        <div class="fw-semibold" id="detailType">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transaction Statistics -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <div class="fw-bold small"><i class="bi bi-graph-up me-1"></i>Transaction Statistics
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <div class="fs-3 fw-bold text-primary" id="detailOrderCount">0</div>
+                                                <div class="small text-muted">Total Orders</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <div class="fs-4 fw-bold text-success" id="detailGMV">Rp 0</div>
+                                                <div class="small text-muted">Total GMV</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <div class="fs-4 fw-bold text-warning" id="detailPending">Rp 0</div>
+                                                <div class="small text-muted">Outstanding</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance KPIs -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <div class="fw-bold small"><i class="bi bi-speedometer2 me-1"></i>Performance KPIs
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="fs-5 fw-bold text-primary" id="detailAOV">Rp 0</div>
+                                                <div class="small text-muted">Avg Order Value</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="mb-1">
+                                                    <span class="fs-5 fw-bold" id="detailPaymentScore">0</span>
+                                                    <span class="small text-muted">%</span>
+                                                </div>
+                                                <div class="small text-muted">Payment Timeliness</div>
+                                                <div class="progress mt-1" style="height: 6px;">
+                                                    <div class="progress-bar bg-success" id="detailPaymentBar"
+                                                        style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" id="kpiFulfillment">
+                                            <div class="text-center">
+                                                <div class="fs-5 fw-bold text-info" id="detailFulfillmentDays">-</div>
+                                                <div class="small text-muted">Avg Fulfillment (days)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="mb-1">
+                                                    <span class="fs-5 fw-bold" id="detailCompletionRate">0</span>
+                                                    <span class="small text-muted">%</span>
+                                                </div>
+                                                <div class="small text-muted">Completion Rate</div>
+                                                <div class="progress mt-1" style="height: 6px;">
+                                                    <div class="progress-bar bg-primary" id="detailCompletionBar"
+                                                        style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <div class="fw-bold small"><i class="bi bi-clock-history me-1"></i>Recent Activity
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                        <table class="table table-sm mb-0">
+                                            <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Order No</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detailActivityBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted small">No recent
+                                                        activity</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        // Render sidebar immediately (reads role from session)
+        new SidebarSystem(null, 'users').render();
+
+        // Auth Guard
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) { window.location.href = "login.html"; }
+        const user = sess ? JSON.parse(sess) : null;
+        if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("userBtn").textContent = user.name || "Admin";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "login.html";
+        });
+
+        // Storage Keys
+        const LS_CUSTOMERS = 'IBOCS_customer_users';
+        const LS_VENDORS = 'IBOCS_vendor_users';
+
+        function loadJson(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function saveJson(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        let customers = loadJson(LS_CUSTOMERS, []);
+        let vendors = loadJson(LS_VENDORS, []);
+
+        // Render Tables
+        function renderCustomers() {
+            const tbody = document.getElementById('customersTableBody');
+            const search = document.getElementById('searchCustomers').value.toLowerCase();
+
+            const filtered = customers.filter(r =>
+                (r.name || '').toLowerCase().includes(search) ||
+                (r.email || '').toLowerCase().includes(search)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No customers found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => {
+                const statusMap = {
+                    'Active': 'bg-success',
+                    'Pending': 'bg-warning text-dark',
+                    'Suspended': 'bg-danger'
+                };
+                const statusClass = statusMap[r.status] || 'bg-secondary';
+
+                return `
+                    <tr>
+                        <td><span class="fw-semibold">${r.name}</span></td>
+                        <td class="small">${r.email}</td>
+                        <td>${r.region || '-'}</td>
+                        <td><span class="badge ${statusClass}">${r.status}</span></td>
+                        <td class="small text-muted">${r.createdAt || '-'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewUserDetail('${r.email}', 'customer')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            ${r.status === 'Pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="verifyUser('${r.email}', 'customer')">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${r.status === 'Active' ? `
+                                <button class="btn btn-sm btn-warning" onclick="suspendUser('${r.email}', 'customer')">
+                                    <i class="bi bi-pause-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${r.status === 'Suspended' ? `
+                                <button class="btn btn-sm btn-success" onclick="activateUser('${r.email}', 'customer')">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('customerCountTab').textContent = customers.length;
+        }
+
+        function renderVendors() {
+            const tbody = document.getElementById('vendorsTableBody');
+            const search = document.getElementById('searchVendors').value.toLowerCase();
+
+            const filtered = vendors.filter(d =>
+                (d.name || '').toLowerCase().includes(search) ||
+                (d.email || '').toLowerCase().includes(search)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No vendors found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(d => {
+                const statusMap = {
+                    'Active': 'bg-success',
+                    'Pending': 'bg-warning text-dark',
+                    'Suspended': 'bg-danger'
+                };
+                const statusClass = statusMap[d.status] || 'bg-secondary';
+
+                return `
+                    <tr>
+                        <td><span class="fw-semibold">${d.name}</span></td>
+                        <td class="small">${d.email}</td>
+                        <td>${d.region || '-'}</td>
+                        <td><span class="badge ${statusClass}">${d.status}</span></td>
+                        <td class="small text-muted">${d.createdAt || '-'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewUserDetail('${d.email}', 'vendor')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            ${d.status === 'Pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="verifyUser('${d.email}', 'vendor')">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${d.status === 'Active' ? `
+                                <button class="btn btn-sm btn-warning" onclick="suspendUser('${d.email}', 'vendor')">
+                                    <i class="bi bi-pause-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${d.status === 'Suspended' ? `
+                                <button class="btn btn-sm btn-success" onclick="activateUser('${d.email}', 'vendor')">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('vendorCountTab').textContent = vendors.length;
+        }
+
+        function render() {
+            renderCustomers();
+            renderVendors();
+        }
+
+        // Actions
+        function fmtMoney(n) { return "Rp " + (n || 0).toLocaleString("id-ID"); }
+
+        window.viewUserDetail = function (email, type) {
+            const arr = type === 'customer' ? customers : vendors;
+            const userObj = arr.find(u => u.email === email);
+            if (!userObj) return;
+
+            // Populate basic info
+            document.getElementById('detailName').textContent = userObj.name || '-';
+            document.getElementById('detailEmail').textContent = userObj.email || '-';
+            document.getElementById('detailPhone').textContent = userObj.phone || '+62 812 3456 7890';
+            document.getElementById('detailAddress').textContent = userObj.address || 'Jl. Example No. 123, Jakarta';
+            document.getElementById('detailRegion').textContent = userObj.region || '-';
+            document.getElementById('detailRegistered').textContent = userObj.createdAt || '-';
+            document.getElementById('detailType').textContent = type === 'customer' ? 'Customer' : 'Vendor';
+
+            // Status badge
+            const statusMap = {
+                'Active': '<span class="badge bg-success">Active</span>',
+                'Pending': '<span class="badge bg-warning text-dark">Pending</span>',
+                'Suspended': '<span class="badge bg-danger">Suspended</span>'
+            };
+            document.getElementById('detailStatus').innerHTML = statusMap[userObj.status] || '<span class="badge bg-secondary">Unknown</span>';
+
+            // Load orders from localStorage
+            const orders = loadJson('IBOCS_customer_orders', []);
+
+            // Filter orders based on user type
+            let userOrders;
+            if (type === 'customer') {
+                // For customers: filter by customer name
+                userOrders = orders.filter(o =>
+                    (o.customerName && o.customerName.toLowerCase() === userObj.name.toLowerCase()) ||
+                    (o.customer && o.customer.toLowerCase() === userObj.name.toLowerCase())
+                );
+            } else {
+                // For vendors: filter by vendor name
+                userOrders = orders.filter(o =>
+                    (o.dist && o.dist.toLowerCase() === userObj.name.toLowerCase()) ||
+                    (o.vendor && o.vendor.toLowerCase() === userObj.name.toLowerCase())
+                );
+            }
+
+            // Calculate statistics
+            const totalOrders = userOrders.length;
+            const totalGMV = userOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+            // Calculate outstanding (unpaid orders)
+            const payments = loadJson('IBOCS_customer_payments', []);
+            let outstanding = 0;
+            userOrders.forEach(o => {
+                const payment = payments.find(p => p.orderNo === o.no || p.invoiceNo === o.no);
+                if (!payment || payment.status === 'Unpaid') {
+                    outstanding += (o.total || 0);
+                }
+            });
+
+            document.getElementById('detailOrderCount').textContent = totalOrders;
+            document.getElementById('detailGMV').textContent = fmtMoney(totalGMV);
+            document.getElementById('detailPending').textContent = fmtMoney(outstanding);
+
+            // ========== KPI CALCULATIONS ==========
+
+            // 1. Average Order Value (AOV)
+            const aov = totalOrders > 0 ? totalGMV / totalOrders : 0;
+            document.getElementById('detailAOV').textContent = fmtMoney(aov);
+
+            // 2. Payment Timeliness (% of paid orders)
+            const paidOrders = userOrders.filter(o => {
+                const payment = payments.find(p => p.orderNo === o.no || p.invoiceNo === o.no);
+                return payment && payment.status === 'Paid';
+            }).length;
+            const paymentTimeliness = totalOrders > 0 ? Math.round((paidOrders / totalOrders) * 100) : 0;
+            document.getElementById('detailPaymentScore').textContent = paymentTimeliness;
+            document.getElementById('detailPaymentBar').style.width = paymentTimeliness + '%';
+
+            // 3. Fulfillment Speed (Vendor only - avg days from order to dispatch)
+            if (type === 'vendor') {
+                const deliveries = loadJson('IBOCS_customer_deliveries', []);
+                let totalFulfillmentDays = 0;
+                let fulfillmentCount = 0;
+
+                userOrders.forEach(o => {
+                    const delivery = deliveries.find(d => d.orderNo === o.no);
+                    if (delivery && delivery.dispatchDate && o.date) {
+                        // Calculate days between order date and dispatch date
+                        const orderDate = new Date(o.date);
+                        const dispatchDate = new Date(delivery.dispatchDate);
+                        const diffDays = Math.ceil((dispatchDate - orderDate) / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 0) {
+                            totalFulfillmentDays += diffDays;
+                            fulfillmentCount++;
+                        }
+                    }
+                });
+
+                const avgFulfillment = fulfillmentCount > 0 ? (totalFulfillmentDays / fulfillmentCount).toFixed(1) : '-';
+                document.getElementById('detailFulfillmentDays').textContent = avgFulfillment;
+
+                // Color code based on performance
+                const fulfillmentEl = document.getElementById('detailFulfillmentDays');
+                if (avgFulfillment !== '-') {
+                    if (avgFulfillment <= 1) {
+                        fulfillmentEl.className = 'fs-5 fw-bold text-success';
+                    } else if (avgFulfillment <= 2) {
+                        fulfillmentEl.className = 'fs-5 fw-bold text-info';
+                    } else {
+                        fulfillmentEl.className = 'fs-5 fw-bold text-warning';
+                    }
+                }
+            } else {
+                // Hide fulfillment for customers
+                document.getElementById('kpiFulfillment').style.display = 'none';
+            }
+
+            // 4. Order Completion Rate (% of completed/delivered orders)
+            const completedOrders = userOrders.filter(o =>
+                o.status === 'Completed' || o.status === 'Sampai' || o.status === 'Delivered'
+            ).length;
+            const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
+            document.getElementById('detailCompletionRate').textContent = completionRate;
+            document.getElementById('detailCompletionBar').style.width = completionRate + '%';
+
+            // ========== END KPI CALCULATIONS ==========
+
+            // Recent activity (last 5 orders)
+            const recentOrders = userOrders.slice(-5).reverse();
+            const activityBody = document.getElementById('detailActivityBody');
+
+            if (recentOrders.length === 0) {
+                activityBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted small">No recent orders</td></tr>';
+            } else {
+                activityBody.innerHTML = recentOrders.map(o => `
+                    <tr>
+                        <td class="small">${o.date || '-'}</td>
+                        <td class="small"><span class="badge bg-secondary">${o.no}</span></td>
+                        <td class="small">${fmtMoney(o.total)}</td>
+                        <td class="small"><span class="badge bg-info text-dark">${o.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('userDetailModal')).show();
+        };
+
+        window.verifyUser = function (email, type) {
+            const arr = type === 'customer' ? customers : vendors;
+            const user = arr.find(u => u.email === email);
+            if (!user) return;
+
+            if (confirm(`Verify user "${user.name}"?\n\nThis will change status to Active.`)) {
+                user.status = 'Active';
+                saveJson(type === 'customer' ? LS_CUSTOMERS : LS_VENDORS, arr);
+                render();
+                alert('✅ User verified!');
+            }
+        };
+
+        window.suspendUser = function (email, type) {
+            const arr = type === 'customer' ? customers : vendors;
+            const user = arr.find(u => u.email === email);
+            if (!user) return;
+
+            if (confirm(`Suspend user "${user.name}"?\n\nThey won't be able to access the platform.`)) {
+                user.status = 'Suspended';
+                saveJson(type === 'customer' ? LS_CUSTOMERS : LS_VENDORS, arr);
+                render();
+                alert('⚠️ User suspended!');
+            }
+        };
+
+        window.activateUser = function (email, type) {
+            const arr = type === 'customer' ? customers : vendors;
+            const user = arr.find(u => u.email === email);
+            if (!user) return;
+
+            if (confirm(`Reactivate user "${user.name}"?`)) {
+                user.status = 'Active';
+                saveJson(type === 'customer' ? LS_CUSTOMERS : LS_VENDORS, arr);
+                render();
+                alert('✅ User reactivated!');
+            }
+        };
+
+        // Seed Demo Users
+        document.getElementById('btnSeedUsers').addEventListener('click', () => {
+            if (!confirm('Seed demo users with transaction data?\n\nThis will create:\n- Sample customers and vendors\n- Demo orders linked to users\n- Payment & delivery records')) return;
+
+            // 1. Create Users
+            customers = [
+                { email: 'toko1@example.com', name: 'Toko Maju Jaya', region: 'Jakarta', status: 'Active', createdAt: '2026-01-05', phone: '+62 812 1111 1111' },
+                { email: 'warung2@example.com', name: 'Warung Sejahtera', region: 'Bandung', status: 'Pending', createdAt: '2026-01-08', phone: '+62 813 2222 2222' },
+                { email: 'customer3@example.com', name: 'Minimarket ABC', region: 'Surabaya', status: 'Active', createdAt: '2026-01-03', phone: '+62 814 3333 3333' }
+            ];
+
+            vendors = [
+                { email: 'dist1@example.com', name: 'PT Vendor A', region: 'Jakarta', status: 'Active', createdAt: '2026-01-01', phone: '+62 815 4444 4444' },
+                { email: 'dist2@example.com', name: 'CV Vendor B', region: 'Semarang', status: 'Pending', createdAt: '2026-01-07', phone: '+62 816 5555 5555' }
+            ];
+
+            // 2. Create Orders (linked to customers)
+            const orders = [
+                // Toko Maju Jaya orders
+                { no: 'ORD-000201', customer: 'Toko Maju Jaya', customerName: 'Toko Maju Jaya', dist: 'PT Vendor A', date: '2026-01-05', status: 'Completed', total: 1240000 },
+                { no: 'ORD-000202', customer: 'Toko Maju Jaya', customerName: 'Toko Maju Jaya', dist: 'PT Vendor A', date: '2026-01-07', status: 'Confirmed', total: 850000 },
+                { no: 'ORD-000203', customer: 'Toko Maju Jaya', customerName: 'Toko Maju Jaya', dist: 'PT Vendor A', date: '2026-01-09', status: 'Submitted', total: 650000 },
+
+                // Warung Sejahtera orders
+                { no: 'ORD-000204', customer: 'Warung Sejahtera', customerName: 'Warung Sejahtera', dist: 'CV Vendor B', date: '2026-01-08', status: 'Confirmed', total: 420000 },
+
+                // Minimarket ABC orders
+                { no: 'ORD-000205', customer: 'Minimarket ABC', customerName: 'Minimarket ABC', dist: 'PT Vendor A', date: '2026-01-04', status: 'Dikirim', total: 1850000 },
+                { no: 'ORD-000206', customer: 'Minimarket ABC', customerName: 'Minimarket ABC', dist: 'PT Vendor A', date: '2026-01-06', status: 'Sampai', total: 920000 },
+                { no: 'ORD-000207', customer: 'Minimarket ABC', customerName: 'Minimarket ABC', dist: 'PT Vendor A', date: '2026-01-10', status: 'Submitted', total: 540000 }
+            ];
+
+            // 3. Create Payments
+            const payments = [
+                { orderNo: 'ORD-000201', invoiceNo: 'INV-000201', amount: 1240000, status: 'Paid', dueDate: '2026-02-04' },
+                { orderNo: 'ORD-000202', invoiceNo: 'INV-000202', amount: 850000, status: 'Unpaid', dueDate: '2026-02-06' },
+                { orderNo: 'ORD-000203', invoiceNo: 'INV-000203', amount: 650000, status: 'Unpaid', dueDate: '2026-02-08' },
+                { orderNo: 'ORD-000204', invoiceNo: 'INV-000204', amount: 420000, status: 'Unpaid', dueDate: '2026-02-07' },
+                { orderNo: 'ORD-000205', invoiceNo: 'INV-000205', amount: 1850000, status: 'Paid', dueDate: '2026-02-03' },
+                { orderNo: 'ORD-000206', invoiceNo: 'INV-000206', amount: 920000, status: 'Reported', dueDate: '2026-02-05' },
+                { orderNo: 'ORD-000207', invoiceNo: 'INV-000207', amount: 540000, status: 'Unpaid', dueDate: '2026-02-09' }
+            ];
+
+            // 4. Create Deliveries
+            const deliveries = [
+                { orderNo: 'ORD-000201', no: 'DO-000201', status: 'Delivered', courier: 'JNE', awb: 'JNE1234567', dispatchDate: '2026-01-06' },
+                { orderNo: 'ORD-000205', no: 'DO-000205', status: 'Shipped', courier: 'SiCepat', awb: 'SC7654321', dispatchDate: '2026-01-05' },
+                { orderNo: 'ORD-000206', no: 'DO-000206', status: 'Delivered', courier: 'JNT', awb: 'JNT9876543', dispatchDate: '2026-01-07' }
+            ];
+
+            // 5. Save All
+            saveJson(LS_CUSTOMERS, customers);
+            saveJson(LS_VENDORS, vendors);
+            saveJson('IBOCS_customer_orders', orders);
+            saveJson('IBOCS_customer_payments', payments);
+            saveJson('IBOCS_customer_deliveries', deliveries);
+
+            render();
+            alert('✅ Demo data seeded!\n\n- 3 Customers\n- 2 Vendors\n- 7 Orders\n- 7 Payments\n- 3 Deliveries');
+        });
+
+        // Search
+        document.getElementById('searchCustomers').addEventListener('input', renderCustomers);
+        document.getElementById('searchVendors').addEventListener('input', renderVendors);
+
+        // Init
+        render();
+    </script>
+</body>
+
+</html>
+
+

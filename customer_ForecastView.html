@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IBOCS | Forecast View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f7fb; color: #222; }
+        .page { max-width: 100%; border-radius: 12px; background: #fff; padding: 24px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 22px; }
+        .subtext { margin-top: 6px; font-size: 13px; color: #6b7280; }
+        .btn-action { padding: 10px 16px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; font-size: 13px; background: #2563eb; color: #fff; text-decoration: none; display: inline-block; }
+        .btn-success-action { padding: 10px 16px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; font-size: 13px; background: #16a34a; color: #fff; }
+        .btn-secondary-action { padding: 10px 16px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; font-size: 13px; background: #e5e7eb; color: #111827; text-decoration: none; display: inline-block; }
+        .btn-info-action { padding: 10px 16px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; font-size: 13px; background: #dbeafe; color: #1d4ed8; }
+        .card { background: #fff; border-radius: 14px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-header { padding: 14px 16px; font-weight: 700; border-bottom: 1px solid #eef0f4; }
+        .card-body { padding: 16px; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 14px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+        .field label { display: block; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 6px; }
+        .field input { width: 100%; height: 38px; border: 1px solid #d5dae3; border-radius: 8px; padding: 0 11px; font-size: 13px; background: #f8fafc; color: #444; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 820px; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; font-size: 13px; text-align: left; vertical-align: middle; }
+        th { background: #f9fafc; font-size: 12px; color: #555; font-weight: 700; white-space: nowrap; }
+        tbody tr:hover { background: #fafcff; }
+        .tag { display: inline-block; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+        .tag-auto   { background: #dbeafe; color: #1d4ed8; }
+        .tag-manual { background: #fef3c7; color: #92400e; }
+        .tag-yellow { background: #fef9c3; color: #92400e; }
+        .tag-green  { background: #dcfce7; color: #166534; }
+        .tag-blue   { background: #dbeafe; color: #1d4ed8; }
+        .tag-gray   { background: #f3f4f6; color: #4b5563; }
+        .info-panel { background: #f8fafc; border-radius: 10px; padding: 14px; border: 1px solid #e8ebf1; }
+        .info-panel .label { font-size: 11px; color: #666; margin-bottom: 4px; }
+        .info-panel .value { font-size: 18px; font-weight: 700; }
+        .action-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+        .showmore-toggle { font-size: 12px; color: #2563eb; cursor: pointer; background: none; border: none; padding: 0; font-weight: 700; }
+        .showmore-box { display: none; }
+        .showmore-box.active { display: block; }
+        .mode-chip { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 8px; background: #dcfce7; color: #166534; }
+        @media (max-width: 1100px) { .grid-5, .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        @media (max-width: 700px) { .topbar { flex-direction: column; align-items: stretch; } .grid-5, .grid-4 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold" href="customer_dashboard.html">IBOCS</a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Customer Portal</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="userBtn">User</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="index.html">Ganti Portal</a></li>
+                        <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <!-- Sidebar -->
+            <div class="col-lg-2" id="sidebar-container"></div>
+
+            <!-- Main -->
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 text-primary fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>Forecast</h4>
+                </div>
+
+                <div class="page shadow-sm">
+                    <div class="topbar">
+                        <div>
+                            <h1>View Forecast <span class="mode-chip">View</span></h1>
+                            <div class="subtext">Detail forecast readonly. Confirm dan Generate PO dilakukan dari halaman ini.</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="customer_ForecastList.html" class="btn-secondary-action"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+                            <button class="btn-secondary-action" onclick="window.print()"><i class="bi bi-printer me-1"></i>Print</button>
+                        </div>
+                    </div>
+
+                    <!-- Status Banner -->
+                    <div id="statusBanner" class="mb-3"></div>
+
+                    <!-- Header -->
+                    <div class="card">
+                        <div class="card-header">Header</div>
+                        <div class="card-body">
+                            <div class="grid-5" style="margin-bottom:14px;">
+                                <div class="field"><label>Forecast No</label><input id="fcNo" readonly></div>
+                                <div class="field"><label>Forecast Date</label><input id="fcDate" readonly></div>
+                                <div class="field"><label>Period</label><input id="period" readonly></div>
+                                <div class="field"><label>Plan No</label><input id="planNo" readonly></div>
+                                <div class="field"><label>Plan Description</label><input id="planDesc" readonly></div>
+                            </div>
+                            <div class="grid-4">
+                                <div class="field"><label>Company</label><input id="company" readonly></div>
+                                <div class="field"><label>Farm</label><input id="farm" readonly></div>
+                                <div class="field"><label>Warehouse</label><input id="warehouse" readonly></div>
+                                <div class="field"><label>Status</label><input id="status" readonly></div>
+                            </div>
+
+                            <div class="mt-3 d-flex justify-content-end">
+                                <button class="showmore-toggle" onclick="toggleShowMore()">
+                                    <i class="bi bi-chevron-down" id="showmoreIcon"></i> Show More Plan Detail
+                                </button>
+                            </div>
+                            <div id="planDetail" class="showmore-box mt-3 p-3" style="background:#f8fafc;border-radius:10px;border:1px solid #e8ebf1;">
+                                <div class="grid-5" style="margin-bottom:12px;">
+                                    <div class="field"><label>Age</label><input id="age" readonly></div>
+                                    <div class="field"><label>DOC Code Male</label><input id="docCodeMale" readonly></div>
+                                    <div class="field"><label>DOC Code Female</label><input id="docCodeFemale" readonly></div>
+                                    <div class="field"><label>DOC Name Male</label><input id="docNameMale" readonly></div>
+                                    <div class="field"><label>DOC Name Female</label><input id="docNameFemale" readonly></div>
+                                </div>
+                                <div class="grid-4">
+                                    <div class="field"><label>Initial Stock (M/F)</label><input id="initialStock" readonly></div>
+                                    <div class="field"><label>Current Population (M/F)</label><input id="currentPop" readonly></div>
+                                    <div class="field"><label>Total Current Population</label><input id="totalPop" readonly></div>
+                                    <div class="field"><label>Plan Source</label><input value="SAP Plan" readonly></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lines -->
+                    <div class="card">
+                        <div class="card-header">Forecast Lines</div>
+                        <div class="card-body">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Name</th>
+                                            <th>Flag</th>
+                                            <th>Standard Need</th>
+                                            <th>Current Stock</th>
+                                            <th>Recommended Qty</th>
+                                            <th>Manual Adjustment</th>
+                                            <th>Final Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="linesBody">
+                                        <tr><td colspan="8" style="text-align:center;padding:24px;color:#6b7280;">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="info-panel mt-3">
+                                <div class="row g-3">
+                                    <div class="col-sm-4">
+                                        <div class="label">Total Item</div>
+                                        <div class="value" id="totalItem">0</div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="label">Total Recommended Qty</div>
+                                        <div class="value" id="totalRecommended">0</div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="label">Total Final Qty</div>
+                                        <div class="value" id="totalFinal">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Footer -->
+                    <div class="action-footer" id="actionFooter"></div>
+                </div>
+
+                <div class="text-center text-muted small mt-4 mb-2">© 2026 IBOCS — Customer Portal</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        // SESSION GUARD
+        const sess = localStorage.getItem("IBOCS_user");
+        if (!sess) window.location.href = "login.html?role=customer";
+        const user = JSON.parse(sess);
+        if (user.role !== "customer" && user.role !== "super_admin") window.location.href = "index.html";
+        document.getElementById("userBtn").textContent = user.name || "User";
+        document.getElementById("userInfo").textContent = `${user.email} • role=${user.role}`;
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("IBOCS_user");
+            window.location.href = "index.html";
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const fcNoParam = urlParams.get("fcNo");
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new SidebarSystem(null, 'forecast').render();
+            if (!fcNoParam) { alert("Forecast tidak ditemukan."); window.location.href = "customer_ForecastList.html"; return; }
+            loadForecast(fcNoParam);
+        });
+
+        function getFcList() {
+            const DEMO_FC = [
+                { fcNo: "FC-001", fcDate: "2026-04-29", period: "Week 18", company: "PT TOP",  farm: "Farm Deli",   warehouse: "WH-KDG01", planNo: "PL-001", planDesc: "Broiler Cycle 18", status: "Draft",      age: "21 Hari", docCodeMale: "DOC-M-001", docCodeFemale: "DOC-F-001", docNameMale: "DOC Male Premium", docNameFemale: "DOC Female Premium", initialStock: "5,000 / 5,000", currentPop: "4,900 / 4,950", totalPop: "9,850", lines: [{ itemCode: "FD-ST-001", itemName: "Starter Feed", flag: "Auto",   standardNeed: 7000, currentStock: 500, recommendedQty: 7500, manualAdjustment: 300 }, { itemCode: "FD-GR-003", itemName: "Grower Feed",  flag: "Auto",   standardNeed: 5000, currentStock: 200, recommendedQty: 5500, manualAdjustment: 200 }] },
+                { fcNo: "FC-002", fcDate: "2026-04-29", period: "Week 18", company: "PT TOP",  farm: "Farm Deli",   warehouse: "WH-KDG02", planNo: "PL-002", planDesc: "Broiler Cycle 18", status: "Confirmed",  age: "23 Hari", docCodeMale: "DOC-M-001", docCodeFemale: "DOC-F-001", docNameMale: "DOC Male Premium", docNameFemale: "DOC Female Premium", initialStock: "5,000 / 5,000", currentPop: "4,850 / 4,900", totalPop: "9,750", lines: [{ itemCode: "FD-ST-001", itemName: "Starter Feed",  flag: "Auto",   standardNeed: 8000, currentStock: 400, recommendedQty: 8000, manualAdjustment: 0  }, { itemCode: "FD-FN-002", itemName: "Finisher Feed", flag: "Auto",   standardNeed: 7000, currentStock: 300, recommendedQty: 7000, manualAdjustment: 0  }] },
+                { fcNo: "FC-003", fcDate: "2026-04-28", period: "Week 18", company: "PT AYM",  farm: "Farm Binjai", warehouse: "WH-KDG03", planNo: "PL-008", planDesc: "Broiler Cycle 21", status: "PO Created", age: "18 Hari", docCodeMale: "DOC-M-008", docCodeFemale: "DOC-F-008", docNameMale: "DOC Male Select",  docNameFemale: "DOC Female Select",  initialStock: "4,800 / 4,800", currentPop: "4,600 / 4,650", totalPop: "9,250", lines: [{ itemCode: "FD-ST-001", itemName: "Starter Feed", flag: "Auto",   standardNeed: 6200, currentStock: 200, recommendedQty: 6200, manualAdjustment: 0  }, { itemCode: "FD-GR-003", itemName: "Grower Feed",  flag: "Manual", standardNeed: 0,    currentStock: 0,   recommendedQty: 0,    manualAdjustment: 4300}] }
+            ];
+            const stored = JSON.parse(localStorage.getItem("IBOCS_fc_list") || "[]");
+            const storedNos = new Set(stored.map(f => f.fcNo));
+            return [...stored, ...DEMO_FC.filter(d => !storedNos.has(d.fcNo))];
+        }
+
+        function loadForecast(fcNo) {
+            const data = getFcList().find(f => f.fcNo === fcNo);
+            if (!data) { alert("Forecast tidak ditemukan."); window.location.href = "customer_ForecastList.html"; return; }
+
+            // Fill header
+            document.getElementById("fcNo").value          = data.fcNo;
+            document.getElementById("fcDate").value        = data.fcDate;
+            document.getElementById("period").value        = data.period;
+            document.getElementById("planNo").value        = data.planNo;
+            document.getElementById("planDesc").value      = data.planDesc;
+            document.getElementById("company").value       = data.company;
+            document.getElementById("farm").value          = data.farm;
+            document.getElementById("warehouse").value     = data.warehouse;
+            document.getElementById("status").value        = data.status;
+            document.getElementById("age").value           = data.age || "";
+            document.getElementById("docCodeMale").value   = data.docCodeMale || "";
+            document.getElementById("docCodeFemale").value = data.docCodeFemale || "";
+            document.getElementById("docNameMale").value   = data.docNameMale || "";
+            document.getElementById("docNameFemale").value = data.docNameFemale || "";
+            document.getElementById("initialStock").value  = data.initialStock || "";
+            document.getElementById("currentPop").value    = data.currentPop || "";
+            document.getElementById("totalPop").value      = data.totalPop || "";
+
+            // Status banner
+            const bannerMap = {
+                Draft:        { cls: "alert alert-warning", icon: "bi-pencil",       msg: "Status: <strong>Draft</strong> — Forecast belum dikonfirmasi." },
+                Confirmed:    { cls: "alert alert-success", icon: "bi-check-circle",  msg: "Status: <strong>Confirmed</strong> — Forecast telah dikonfirmasi. Generate PO untuk melanjutkan." },
+                "PO Created": { cls: "alert alert-info",    icon: "bi-bag-check",     msg: "Status: <strong>PO Created</strong> — PO sudah dibuat dari forecast ini." },
+                Closed:       { cls: "alert alert-secondary", icon: "bi-lock",        msg: "Status: <strong>Closed</strong> — Forecast sudah ditutup." }
+            };
+            const b = bannerMap[data.status] || bannerMap.Draft;
+            document.getElementById("statusBanner").innerHTML =
+                `<div class="${b.cls} d-flex align-items-center gap-2 mb-0"><i class="bi ${b.icon}"></i><span>${b.msg}</span></div>`;
+
+            // Lines
+            buildLines(data.lines);
+
+            // Action footer
+            buildFooter(data);
+        }
+
+        function buildLines(lines) {
+            const tbody = document.getElementById("linesBody");
+            tbody.innerHTML = "";
+            let totalItem = 0, totalRec = 0, totalFinal = 0;
+            (lines || []).forEach(l => {
+                const finalQty = (l.recommendedQty || 0) + (l.manualAdjustment || 0);
+                totalItem++;
+                totalRec   += (l.recommendedQty || 0);
+                totalFinal += finalQty;
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${l.itemCode}</td>
+                    <td>${l.itemName}</td>
+                    <td><span class="${l.flag === 'Manual' ? 'tag-manual' : 'tag-auto'}">${l.flag}</span></td>
+                    <td>${l.flag === 'Manual' ? '-' : (l.standardNeed || 0).toLocaleString()}</td>
+                    <td>${l.flag === 'Manual' ? '-' : (l.currentStock || 0).toLocaleString()}</td>
+                    <td>${l.flag === 'Manual' ? '-' : (l.recommendedQty || 0).toLocaleString()}</td>
+                    <td>${(l.manualAdjustment || 0).toLocaleString()}</td>
+                    <td>${finalQty.toLocaleString()}</td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById("totalItem").textContent        = totalItem;
+            document.getElementById("totalRecommended").textContent = totalRec.toLocaleString();
+            document.getElementById("totalFinal").textContent       = totalFinal.toLocaleString();
+        }
+
+        function buildFooter(data) {
+            const footer = document.getElementById("actionFooter");
+            const editBtn = data.status === "Draft"
+                ? `<a href="customer_ForecastAdd.html?fcNo=${encodeURIComponent(data.fcNo)}" class="btn-secondary-action"><i class="bi bi-pencil me-1"></i>Edit</a>`
+                : "";
+
+            let primaryBtn = "";
+            if (data.status === "Draft") {
+                primaryBtn = `<button class="btn-success-action" onclick="doConfirm('${data.fcNo}')"><i class="bi bi-check-circle me-1"></i>Confirm Forecast</button>`;
+            } else if (data.status === "Confirmed") {
+                primaryBtn = `<button class="btn-success-action" onclick="doGeneratePO('${data.fcNo}')"><i class="bi bi-bag-plus me-1"></i>Generate PO</button>`;
+            } else if (data.status === "PO Created") {
+                primaryBtn = `<button class="btn-info-action" onclick="window.location.href='customer_orders.html'"><i class="bi bi-box-arrow-up-right me-1"></i>Open PO</button>`;
+            }
+
+            footer.innerHTML = editBtn + primaryBtn;
+        }
+
+        function doConfirm(fcNo) {
+            if (!confirm(`Konfirmasi forecast ${fcNo}?`)) return;
+            updateStatus(fcNo, "Confirmed");
+        }
+
+        function doGeneratePO(fcNo) {
+            if (!confirm(`Generate PO dari forecast ${fcNo}?`)) return;
+            updateStatus(fcNo, "PO Created");
+        }
+
+        function updateStatus(fcNo, newStatus) {
+            const list = getFcList();
+            const data = list.find(f => f.fcNo === fcNo);
+            if (!data) return;
+            data.status = newStatus;
+            const stored = list.filter(f => !["FC-001","FC-002","FC-003"].includes(f.fcNo));
+            // Also persist demo data change if it's a demo record by adding it to stored
+            const storageList = list.map(f => ({ ...f }));
+            storageList.find(f => f.fcNo === fcNo).status = newStatus;
+            localStorage.setItem("IBOCS_fc_list", JSON.stringify(storageList.filter(f => !["FC-001","FC-002","FC-003"].includes(f.fcNo))));
+            // For demo records, update in memory and reload
+            window.location.reload();
+        }
+
+        function toggleShowMore() {
+            const box  = document.getElementById("planDetail");
+            const icon = document.getElementById("showmoreIcon");
+            box.classList.toggle("active");
+            icon.className = box.classList.contains("active") ? "bi bi-chevron-up" : "bi bi-chevron-down";
+        }
+    </script>
+</body>
+</html>
