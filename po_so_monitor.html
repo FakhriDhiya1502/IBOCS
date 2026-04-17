@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction Monitoring | iBOCS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f9;
+      color: #1f2937;
+    }
+
+    :root {
+      --line: #d9e0ea;
+      --soft: #f8fafc;
+      --muted: #6b7280;
+      --title: #0f172a;
+      --primary: #1a237e;
+      --success: #166534;
+      --success-bg: #dcfce7;
+      --warning: #92400e;
+      --warning-bg: #fef3c7;
+      --danger: #991b1b;
+      --danger-bg: #fee2e2;
+      --info: #1d4ed8;
+      --info-bg: #dbeafe;
+    }
+
+    .page {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 18px rgba(15, 23, 42, .05);
+    }
+
+    /* KPI */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+      cursor: pointer;
+      transition: box-shadow .15s;
+    }
+
+    .kpi-card:hover {
+      box-shadow: 0 4px 14px rgba(15, 23, 42, .1);
+    }
+
+    .kpi-card.active {
+      border-color: var(--primary);
+      background: #eef0fb;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--title);
+      line-height: 1;
+    }
+
+    .kpi-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
+      background: #fff;
+      outline: none;
+    }
+
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 35, 126, .1);
+    }
+
+    .filter-bar input[type=search] {
+      min-width: 200px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 1200px;
+    }
+
+    th {
+      background: var(--soft);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #edf0f5;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #f8f9ff;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    .doc-link {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border-bottom: 1px dashed;
+      padding-bottom: 1px;
+      display: inline-block;
+      line-height: 1.6;
+    }
+
+    .doc-link:hover {
+      opacity: .75;
+    }
+
+    .partial-badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* Tags */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag-pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .tag-confirmed {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .tag-open {
+      background: var(--info-bg);
+      color: var(--info);
+    }
+
+    /* Modal popup */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(15, 23, 42, .22);
+      animation: popIn .2s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(.94) translateY(12px);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 16px 16px 0 0;
+      flex-shrink: 0;
+    }
+
+    .panel-header h5 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-header .sub {
+      font-size: 12px;
+      opacity: .75;
+      margin-top: 2px;
+    }
+
+    .panel-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      opacity: .8;
+    }
+
+    .panel-close:hover {
+      opacity: 1;
+    }
+
+    .panel-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Doc modal form */
+    .doc-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px 20px;
+      margin-bottom: 16px;
+    }
+
+    .doc-info-item .di-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 2px;
+    }
+
+    .doc-info-item .di-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--title);
+    }
+
+    .doc-divider {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin: 14px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .doc-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .doc-table th {
+      background: var(--soft);
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .doc-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .doc-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .doc-table tfoot td {
+      background: var(--soft);
+      font-weight: 700;
+      border-top: 2px solid var(--line);
+      font-size: 12px;
+    }
+
+    .doc-table .num {
+      text-align: right;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .doc-table .th-qty {
+      width: 65px;
+    }
+
+    .doc-table .th-price {
+      width: 105px;
+    }
+
+    .doc-table .th-sub {
+      width: 120px;
+    }
+
+    .doc-table .item-name {
+      font-weight: 600;
+    }
+
+    .doc-table .item-sku {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+
+    .empty-state i {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+      opacity: .4;
+    }
+
+    @media (max-width: 700px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .modal-box {
+        max-height: 95vh;
+      }
+
+      .doc-info-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg" style="background: #1a237e;">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand fw-bold text-white" href="forecast_dashboard.html">iBOCS</a>
+      <span class="navbar-text text-white-50 small d-none d-md-inline" id="portalLabel">Portal</span>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+            id="userBtn">User</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small text-muted" id="userInfo">-</span></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#" id="profileLink">Profile</a></li>
+            <li><button class="dropdown-item text-danger" id="btnLogout">Logout</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid py-3">
+    <div class="row g-3">
+      <div class="col-lg-2" id="sidebar-container"></div>
+      <div class="col-lg-10">
+        <div class="page">
+
+          <!-- Header -->
+          <div class="d-flex justify-content-between align-items-flex-start flex-wrap gap-2 mb-4 pb-3"
+            style="border-bottom:1px solid var(--line);">
+            <div>
+              <h4 class="mb-1 fw-bold" style="color:var(--title);"><i class="bi bi-arrow-left-right me-2"
+                  style="color:var(--primary);"></i>Transaction Monitoring</h4>
+              <p class="mb-0 small" style="color:var(--muted);">Pantau alur transaksi dari Purchase Order hingga
+                pembayaran.</p>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
+            </button>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="kpi-row">
+            <div class="kpi-card active" id="kpiAll" onclick="setFilter('all')">
+              <div class="kpi-label">Total PO</div>
+              <div class="kpi-value" id="valTotal">0</div>
+              <div class="kpi-note">Semua transaksi</div>
+            </div>
+            <div class="kpi-card" id="kpiPending" onclick="setFilter('pending')">
+              <div class="kpi-label">Pending SO</div>
+              <div class="kpi-value" id="valPending" style="color:#d97706;">0</div>
+              <div class="kpi-note">Menunggu vendor</div>
+            </div>
+            <div class="kpi-card" id="kpiSO" onclick="setFilter('so')">
+              <div class="kpi-label">SO → DO</div>
+              <div class="kpi-value" id="valSO" style="color:#1d4ed8;">0</div>
+              <div class="kpi-note">Sudah SO, belum dikirim</div>
+            </div>
+            <div class="kpi-card" id="kpiDO" onclick="setFilter('do')">
+              <div class="kpi-label">DO → GRPO</div>
+              <div class="kpi-value" id="valDO" style="color:#0891b2;">0</div>
+              <div class="kpi-note">Dikirim, belum diterima</div>
+            </div>
+            <div class="kpi-card" id="kpiGRPO" onclick="setFilter('grpo')">
+              <div class="kpi-label">GRPO → AP/AR</div>
+              <div class="kpi-value" id="valGRPO" style="color:#6d28d9;">0</div>
+              <div class="kpi-note">Diterima, proses bayar</div>
+            </div>
+            <div class="kpi-card" id="kpiDone" onclick="setFilter('done')">
+              <div class="kpi-label">Selesai</div>
+              <div class="kpi-value" id="valDone" style="color:#16a34a;">0</div>
+              <div class="kpi-note">AR lunas, transaksi tuntas</div>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="filter-bar">
+            <input type="search" id="fSearch" placeholder="Cari PO / SO / Customer..." oninput="applyFilters()">
+            <select id="fStatus" onchange="applyFilters()">
+              <option value="">Semua Status</option>
+              <option value="pending">Pending SO</option>
+              <option value="so">SO → DO</option>
+              <option value="do">DO → GRPO</option>
+              <option value="grpo">GRPO → AP/AR</option>
+              <option value="done">Selesai</option>
+            </select>
+            <select id="fVendor" onchange="applyFilters()">
+              <option value="">Semua Vendor</option>
+            </select>
+            <input type="date" id="fDateFrom" onchange="applyFilters()" title="PO Date dari">
+            <input type="date" id="fDateTo" onchange="applyFilters()" title="PO Date sampai">
+          </div>
+
+          <!-- Table -->
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>PO Number</th>
+                  <th>PO Date</th>
+                  <th>Customer</th>
+                  <th>Vendor</th>
+                  <th>Items</th>
+                  <th>SO Number</th>
+                  <th>DO Number</th>
+                  <th>GRPO Number</th>
+                  <th>AP Number</th>
+                  <th>AR Number</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="monitorTable"></tbody>
+            </table>
+          </div>
+
+          <div class="text-center text-muted small mt-4">&copy; 2026 iBOCS — Transaction Monitoring</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal popup -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal-box" id="modalBox">
+      <div class="panel-header" id="panelHeader">
+        <div>
+          <h5 id="panelTitle">Detail</h5>
+          <div class="sub" id="panelSub">—</div>
+        </div>
+        <button class="panel-close" onclick="closePanel()">&times;</button>
+      </div>
+      <div class="panel-body" id="panelBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="sidebar.js"></script>
+  <script>
+    // ── Auth guard ─────────────────────────────────────────────────
+    const sess = localStorage.getItem("IBOCS_user");
+    if (!sess) window.location.href = "login.html";
+    const user = JSON.parse(sess || "{}");
+    const role = user.role || "";
+    if (!["customer", "vendor", "super_admin"].includes(role)) window.location.href = "index.html";
+
+    document.getElementById("userBtn").textContent = user.name || "User";
+    document.getElementById("userInfo").textContent = `${user.email || "–"} • role=${role}`;
+    document.getElementById("profileLink").href = role === "customer" ? "customer_profile.html" : "vendor_profile.html";
+    document.getElementById("portalLabel").textContent = { customer: "Customer Portal", vendor: "Vendor Portal", super_admin: "Super Admin Portal" }[role] || "Portal";
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      localStorage.removeItem("IBOCS_user");
+      window.location.href = "login.html";
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      new SidebarSystem(null, "po_so_monitor").render();
+      init();
+    });
+
+    // ── Demo PO Seed ───────────────────────────────────────────────
+    // Data structure:
+    //   items[]         — PO line items: {sku, name, origQty, price}
+    //   soRef/soDate    — single SO per PO
+    //   deliveries[]    — one or more delivery chains:
+    //     { doRef, doDate,
+    //       grpoRef, grpoDate, grpoItems: [{sku, name, receivedQty, price}],
+    //       apRef, apDate, apAmount,
+    //       arRef, arDate, arAmount }
+    const DEMO_PO = [
+
+      // ── Pending SO (3) ─────────────────────────────────────────────
+      {
+        poRef: "PO-2604-001", poDate: "2026-04-01", deliveryDate: "2026-04-08",
+        customer: "PT TOP Distribusi", vendorName: "SIC",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 7500, price: 50000 },
+        { sku: "FEED-003", name: "Pakan Grower (BR-2)", origQty: 5500, price: 48000 }],
+        deliveries: []
+      },
+      {
+        poRef: "PO-2604-002", poDate: "2026-04-02", deliveryDate: "2026-04-09",
+        customer: "PT TOP Distribusi", vendorName: "CTU",
+        items: [{ sku: "DOC-001", name: "DOC Broiler Cobb 500 (M)", origQty: 10000, price: 7500 },
+        { sku: "DOC-002", name: "DOC Broiler Cobb 500 (F)", origQty: 10000, price: 7000 }],
+        deliveries: []
+      },
+      {
+        poRef: "PO-2604-004", poDate: "2026-04-04", deliveryDate: "2026-04-11",
+        customer: "PT AYM (Ayam Yummy Makmur)", vendorName: "CTU",
+        items: [{ sku: "DOC-007", name: "DOC Hubbard (M)", origQty: 8000, price: 9000 },
+        { sku: "DOC-008", name: "DOC Hubbard (F)", origQty: 8000, price: 8500 }],
+        deliveries: []
+      },
+
+      // ── SO → DO (2) — sudah confirm SO, belum kirim ────────────────
+      {
+        poRef: "PO-2604-003", poDate: "2026-04-03", deliveryDate: "2026-04-10",
+        customer: "PT AYM (Ayam Yummy Makmur)", vendorName: "SIC",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 6200, price: 50000 },
+        { sku: "FEED-003", name: "Pakan Grower (BR-2)", origQty: 4300, price: 48000 }],
+        soRef: "SO-202604-001", soDate: "2026-04-05",
+        deliveries: []
+      },
+      {
+        poRef: "PO-2604-007", poDate: "2026-04-07", deliveryDate: "2026-04-14",
+        customer: "PT BMAX", vendorName: "SIC",
+        items: [{ sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 8700, price: 46000 },
+        { sku: "FEED-003", name: "Pakan Grower (BR-2)", origQty: 5700, price: 48000 }],
+        soRef: "SO-202604-002", soDate: "2026-04-09",
+        deliveries: []
+      },
+
+      // ── DO → GRPO (2) — dikirim satu DO, belum diterima ───────────
+      {
+        poRef: "PO-2604-008", poDate: "2026-04-08", deliveryDate: "2026-04-15",
+        customer: "PT BMAX", vendorName: "CTU",
+        items: [{ sku: "DOC-005", name: "DOC Layer Lohmann (M)", origQty: 9000, price: 12000 },
+        { sku: "DOC-006", name: "DOC Layer Lohmann (F)", origQty: 9000, price: 11000 }],
+        soRef: "SO-202604-003", soDate: "2026-04-10",
+        deliveries: [
+          { doRef: "DO-202604-015", doDate: "2026-04-12" }
+        ]
+      },
+      {
+        poRef: "PO-2604-009", poDate: "2026-04-09", deliveryDate: "2026-04-16",
+        customer: "PT TOP Distribusi", vendorName: "SIC",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 5000, price: 50000 },
+        { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 4000, price: 46000 }],
+        soRef: "SO-202604-004", soDate: "2026-04-11",
+        deliveries: [
+          { doRef: "DO-202604-016", doDate: "2026-04-13" }
+        ]
+      },
+
+      // ── Split Delivery: 1 PO → 1 SO → 2 DO ────────────────────────
+      // DO-1 sudah diterima (GRPO), DO-2 masih dalam pengiriman
+      {
+        poRef: "PO-2604-010", poDate: "2026-04-10", deliveryDate: "2026-04-17",
+        customer: "PT AYM (Ayam Yummy Makmur)", vendorName: "CTU",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 15000, price: 50000 },
+        { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 10000, price: 46000 }],
+        soRef: "SO-202604-005", soDate: "2026-04-12",
+        deliveries: [
+          {
+            doRef: "DO-202604-020", doDate: "2026-04-14",
+            grpoRef: "GRPO-202604-012", grpoDate: "2026-04-15",
+            grpoItems: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", receivedQty: 8000, price: 50000 },
+            { sku: "FEED-004", name: "Pakan Finisher (BR-3)", receivedQty: 5000, price: 46000 }]
+          },
+          {
+            doRef: "DO-202604-021", doDate: "2026-04-16"
+            // dalam perjalanan — belum ada GRPO
+          }
+        ]
+      },
+
+      // ── GRPO → AP/AR — partial GRPO (diterima sebagian) ───────────
+      {
+        poRef: "PO-2604-005", poDate: "2026-04-05", deliveryDate: "2026-04-12",
+        customer: "PT TOP Distribusi", vendorName: "SIC",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 8000, price: 50000 },
+        { sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 7000, price: 46000 }],
+        soRef: "SO-202603-009", soDate: "2026-03-28",
+        deliveries: [
+          {
+            doRef: "DO-202604-011", doDate: "2026-04-01",
+            grpoRef: "GRPO-202604-007", grpoDate: "2026-04-03",
+            grpoItems: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", receivedQty: 8000, price: 50000 },
+            { sku: "FEED-004", name: "Pakan Finisher (BR-3)", receivedQty: 5500, price: 46000 }]
+          }
+        ]
+      },
+
+      // ── GRPO → AP/AR — full GRPO, satu DO ─────────────────────────
+      {
+        poRef: "PO-2604-006", poDate: "2026-04-06", deliveryDate: "2026-04-13",
+        customer: "PT BMAX", vendorName: "CTU",
+        items: [{ sku: "DOC-005", name: "DOC Layer Lohmann (M)", origQty: 9500, price: 12000 },
+        { sku: "DOC-006", name: "DOC Layer Lohmann (F)", origQty: 9500, price: 11000 }],
+        soRef: "SO-202603-010", soDate: "2026-03-29",
+        deliveries: [
+          {
+            doRef: "DO-202604-012", doDate: "2026-04-02",
+            grpoRef: "GRPO-202604-008", grpoDate: "2026-04-04",
+            grpoItems: [{ sku: "DOC-005", name: "DOC Layer Lohmann (M)", receivedQty: 9500, price: 12000 },
+            { sku: "DOC-006", name: "DOC Layer Lohmann (F)", receivedQty: 9500, price: 11000 }]
+          }
+        ]
+      },
+
+      // ── Selesai — full AP/AR ────────────────────────────────────────
+      {
+        poRef: "PO-2603-021", poDate: "2026-03-10", deliveryDate: "2026-03-17",
+        customer: "PT AYM (Ayam Yummy Makmur)", vendorName: "SIC",
+        items: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", origQty: 10000, price: 50000 },
+        { sku: "FEED-003", name: "Pakan Grower (BR-2)", origQty: 8000, price: 48000 }],
+        soRef: "SO-202603-001", soDate: "2026-03-12",
+        deliveries: [
+          {
+            doRef: "DO-202603-003", doDate: "2026-03-14",
+            grpoRef: "GRPO-202603-001", grpoDate: "2026-03-16",
+            grpoItems: [{ sku: "FEED-002", name: "Pakan Starter (BR-1)", receivedQty: 10000, price: 50000 },
+            { sku: "FEED-003", name: "Pakan Grower (BR-2)", receivedQty: 8000, price: 48000 }],
+            apRef: "AP-202603-001", apDate: "2026-03-20", apAmount: 884000000,
+            arRef: "AR-202603-001", arDate: "2026-03-22", arAmount: 884000000
+          }
+        ]
+      },
+
+      // ── Selesai — partial GRPO + partial AR ────────────────────────
+      {
+        poRef: "PO-2603-022", poDate: "2026-03-12", deliveryDate: "2026-03-19",
+        customer: "PT TOP Distribusi", vendorName: "CTU",
+        items: [{ sku: "DOC-001", name: "DOC Broiler Cobb 500 (M)", origQty: 15000, price: 7500 },
+        { sku: "DOC-002", name: "DOC Broiler Cobb 500 (F)", origQty: 15000, price: 7000 }],
+        soRef: "SO-202603-002", soDate: "2026-03-14",
+        deliveries: [
+          {
+            doRef: "DO-202603-004", doDate: "2026-03-16",
+            grpoRef: "GRPO-202603-002", grpoDate: "2026-03-18",
+            grpoItems: [{ sku: "DOC-001", name: "DOC Broiler Cobb 500 (M)", receivedQty: 13000, price: 7500 },
+            { sku: "DOC-002", name: "DOC Broiler Cobb 500 (F)", receivedQty: 15000, price: 7000 }],
+            apRef: "AP-202603-002", apDate: "2026-03-22", apAmount: 202500000,
+            arRef: "AR-202603-002", arDate: "2026-03-24", arAmount: 150000000
+          }
+        ]
+      },
+
+      // ── Selesai — split 2 DO, keduanya lunas ───────────────────────
+      {
+        poRef: "PO-2603-023", poDate: "2026-03-15", deliveryDate: "2026-03-22",
+        customer: "PT BMAX", vendorName: "SIC",
+        items: [{ sku: "FEED-004", name: "Pakan Finisher (BR-3)", origQty: 12000, price: 46000 },
+        { sku: "FEED-003", name: "Pakan Grower (BR-2)", origQty: 9000, price: 48000 }],
+        soRef: "SO-202603-003", soDate: "2026-03-17",
+        deliveries: [
+          {
+            doRef: "DO-202603-005A", doDate: "2026-03-19",
+            grpoRef: "GRPO-202603-003A", grpoDate: "2026-03-21",
+            grpoItems: [{ sku: "FEED-004", name: "Pakan Finisher (BR-3)", receivedQty: 7000, price: 46000 },
+            { sku: "FEED-003", name: "Pakan Grower (BR-2)", receivedQty: 5000, price: 48000 }],
+            apRef: "AP-202603-003A", apDate: "2026-03-25", apAmount: 562000000,
+            arRef: "AR-202603-003A", arDate: "2026-03-27", arAmount: 562000000
+          },
+          {
+            doRef: "DO-202603-005B", doDate: "2026-03-20",
+            grpoRef: "GRPO-202603-003B", grpoDate: "2026-03-22",
+            grpoItems: [{ sku: "FEED-004", name: "Pakan Finisher (BR-3)", receivedQty: 5000, price: 46000 },
+            { sku: "FEED-003", name: "Pakan Grower (BR-2)", receivedQty: 4000, price: 48000 }],
+            apRef: "AP-202603-003B", apDate: "2026-03-26", apAmount: 422000000,
+            arRef: "AR-202603-003B", arDate: "2026-03-28", arAmount: 422000000
+          }
+        ]
+      },
+    ];
+
+    // ── Status derivation from deliveries array ────────────────────
+    // "pending"  — no soRef
+    // "so"       — soRef exists but no deliveries
+    // "do"       — at least one delivery has no grpoRef
+    // "grpo"     — all deliveries have grpoRef, at least one has no arRef
+    // "done"     — all deliveries have arRef
+    function deriveStatus(row) {
+      if (!row.soRef) return "pending";
+      const dels = row.deliveries || [];
+      if (!dels.length) return "so";
+      if (dels.some(d => !d.grpoRef)) return "do";
+      if (dels.some(d => !d.arRef)) return "grpo";
+      return "done";
+    }
+
+    function isDeliveryGrpoPartial(delivery, poItems) {
+      if (!delivery.grpoRef || !delivery.grpoItems) return false;
+      return delivery.grpoItems.some((g, i) => g.receivedQty < (poItems[i]?.origQty || g.receivedQty + 1));
+    }
+
+    function isDeliveryArPartial(delivery) {
+      if (!delivery.arAmount || !delivery.apAmount) return false;
+      return delivery.arAmount < delivery.apAmount;
+    }
+
+    // ── Merge with localStorage ─────────────────────────────────────
+    function buildRows() {
+      const stored = JSON.parse(localStorage.getItem("IBOCS_vendor_incoming_po") || "{}");
+      const soData = JSON.parse(localStorage.getItem("IBOCS_so_data") || "{}");
+
+      const applyOverride = (po) => {
+        const ov = stored[po.poRef] || {};
+        const linkedSO = ov.soRef ? soData[ov.soRef] : Object.values(soData).find(s => s.poRef === po.poRef);
+        const row = {
+          ...po,
+          soRef:         linkedSO?.soRef  || ov.soRef  || po.soRef  || null,
+          soDate:        linkedSO?.soDate || ov.soDate || po.soDate || null,
+          approvedItems: linkedSO?.items  || null,
+        };
+        row.monitorStatus = deriveStatus(row);
+        return row;
+      };
+
+      const rows = DEMO_PO.map(applyOverride);
+      const demoRefs = new Set(DEMO_PO.map(p => p.poRef));
+
+      // Merge customer-created orders from customer_orders.html
+      const custOrders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
+      const custLines  = JSON.parse(localStorage.getItem("IBOCS_customer_order_lines") || "{}");
+
+      custOrders.forEach(ord => {
+        if (demoRefs.has(ord.no)) return;
+        const lines = custLines[ord.no] || [];
+        if (!lines.length) return;
+
+        const sicItems = lines.filter(it => it.sku?.startsWith("FEED-"));
+        const ctuItems = lines.filter(it => it.sku?.startsWith("DOC-"));
+        const otherItems = lines.filter(it => !it.sku?.startsWith("FEED-") && !it.sku?.startsWith("DOC-"));
+
+        const addEntry = (vendorName, items) => {
+          if (!items.length) return;
+          const po = {
+            poRef:        ord.no,
+            poDate:       ord.date || ord.createdAt?.slice(0, 10) || "",
+            deliveryDate: ord.deliveryDate || "",
+            customer:     ord.customerName || ord.customer || "",
+            vendorName,
+            items: items.map(it => ({ sku: it.sku, name: it.name, origQty: it.qty, price: it.price })),
+            deliveries:   [],
+          };
+          rows.push(applyOverride(po));
+        };
+
+        addEntry("SIC", sicItems);
+        addEntry("CTU", ctuItems);
+        if (otherItems.length) addEntry("SIC", otherItems);
+      });
+
+      return rows;
+    }
+
+    // ── State ───────────────────────────────────────────────────────
+    let allRows = [];
+    let activeFilter = "all";
+
+    function init() {
+      allRows = buildRows();
+      populateVendorFilter();
+      updateKPIs();
+      applyFilters();
+      const param = new URLSearchParams(window.location.search).get("filter");
+      if (param) setFilter(param);
+    }
+
+    function populateVendorFilter() {
+      const vendors = [...new Set(allRows.map(r => r.vendorName))].sort();
+      const sel = document.getElementById("fVendor");
+      vendors.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+    }
+
+    function updateKPIs() {
+      document.getElementById("valTotal").textContent = allRows.length;
+      document.getElementById("valPending").textContent = allRows.filter(r => r.monitorStatus === "pending").length;
+      document.getElementById("valSO").textContent = allRows.filter(r => r.monitorStatus === "so").length;
+      document.getElementById("valDO").textContent = allRows.filter(r => r.monitorStatus === "do").length;
+      document.getElementById("valGRPO").textContent = allRows.filter(r => r.monitorStatus === "grpo").length;
+      document.getElementById("valDone").textContent = allRows.filter(r => r.monitorStatus === "done").length;
+    }
+
+    const KPI_IDS = ["kpiAll", "kpiPending", "kpiSO", "kpiDO", "kpiGRPO", "kpiDone"];
+    const KPI_MAP = { all: "kpiAll", pending: "kpiPending", so: "kpiSO", do: "kpiDO", grpo: "kpiGRPO", done: "kpiDone" };
+
+    function setFilter(f) {
+      activeFilter = f;
+      KPI_IDS.forEach(id => document.getElementById(id).classList.remove("active"));
+      if (KPI_MAP[f]) document.getElementById(KPI_MAP[f]).classList.add("active");
+      document.getElementById("fStatus").value = f === "all" ? "" : f;
+      applyFilters();
+    }
+
+    function resetFilters() {
+      ["fSearch", "fVendor", "fDateFrom", "fDateTo"].forEach(id => document.getElementById(id).value = "");
+      setFilter("all");
+    }
+
+    function applyFilters() {
+      const q = document.getElementById("fSearch").value.toLowerCase();
+      const status = document.getElementById("fStatus").value;
+      const vendor = document.getElementById("fVendor").value;
+      const dateFrom = document.getElementById("fDateFrom").value;
+      const dateTo = document.getElementById("fDateTo").value;
+
+      if (status && status !== activeFilter) {
+        activeFilter = status;
+        KPI_IDS.forEach(id => document.getElementById(id).classList.remove("active"));
+        if (KPI_MAP[status]) document.getElementById(KPI_MAP[status]).classList.add("active");
+      }
+
+      const filtered = allRows.filter(r => {
+        if (status && r.monitorStatus !== status) return false;
+        if (vendor && r.vendorName !== vendor) return false;
+        if (dateFrom && r.poDate < dateFrom) return false;
+        if (dateTo && r.poDate > dateTo) return false;
+        if (q) {
+          const dels = r.deliveries || [];
+          const docNums = dels.map(d => [d.doRef, d.grpoRef, d.apRef, d.arRef].filter(Boolean).join(" ")).join(" ");
+          if (!`${r.poRef} ${r.soRef || ""} ${docNums} ${r.customer} ${r.vendorName}`.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      });
+      renderTable(filtered);
+    }
+
+    function fmt(n) { return "Rp " + Number(n).toLocaleString("id-ID"); }
+    function fmtShort(n) { return Number(n).toLocaleString("id-ID"); }  // for table cells (header has Rp)
+
+    function tagHtml(s) {
+      const m = {
+        pending: `<span class="tag tag-pending"><i class="bi bi-hourglass-split"></i> Pending SO</span>`,
+        so: `<span class="tag" style="background:#dbeafe;color:#1d4ed8;"><i class="bi bi-file-earmark-check-fill"></i> SO → DO</span>`,
+        do: `<span class="tag" style="background:#cffafe;color:#0e7490;"><i class="bi bi-truck"></i> DO → GRPO</span>`,
+        grpo: `<span class="tag" style="background:#ede9fe;color:#6d28d9;"><i class="bi bi-box-seam-fill"></i> GRPO → AP/AR</span>`,
+        done: `<span class="tag tag-confirmed"><i class="bi bi-check-circle-fill"></i> Selesai</span>`,
+      };
+      return m[s] || "";
+    }
+
+    function docLinksCell(deliveries, field, color, type, poRef, subField) {
+      const dash = `<span style="color:#9ca3af;">—</span>`;
+      const links = deliveries.map((d, idx) => {
+        const val = d[field];
+        if (!val) return null;
+        const partial = subField && isDeliveryArPartial(d) && field === subField;
+        const grpoPartial = field === "grpoRef" && isDeliveryGrpoPartial(d, allRows.find(r => r.poRef === poRef)?.items || []);
+        const badge = (partial || grpoPartial) ? `<span class="partial-badge">Partial</span>` : "";
+        return `<a class="doc-link" style="color:${color};" onclick="openDoc(event,'${type}','${poRef}',${idx})">${val}</a>${badge}`;
+      }).filter(Boolean);
+      return links.length ? links.join("<br>") : dash;
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("monitorTable");
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i class="bi bi-inbox"></i>Tidak ada data yang cocok.</div></td></tr>`;
+        return;
+      }
+      const dash = `<span style="color:#9ca3af;">—</span>`;
+      tbody.innerHTML = rows.map(r => {
+        const dels = r.deliveries || [];
+        return `<tr>
+        <td><a class="doc-link" style="color:#1a237e;" onclick="openDoc(event,'po','${r.poRef}')">${r.poRef}</a></td>
+        <td>${r.poDate}</td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.customer}">${r.customer}</td>
+        <td><span class="tag tag-open" style="font-size:11px;">${r.vendorName}</span></td>
+        <td>${r.items.length} item${r.items.length > 1 ? "s" : ""}</td>
+        <td>${r.soRef ? `<a class="doc-link" style="color:#166534;" onclick="openDoc(event,'so','${r.poRef}')">${r.soRef}</a>` : dash}</td>
+        <td>${docLinksCell(dels, "doRef", "#1d4ed8", "do", r.poRef)}</td>
+        <td>${docLinksCell(dels, "grpoRef", "#6d28d9", "grpo", r.poRef)}</td>
+        <td>${docLinksCell(dels, "apRef", "#92400e", "ap", r.poRef)}</td>
+        <td>${docLinksCell(dels, "arRef", "#991b1b", "ar", r.poRef, "arRef")}</td>
+        <td>${tagHtml(r.monitorStatus)}</td>
+      </tr>`;
+      }).join("");
+    }
+
+    // ── Doc modal ───────────────────────────────────────────────────
+    // deliveryIdx: index into row.deliveries (for DO/GRPO/AP/AR docs)
+    function openDoc(event, type, poRef, deliveryIdx) {
+      event.stopPropagation();
+      const row = allRows.find(r => r.poRef === poRef);
+      if (!row) return;
+
+      const delivery = (deliveryIdx !== undefined) ? row.deliveries[deliveryIdx] : null;
+
+      const typeConfig = {
+        po: { title: row.poRef, sub: "Purchase Order", color: "#1a237e" },
+        so: { title: row.soRef, sub: "Sales Order", color: "#166534" },
+        do: { title: delivery?.doRef, sub: "Delivery Order", color: "#1d4ed8" },
+        grpo: { title: delivery?.grpoRef, sub: "Good Receipt PO", color: "#6d28d9" },
+        ap: { title: delivery?.apRef, sub: "Accounts Payable", color: "#92400e" },
+        ar: { title: delivery?.arRef, sub: "Accounts Receivable", color: "#991b1b" },
+      };
+      const cfg = typeConfig[type];
+      document.getElementById("panelTitle").textContent = cfg.title || "—";
+      document.getElementById("panelSub").textContent = cfg.sub;
+      document.getElementById("panelHeader").style.background = cfg.color;
+
+      document.getElementById("panelBody").innerHTML = buildDocBody(type, row, delivery);
+      document.getElementById("modalOverlay").classList.add("open");
+    }
+
+    function infoRow(label, val) {
+      return `<div class="doc-info-item"><div class="di-label">${label}</div><div class="di-val">${val || "—"}</div></div>`;
+    }
+
+    // Items table — compact, no colgroup; widths set via th classes
+    function itemsTable(items, qtyLabel, qtyKey, showOriginal) {
+      const rows = items.map(item => {
+        const qty = item[qtyKey] ?? item.origQty;
+        const origQty = item.origQty;
+        const partial = showOriginal && qty < origQty;
+        const subtotal = qty * item.price;
+        return `<tr>
+        <td>
+          <div class="item-name" title="${item.name}">${item.name}</div>
+          <div class="item-sku">${item.sku}</div>
+        </td>
+        <td class="num">${origQty.toLocaleString("id-ID")}</td>
+        ${showOriginal ? `<td class="num">${qty.toLocaleString("id-ID")}${partial ? ` <span class="partial-badge">Partial</span>` : ""}</td>` : ""}
+        <td class="num">${fmtShort(item.price)}</td>
+        <td class="num">${fmtShort(subtotal)}</td>
+      </tr>`;
+      }).join("");
+      const total = items.reduce((s, i) => s + (i[qtyKey] ?? i.origQty) * i.price, 0);
+      // colspan = total cols - 1 (last col is the number)
+      const colSpan = showOriginal ? 4 : 3;
+      return `<table class="doc-table">
+      <thead><tr>
+        <th>Item</th>
+        <th class="num th-qty">Qty</th>
+        ${showOriginal ? `<th class="num th-qty">${qtyLabel}</th>` : ""}
+        <th class="num th-price">Price (Rp)</th>
+        <th class="num th-sub">Subtotal (Rp)</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <td colspan="${colSpan}" style="text-align:right;font-weight:700;">Total (Rp)</td>
+        <td class="num">${fmtShort(total)}</td>
+      </tr></tfoot>
+    </table>`;
+    }
+
+    function buildDocBody(type, row, delivery) {
+      const totalPO = row.items.reduce((s, i) => s + i.origQty * i.price, 0);
+
+      if (type === "po") {
+        return `<div class="doc-info-grid">
+        ${infoRow("PO Number", row.poRef)}
+        ${infoRow("PO Date", row.poDate)}
+        ${infoRow("Delivery Date", row.deliveryDate)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Total Amount", `<span style="font-size:15px;">${fmt(totalPO)}</span>`)}
+      </div>
+      <div class="doc-divider">Items</div>
+      ${itemsTable(row.items, "Qty", "origQty", false)}`;
+      }
+
+      if (type === "so") {
+        const soItems = row.approvedItems || row.items;
+        const totalSO = soItems.reduce((s, i) => s + (i.approvedQty || i.origQty) * i.price, 0);
+        return `<div class="doc-info-grid">
+        ${infoRow("SO Number", row.soRef)}
+        ${infoRow("SO Date", row.soDate)}
+        ${infoRow("Linked PO", row.poRef)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Total Amount", `<span style="font-size:15px;">${fmt(totalSO)}</span>`)}
+      </div>
+      <div class="doc-divider">Detail Items</div>
+      ${itemsTable(soItems.map((i, idx) => ({ ...row.items[idx], ...i })), "Approved Qty", "approvedQty", false)}`;
+      }
+
+      if (type === "do") {
+        if (!delivery) return "";
+        return `<div class="doc-info-grid">
+        ${infoRow("DO Number", delivery.doRef)}
+        ${infoRow("DO Date", delivery.doDate)}
+        ${infoRow("Linked SO", row.soRef)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Total Shipped", `<span style="font-size:15px;">${fmt(totalPO)}</span>`)}
+      </div>
+      <div class="doc-divider">Shipped Items</div>
+      ${itemsTable(row.items, "Shipped Qty", "origQty", false)}`;
+      }
+
+      if (type === "grpo") {
+        if (!delivery) return "";
+        const grpoItems = (delivery.grpoItems || row.items.map(i => ({ ...i, receivedQty: i.origQty })))
+          .map((g, idx) => ({ ...row.items[idx], receivedQty: g.receivedQty }));
+        const totalGRPO = grpoItems.reduce((s, i) => s + i.receivedQty * i.price, 0);
+        const partial = isDeliveryGrpoPartial(delivery, row.items);
+        return `<div class="doc-info-grid">
+        ${infoRow("GRPO Number", delivery.grpoRef)}
+        ${infoRow("GRPO Date", delivery.grpoDate)}
+        ${infoRow("Linked DO", delivery.doRef)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Total Received", `<span style="font-size:15px;">${fmt(totalGRPO)}</span>${partial ? ' <span class="partial-badge">Partial</span>' : ''}`)}
+      </div>
+      <div class="doc-divider">Received Items</div>
+      ${itemsTable(grpoItems, "Received Qty", "receivedQty", true)}`;
+      }
+
+      if (type === "ap") {
+        if (!delivery) return "";
+        const grpoItems = delivery.grpoItems || row.items.map(i => ({ ...i, receivedQty: i.origQty }));
+        const totalBase = grpoItems.reduce((s, i, idx) => s + (i.receivedQty || row.items[idx].origQty) * row.items[idx].price, 0);
+        const paid = delivery.apAmount || totalBase;
+        const partial = paid < totalBase;
+        return `<div class="doc-info-grid">
+        ${infoRow("AP Number", delivery.apRef)}
+        ${infoRow("AP Date", delivery.apDate)}
+        ${infoRow("Linked GRPO", delivery.grpoRef)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Total Invoice", fmt(totalBase))}
+        ${infoRow("Amount Paid", `<span style="font-size:15px;color:${partial ? "#d97706" : "#166534"};">${fmt(paid)}</span>${partial ? ' <span class="partial-badge">Partial</span>' : ''}`)}
+        ${partial ? infoRow("Outstanding", `<span style="color:#dc2626;">${fmt(totalBase - paid)}</span>`) : ""}
+      </div>
+      <div class="doc-divider">Reference Items</div>
+      ${itemsTable(row.items, "Qty", "origQty", false)}`;
+      }
+
+      if (type === "ar") {
+        if (!delivery) return "";
+        const grpoItems = delivery.grpoItems || row.items.map(i => ({ ...i, receivedQty: i.origQty }));
+        const totalBase = grpoItems.reduce((s, i, idx) => s + (i.receivedQty || row.items[idx].origQty) * row.items[idx].price, 0);
+        const received = delivery.arAmount || totalBase;
+        const partial = received < totalBase;
+        return `<div class="doc-info-grid">
+        ${infoRow("AR Number", delivery.arRef)}
+        ${infoRow("AR Date", delivery.arDate)}
+        ${infoRow("Linked AP", delivery.apRef)}
+        ${infoRow("Vendor", row.vendorName)}
+        ${infoRow("Customer", row.customer)}
+        ${infoRow("Total Invoice", fmt(totalBase))}
+        ${infoRow("Amount Received", `<span style="font-size:15px;color:${partial ? "#d97706" : "#166534"};">${fmt(received)}</span>${partial ? ' <span class="partial-badge">Partial</span>' : ''}`)}
+        ${partial ? infoRow("Outstanding", `<span style="color:#dc2626;">${fmt(totalBase - received)}</span>`) : ""}
+      </div>
+      <div class="doc-divider">Reference Items</div>
+      ${itemsTable(row.items, "Qty", "origQty", false)}`;
+      }
+
+      return "";
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById("modalOverlay")) closePanel();
+    }
+
+    function closePanel() {
+      document.getElementById("modalOverlay").classList.remove("open");
+    }
+  </script>
+</body>
+
+</html>

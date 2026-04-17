@@ -25,8 +25,9 @@ class SidebarSystem {
         const allItems = [
             { id: "forecast_dashboard", label: "Dashboard",           icon: "bi-speedometer2",    url: "forecast_dashboard.html",             roles: ["customer", "vendor", "super_admin"] },
             { id: "forecast",           label: "Forecast",           icon: "bi-graph-up-arrow",  url: "customer_ForecastList.html",            roles: ["customer", "super_admin"] },
-            { id: "orders",             label: "Order List",         icon: "bi-list-ul",         url: "customer_orders.html",                  roles: ["customer", "super_admin"] },
-            { id: "incoming_po",        label: "Order Confirmation", icon: "bi-check2-square",   url: "vendor_incoming_po_list.html",          roles: ["vendor", "super_admin"] },
+            { id: "orders",             label: "Purchase Order",     icon: "bi-list-ul",         url: "customer_orders.html",                  roles: ["customer", "super_admin"] },
+            { id: "incoming_po",        label: "Sales Order",        icon: "bi-check2-square",   url: "vendor_incoming_po_list.html",          roles: ["vendor", "super_admin"] },
+            { id: "po_so_monitor",      label: "Transaction Monitoring", icon: "bi-arrow-left-right", url: "po_so_monitor.html",                roles: ["customer", "vendor", "super_admin"] },
             { id: "settings",           label: "Settings",           icon: "bi-gear",            url: "admin_settings.html",                   roles: ["admin", "super_admin"] },
         ];
 

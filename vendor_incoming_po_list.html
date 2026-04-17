@@ -1210,6 +1210,51 @@
                 return { ...po, status: override.status || po.status, whse: override.whse || po.whse };
             });
 
+            // Merge customer-created orders from customer_orders.html
+            const custOrders = JSON.parse(localStorage.getItem("IBOCS_customer_orders") || "[]");
+            const custLines  = JSON.parse(localStorage.getItem("IBOCS_customer_order_lines") || "{}");
+            const demoRefs   = new Set(DEMO_INCOMING_PO.map(p => p.poRef));
+
+            custOrders.forEach(ord => {
+                if (demoRefs.has(ord.no)) return; // already in demo data
+                const lines = custLines[ord.no] || [];
+                if (!lines.length) return;
+
+                // Determine which vendor(s) the items belong to
+                const sicItems = lines.filter(it => it.sku && it.sku.startsWith("FEED-"));
+                const ctuItems = lines.filter(it => it.sku && it.sku.startsWith("DOC-"));
+
+                const buildEntry = (vendorName, items) => {
+                    if (!items.length) return;
+                    const override = stored[ord.no] || {};
+                    list.push({
+                        poRef:        ord.no,
+                        poDate:       ord.date || ord.createdAt?.slice(0, 10) || "",
+                        deliveryDate: ord.deliveryDate || "",
+                        customer:     ord.customerName || ord.customer || "",
+                        contact:      ord.contact || "",
+                        address:      ord.address  || "",
+                        notes:        ord.notes    || "",
+                        vendorName:   vendorName,
+                        status:       override.status || "Open",
+                        whse:         override.whse   || ord.warehouse || "",
+                        items:        items.map(it => ({
+                            sku:     it.sku,
+                            name:    it.name,
+                            origQty: it.qty,
+                            price:   it.price
+                        }))
+                    });
+                };
+
+                buildEntry("SIC", sicItems);
+                buildEntry("CTU", ctuItems);
+
+                // Fallback: items with unknown SKU prefix go to whichever vendor is logged in
+                const otherItems = lines.filter(it => !it.sku?.startsWith("FEED-") && !it.sku?.startsWith("DOC-"));
+                if (otherItems.length) buildEntry(SESSION_VENDOR_CODE || "SIC", otherItems);
+            });
+
             // Scope to logged-in vendor if vendorCode is set (SIC only sees SIC, CTU only CTU)
             if (SESSION_VENDOR_CODE) {
                 list = list.filter(po => po.vendorName === SESSION_VENDOR_CODE);

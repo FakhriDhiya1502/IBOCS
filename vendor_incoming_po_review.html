@@ -770,18 +770,53 @@
             document.getElementById("confirmModal").classList.remove("open");
         }
 
+        function generateSORef() {
+            const now = new Date();
+            const ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, "0");
+            const soData = JSON.parse(localStorage.getItem("IBOCS_so_data") || "{}");
+            const existing = Object.values(soData).filter(s => s.soRef && s.soRef.startsWith("SO-" + ym));
+            const seq = String(existing.length + 1).padStart(3, "0");
+            return "SO-" + ym + "-" + seq;
+        }
+
         function finalConfirm() {
             if (currentPO) {
                 const whse = document.getElementById("infoWhseSelect").value;
+                const notes = document.getElementById("distNotes").value.trim();
+                const soRef = generateSORef();
+                const soDate = new Date().toISOString().slice(0, 10);
+
+                // Update PO status
                 const stored = JSON.parse(localStorage.getItem(LS_VENDOR_ORDERS) || "{}");
                 stored[currentPO.poRef] = stored[currentPO.poRef] || {};
                 stored[currentPO.poRef].status = "Closed";
                 stored[currentPO.poRef].whse = whse;
+                stored[currentPO.poRef].soRef = soRef;
+                stored[currentPO.poRef].soDate = soDate;
                 localStorage.setItem(LS_VENDOR_ORDERS, JSON.stringify(stored));
+
+                // Save SO record
+                const soData = JSON.parse(localStorage.getItem("IBOCS_so_data") || "{}");
+                soData[soRef] = {
+                    soRef,
+                    soDate,
+                    poRef: currentPO.poRef,
+                    poDate: currentPO.poDate,
+                    customer: currentPO.customer,
+                    vendorName: currentPO.vendorName,
+                    whse,
+                    notes,
+                    items: currentPO.items.map((item, i) => ({
+                        ...item,
+                        approvedQty: parseInt(document.getElementById(`approvedQty-${i}`)?.value) || 0
+                    }))
+                };
+                localStorage.setItem("IBOCS_so_data", JSON.stringify(soData));
+
+                closeConfirmModal();
+                alert(`Sales Order generated successfully!\n\n${soRef} has been created.`);
+                window.location.href = "vendor_incoming_po_list.html";
             }
-            closeConfirmModal();
-            alert("Sales Order generated successfully!\n\nSO-202604-XXXX has been created.\n(Wire up backend logic here)");
-            window.location.href = "vendor_incoming_po_list.html";
         }
 
         function rejectPO() {
